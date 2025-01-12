@@ -15,13 +15,13 @@ const RoleBasedRedirect = () => {
         try {
             const decoded = jwtDecode(token);
             console.log('Decoded token:', decoded);
-            const role = decoded.roles[0]; // Ajusta según tu estructura de roles
+            const role = decoded.role; // Ajusta según tu estructura de roles
 
             // Redirige según el rol
             if (role === 'ADMIN') {
                 navigate('/admin-dashboard');
-            } else if (role === 'USER') {
-                navigate('/user-dashboard');
+            } else if (role === 'CLIENT') {
+                navigate('/client-dashboard');
             } else {
                 navigate('/login'); // Redirige a login si el rol no es reconocido
             }
