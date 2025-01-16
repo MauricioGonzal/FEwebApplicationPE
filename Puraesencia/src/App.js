@@ -6,6 +6,7 @@ import CreateRoutine from './pages/CreateRoutine';
 import Login from './pages/Login';
 import ClientDashboard from './pages/ClientDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import TrainerDashboard from './pages/TrainerDashboard';
 import PrivateRoute from './components/PrivateRoute';
 import RoleBasedRedirect from './components/RoleBasedRedirect ';
 
@@ -19,6 +20,7 @@ function App() {
         <Route path="/" element={<RoleBasedRedirect />} /> {/* Redirige según el rol */}
         <Route path="/admin-dashboard" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
         <Route path="/client-dashboard" element={<PrivateRoute><ClientDashboard /></PrivateRoute>} />
+        <Route path="/trainer-dashboard" element={<PrivateRoute><TrainerDashboard /></PrivateRoute>} />
       </Routes>
     </Router>
   );
