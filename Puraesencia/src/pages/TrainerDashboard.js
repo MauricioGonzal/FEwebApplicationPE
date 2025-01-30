@@ -14,9 +14,24 @@ const TrainerDashboard = () => {
         const decoded = jwtDecode(token);
         api.get('/users/' + decoded.sub) // Cambia la URL según tu API
             .then((response) => {
-                console.log(response.data);
+                //console.log(response.data);
                 setTrainerData(response.data);
                 //setStudents(response.data.students);
+                setLoading(false);
+            })
+            .catch((error) => console.error("Error al cargar los datos:", error));
+    }, []);
+
+    useEffect(() => {
+        // Simulación: Fetch de datos del entrenador
+        const token = localStorage.getItem('token');
+        const decoded = jwtDecode(token);
+        //console.log(decoded);
+        api.get('/users/' + decoded.id + '/clients') // Cambia la URL según tu API
+            .then((response) => {
+                //console.log(response.data);
+                //setTrainerData(response.data);
+                setStudents(response.data);
                 setLoading(false);
             })
             .catch((error) => console.error("Error al cargar los datos:", error));
@@ -114,13 +129,13 @@ const TrainerDashboard = () => {
                                 <tbody>
                                     {students.map((student) => (
                                         <tr key={student.id}>
-                                            <td>{student.name}</td>
+                                            <td>{student.firstName} {student.lastName}</td>
                                             <td>{student.email}</td>
                                             <td>{student.phone}</td>
                                             <td>
                                                 <button
                                                     className="btn btn-primary btn-sm"
-                                                    onClick={() => alert(`Mostrando rutina para ${student.name}`)}
+                                                    onClick={() => alert(`Mostrando rutina para ${student.firstName}`)}
                                                 >
                                                     Ver Rutina
                                                 </button>
