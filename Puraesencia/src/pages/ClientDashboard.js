@@ -2,8 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Navbar, Nav } from 'react-bootstrap';
 import api from '../Api'; // Archivo de configuración de Axios
 import jwtDecode from 'jwt-decode';
+import { logout } from './Logout';
+import { useNavigate } from "react-router-dom";
 
 const ClientDashboard = () => {
+    const navigate = useNavigate();
     const [routine, setRoutine] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -72,7 +75,7 @@ const ClientDashboard = () => {
                             <Nav.Link href="#routine">Ver Rutina</Nav.Link>
                             <Nav.Link href="#profile">Datos Personales</Nav.Link>
                             <Nav.Link href="#trainer">Mi Entrenador</Nav.Link>
-                            <Nav.Link href="#logout">Cerrar Sesión</Nav.Link>
+                            <Nav.Link onClick={() => logout(navigate)}>Cerrar Sesión</Nav.Link>
                         </Nav>
                     </Col>
 

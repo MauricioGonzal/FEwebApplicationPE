@@ -9,11 +9,13 @@ import AdminDashboard from './pages/AdminDashboard';
 import TrainerDashboard from './pages/TrainerDashboard';
 import PrivateRoute from './components/PrivateRoute';
 import RoleBasedRedirect from './components/RoleBasedRedirect ';
+import ProtectedLayout from "./components/ProtectedLayout";
 
 function App() {
   return (
     <Router>
       <Routes>
+        <Route element={<ProtectedLayout />}>
         <Route path="/routines" element={<Routines />} />
         <Route path="/create-routine" element={<CreateRoutine />} />
         <Route path="/login" element={<Login />} />
@@ -21,6 +23,7 @@ function App() {
         <Route path="/admin-dashboard" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
         <Route path="/client-dashboard" element={<PrivateRoute><ClientDashboard /></PrivateRoute>} />
         <Route path="/trainer-dashboard" element={<PrivateRoute><TrainerDashboard /></PrivateRoute>} />
+        </Route>
       </Routes>
     </Router>
   );
