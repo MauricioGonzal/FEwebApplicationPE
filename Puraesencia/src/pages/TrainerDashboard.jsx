@@ -11,20 +11,18 @@ const TrainerDashboard = () => {
 
     const [trainerData, setTrainerData] = useState({});
     const [students, setStudents] = useState([]);
+    const [allStudents, setAllStudents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [exercises, setExercises] = useState([]);
     const [selectedExercises, setSelectedExercises] = useState([]);
     const [routineName, setRoutineName] = useState('');
 
     useEffect(() => {
-        // Simulación: Fetch de datos del entrenador
         const token = localStorage.getItem('token');
         const decoded = jwtDecode(token);
         api.get('/users/' + decoded.sub) // Cambia la URL según tu API
             .then((response) => {
-                //console.log(response.data);
                 setTrainerData(response.data);
-                //setStudents(response.data.students);
                 setLoading(false);
             })
             .catch((error) => console.error("Error al cargar los datos:", error));
@@ -37,13 +35,22 @@ const TrainerDashboard = () => {
         //console.log(decoded);
         api.get('/users/' + decoded.id + '/clients') // Cambia la URL según tu API
             .then((response) => {
-                //console.log(response.data);
-                //setTrainerData(response.data);
                 setStudents(response.data);
                 setLoading(false);
             })
             .catch((error) => console.error("Error al cargar los datos:", error));
     }, []);
+
+    useEffect(() => {
+        api.get('/users/getAllByRole/client') // Cambia la URL según tu API
+            .then((response) => {
+                console.log(response);
+                setAllStudents(response.data);
+                setLoading(false);
+            })
+            .catch((error) => console.error("Error al cargar los datos:", error));
+    }, []);
+
 
     useEffect(() => {
         api.get('/exercises') // Cambia la URL según tu API
@@ -92,67 +99,25 @@ const TrainerDashboard = () => {
             {/* Navbar */}
             <nav className="navbar navbar-expand-lg navbar-light bg-light mb-4">
                 <div className="container">
-                        <img src="/logo.png" alt="Pura Esencia" width="30" height="30" className="d-inline-block align-top" />
-                        Trainer
-                    
-                    <div className="ml-auto">
-                        <span className="navbar-text mr-3">
-                            Bienvenido, {trainerData.firstName}
-                        </span>
-                        <button className="btn btn-danger btn-sm" onClick={() => logout(navigate)}>Cerrar Sesión</button>
-                        <button className="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#createRoutineModal">
-                            Crear Nueva Rutina
+                    <div className="dropdown ms-auto">
+                        <button className="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="./puraesencia.png" alt="Pura Esencia" width="30" height="30" className="d-inline-block align-top" />
                         </button>
+                        <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <li><button className="dropdown-item" onClick={() => navigate('/perfil')}>Perfil</button></li>
+                            <li><button className="dropdown-item" data-bs-toggle="modal" data-bs-target="#createRoutineModal">Crear Nueva Rutina</button></li>
+                            <li><button className="dropdown-item text-danger" onClick={() => logout(navigate)}>Cerrar Sesión</button></li>
+                        </ul>
                     </div>
                 </div>
             </nav>
 
-            {/* Datos personales */}
-            <div className="row mb-4">
-                <div className="col-md-4">
-                    <div className="card">
-                        <div className="card-header bg-primary text-white">
-                            <h5>Datos Personales</h5>
-                        </div>
-                        <div className="card-body">
-                            <p><strong>Nombre:</strong> {trainerData.firstName} {trainerData.lastName}</p>
-                            <p><strong>Email:</strong> {trainerData.email}</p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Opcional: Estadísticas */}
-                <div className="col-md-8">
-                    <div className="card">
-                        <div className="card-header bg-info text-white">
-                            <h5>Estadísticas del Entrenador</h5>
-                        </div>
-                        <div className="card-body">
-                            <div className="row">
-                                <div className="col-md-4 text-center">
-                                    <h3>{students.length}</h3>
-                                    <p>Alumnos</p>
-                                </div>
-                                <div className="col-md-4 text-center">
-                                    <h3>{trainerData.totalRoutines}</h3>
-                                    <p>Rutinas Creadas</p>
-                                </div>
-                                <div className="col-md-4 text-center">
-                                    <h3>{trainerData.experienceYears}</h3>
-                                    <p>Años de Experiencia</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Lista de alumnos */}
+            {/* Mis alumnos */}
             <div className="row mb-4">
                 <div className="col-md-12">
                     <div className="card">
                         <div className="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                            <h5>Lista de Alumnos</h5>
+                            <h5>Mis Alumnos</h5>
                             <input
                                 type="text"
                                 className="form-control form-control-sm w-25"
@@ -170,8 +135,6 @@ const TrainerDashboard = () => {
                                 <thead>
                                     <tr>
                                         <th>Nombre</th>
-                                        <th>Email</th>
-                                        <th>Teléfono</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
@@ -179,12 +142,56 @@ const TrainerDashboard = () => {
                                     {students.map((student) => (
                                         <tr key={student.id}>
                                             <td>{student.firstName} {student.lastName}</td>
-                                            <td>{student.email}</td>
-                                            <td>{student.phone}</td>
                                             <td>
                                                 <button
                                                     className="btn btn-primary btn-sm"
-                                                    onClick={() => alert(`Mostrando rutina para ${student.firstName}`)}
+                                                    onClick={() => navigate(`/edit-routine/${student.id}`)}
+                                                >
+                                                    Ver Rutina
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {/* Lista de alumnos */}
+            <div className="row mb-4">
+                <div className="col-md-12">
+                    <div className="card">
+                        <div className="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                            <h5>Lista de alumnos</h5>
+                            <input
+                                type="text"
+                                className="form-control form-control-sm w-25"
+                                placeholder="Buscar alumno..."
+                                onChange={(e) => {
+                                    const query = e.target.value.toLowerCase();
+                                    setAllStudents(trainerData.students.filter(student =>
+                                        student.name.toLowerCase().includes(query)
+                                    ));
+                                }}
+                            />
+                        </div>
+                        <div className="card-body">
+                            <table className="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {allStudents.map((student) => (
+                                        <tr key={student.id}>
+                                            <td>{student.firstName} {student.lastName}</td>
+                                            <td>
+                                                <button
+                                                    className="btn btn-primary btn-sm"
+                                                    onClick={() => navigate(`/edit-routine/${student.id}`)}
                                                 >
                                                     Ver Rutina
                                                 </button>
@@ -235,7 +242,7 @@ const TrainerDashboard = () => {
 
             {/* Footer */}
             <footer className="text-center py-3 bg-light">
-                <small>© 2025 Gimnasio Dashboard. Todos los derechos reservados.</small>
+                <small>© 2025 Pura Esencia. Todos los derechos reservados.</small>
             </footer>
         </div>
     );

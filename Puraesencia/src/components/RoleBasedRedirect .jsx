@@ -23,7 +23,7 @@ const RoleBasedRedirect = () => {
             } else if (role === 'CLIENT') {
                 navigate('/client-dashboard');
             }
-            else if(role == 'TRAINER'){
+            else if(role === 'TRAINER'){
                 navigate('/trainer-dashboard')
             } else {
                 navigate('/login'); // Redirige a login si el rol no es reconocido

@@ -10,6 +10,7 @@ import TrainerDashboard from './pages/TrainerDashboard';
 import PrivateRoute from './components/PrivateRoute';
 import RoleBasedRedirect from './components/RoleBasedRedirect ';
 import ProtectedLayout from "./components/ProtectedLayout";
+import EditRoutine from './pages/EditRoutine';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/admin-dashboard" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
         <Route path="/client-dashboard" element={<PrivateRoute><ClientDashboard /></PrivateRoute>} />
         <Route path="/trainer-dashboard" element={<PrivateRoute><TrainerDashboard /></PrivateRoute>} />
+        <Route path="/edit-routine/:id" element={<PrivateRoute><EditRoutine /></PrivateRoute>} />
         </Route>
       </Routes>
     </Router>
