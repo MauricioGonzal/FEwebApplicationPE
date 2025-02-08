@@ -1,68 +1,105 @@
-import React, { useState } from 'react';
-import api from '../Api'; // Asegúrate de tener configurada esta instancia de Axios
+import { useState } from "react";
 
-const CreateRoutine = () => {
-    const [name, setName] = useState('');
-    const [exerciseIds, setExerciseIds] = useState('');
-  
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-  
-      // Convertir los IDs en un array de números
-      const ids = exerciseIds.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
-  
-      // Verificar que los IDs son válidos
-      if (ids.length === 0) {
-        alert('Por favor, ingrese al menos un ID de ejercicio válido.');
-        return;
-      }
-  
-      try {
-        // Realizar la solicitud POST al backend con los datos correctos
-        const response = await api.post('/routines/create', 
-          {
-            name: name, 
-            exerciseIds: ids
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-              'Content-Type': 'application/json',
-            },
-            withCredentials: true
-          }
-        );
-        alert('Rutina creada con éxito!');
-        console.log(response.data);
-      } catch (error) {
-        console.error('Error creando la rutina:', error);
-        alert('No autorizado o error en la creación.');
-      }
-    };
-  
-    return (
-      <form onSubmit={handleSubmit}>
-        <label>
-          Nombre de la rutina:
-          <input 
-            type="text" 
-            value={name} 
-            onChange={(e) => setName(e.target.value)} 
-          />
-        </label>
-        <br />
-        <label>
-          IDs de ejercicios (separados por coma):
-          <input 
-            type="text" 
-            value={exerciseIds} 
-            onChange={(e) => setExerciseIds(e.target.value)} 
-          />
-        </label>
-        <br />
-        <button type="submit">Crear Rutina</button>
-      </form>
-    );
+const RoutineForm = ({ exercises, onSubmit }) => {
+  const [routineName, setRoutineName] = useState("");
+  const [routineDescription, setRoutineDescription] = useState("");
+  const [schedule, setSchedule] = useState({});
+
+  const handleAddDay = (day) => {
+    setSchedule((prev) => ({
+      ...prev,
+      [day]: prev[day] || [], // Si ya existe, no lo duplica
+    }));
   };
-  
-  export default CreateRoutine;
+
+  const handleAddExercise = (day) => {
+    setSchedule((prev) => ({
+      ...prev,
+      [day]: [...prev[day], { exerciseId: "", series: "", repetitions: "" }],
+    }));
+  };
+
+  const handleChangeExercise = (day, index, field, value) => {
+    const updatedExercises = [...schedule[day]];
+    updatedExercises[index][field] = value;
+    setSchedule((prev) => ({ ...prev, [day]: updatedExercises }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log(schedule);
+    onSubmit({ name: routineName, description: routineDescription, schedule });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        placeholder="Título"
+        value={routineName}
+        onChange={(e) => setRoutineName(e.target.value)}
+      />
+      <input
+        type="text"
+        placeholder="Descripción"
+        value={routineDescription}
+        onChange={(e) => setRoutineDescription(e.target.value)}
+      />
+
+      <div>
+        <h3>Días</h3>
+        {["1", "2", "3", "4", "5", "6", "7"].map((day) => (
+          <button type="button" key={day} onClick={() => handleAddDay(day)}>
+            {day}
+          </button>
+        ))}
+      </div>
+
+      {Object.keys(schedule).map((day) => (
+        <div key={day}>
+          <h4>{day}</h4>
+          {schedule[day].map((exercise, index) => (
+            <div key={index}>
+              <select
+                value={exercise.exerciseId}
+                onChange={(e) =>
+                  handleChangeExercise(day, index, "exerciseId", e.target.value)
+                }
+              >
+                <option value="">Seleccionar ejercicio</option>
+                {exercises.map((ex) => (
+                  <option key={ex.id} value={ex.id}>
+                    {ex.name}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="number"
+                placeholder="Series"
+                value={exercise.series}
+                onChange={(e) =>
+                  handleChangeExercise(day, index, "series", e.target.value)
+                }
+              />
+              <input
+                type="number"
+                placeholder="Repeticiones"
+                value={exercise.repetitions}
+                onChange={(e) =>
+                  handleChangeExercise(day, index, "repetitions", e.target.value)
+                }
+              />
+            </div>
+          ))}
+          <button type="button" onClick={() => handleAddExercise(day)}>
+            Agregar ejercicio
+          </button>
+        </div>
+      ))}
+
+      <button type="submit">Guardar Rutina</button>
+    </form>
+  );
+};
+
+export default RoutineForm;

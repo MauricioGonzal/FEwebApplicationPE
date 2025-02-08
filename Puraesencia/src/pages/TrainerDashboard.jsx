@@ -5,6 +5,7 @@ import api from '../Api';
 import { logout } from "./Logout";
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import RoutineForm from "./CreateRoutine";
 
 const TrainerDashboard = () => {
     const navigate = useNavigate();
@@ -14,8 +15,6 @@ const TrainerDashboard = () => {
     const [allStudents, setAllStudents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [exercises, setExercises] = useState([]);
-    const [selectedExercises, setSelectedExercises] = useState([]);
-    const [routineName, setRoutineName] = useState('');
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -32,7 +31,6 @@ const TrainerDashboard = () => {
         // Simulación: Fetch de datos del entrenador
         const token = localStorage.getItem('token');
         const decoded = jwtDecode(token);
-        //console.log(decoded);
         api.get('/users/' + decoded.id + '/clients') // Cambia la URL según tu API
             .then((response) => {
                 setStudents(response.data);
@@ -44,49 +42,34 @@ const TrainerDashboard = () => {
     useEffect(() => {
         api.get('/users/getAllByRole/client') // Cambia la URL según tu API
             .then((response) => {
-                console.log(response);
+                console.log(response.data);
                 setAllStudents(response.data);
                 setLoading(false);
             })
             .catch((error) => console.error("Error al cargar los datos:", error));
     }, []);
 
+      // Obtener ejercicios desde el backend
+  useEffect(() => {
+    api
+      .get("/exercises")  // Asegúrate de que esta sea la URL correcta de tu API
+      .then((response) => {
+        setExercises(response.data); // Asumiendo que la respuesta es un array de ejercicios
+        setLoading(false); // Desactivar el estado de carga
+      })
+      .catch((error) => {
+        console.error("Error al obtener los ejercicios", error);
+        setLoading(false); // De todas formas desactivamos el estado de carga en caso de error
+      });
+  }, []); // Este efecto se ejecuta solo una vez al cargar el componente
 
-    useEffect(() => {
-        api.get('/exercises') // Cambia la URL según tu API
-            .then((response) => {
-                setExercises(response.data);
-            })
-            .catch((error) => console.error("Error al cargar los ejercicios:", error));
-    }, []);
 
-    const handleExerciseSelection = (exercise) => {
-        setSelectedExercises((prevSelected) => {
-            if (prevSelected.includes(exercise)) {
-                return prevSelected.filter((e) => e.id !== exercise.id);
-            } else {
-                return [...prevSelected, exercise];
-            }
-        });
-    };
-
-    const handleRoutineName = (event) => {
-        setRoutineName(event.target.value);
-      };
-
-    const handleRoutineSubmit = (event) => {
-        event.preventDefault();
-        console.log("Ejercicios seleccionados:", selectedExercises);
-        // Aquí puedes enviar los datos de la rutina a la API
-        var aux = [];
-
-        selectedExercises.forEach(element => {
-            aux.push(element.id);
-        }); 
-
-        api.post('/routines/create', {
-            name: routineName,
-            exerciseIds: aux
+    const handleRoutineSubmit = (data) => {
+        api.post('/routines', {
+            title: data.name,
+            description: data.description,
+            isCustom: false,
+            exercises: data.schedule
           });
     };
 
@@ -141,7 +124,7 @@ const TrainerDashboard = () => {
                                 <tbody>
                                     {students.map((student) => (
                                         <tr key={student.id}>
-                                            <td>{student.firstName} {student.lastName}</td>
+                                            <td>{student.fullName}</td>
                                             <td>
                                                 <button
                                                     className="btn btn-primary btn-sm"
@@ -187,14 +170,32 @@ const TrainerDashboard = () => {
                                 <tbody>
                                     {allStudents.map((student) => (
                                         <tr key={student.id}>
-                                            <td>{student.firstName} {student.lastName}</td>
+                                            <td>{student.fullName}</td>
                                             <td>
+                                            {student.routine !== null ? (
                                                 <button
                                                     className="btn btn-primary btn-sm"
                                                     onClick={() => navigate(`/edit-routine/${student.id}`)}
                                                 >
                                                     Ver Rutina
                                                 </button>
+                                            ) : (
+                                                <>
+                                                <button
+                                                    className="btn btn-success btn-sm me-2"
+                                                    onClick={() => navigate(`/assign-routine/${student.id}`)}
+                                                >
+                                                    Asignar Rutina
+                                                </button>
+                                                <button
+                                                    className="btn btn-secondary btn-sm"
+                                                    onClick={() => console.log(`Opción extra para ${student.fullName}`)}
+                                                >
+                                                    Crear Rutina Personalizada
+                                                </button>
+                                                </> // Texto alternativo si no tiene rutina
+                                                
+                                            )}
                                             </td>
                                         </tr>
                                     ))}
@@ -205,36 +206,14 @@ const TrainerDashboard = () => {
                 </div>
             </div>
             <div className="modal fade" id="createRoutineModal" tabIndex="-1" aria-labelledby="createRoutineModalLabel" aria-hidden="true">
-                <div className="modal-dialog">
+                            <div className="modal-dialog">
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title" id="createRoutineModalLabel">Crear Nueva Rutina</h5>
                             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                         </div>
                         <div className="modal-body">
-                        <form onSubmit={handleRoutineSubmit}>
-                                <div className="mb-3">
-                                    <label className="form-label">Nombre de la Rutina</label>
-                                    <input type="text" value={routineName} onChange={handleRoutineName} className="form-control" required />
-                                </div>
-
-                                <div className="mb-3">
-                                    <label className="form-label">Seleccionar Ejercicios</label>
-                                    <ul className="list-group">
-                                        {exercises.map((exercise) => (
-                                            <li key={exercise.id} className="list-group-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    className="form-check-input me-2"
-                                                    onChange={() => handleExerciseSelection(exercise)}
-                                                />
-                                                {exercise.name}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <button type="submit" className="btn btn-primary" data-bs-dismiss="modal">Guardar Rutina</button>
-                            </form>
+                            <RoutineForm exercises={exercises} onSubmit={handleRoutineSubmit} />
                         </div>
                     </div>
                 </div>

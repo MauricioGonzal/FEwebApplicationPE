@@ -11,6 +11,8 @@ import PrivateRoute from './components/PrivateRoute';
 import RoleBasedRedirect from './components/RoleBasedRedirect ';
 import ProtectedLayout from "./components/ProtectedLayout";
 import EditRoutine from './pages/EditRoutine';
+import StudentRow from './pages/AssignNoCustomRoutine';
+
 
 function App() {
   return (
@@ -25,6 +27,7 @@ function App() {
         <Route path="/client-dashboard" element={<PrivateRoute><ClientDashboard /></PrivateRoute>} />
         <Route path="/trainer-dashboard" element={<PrivateRoute><TrainerDashboard /></PrivateRoute>} />
         <Route path="/edit-routine/:id" element={<PrivateRoute><EditRoutine /></PrivateRoute>} />
+        <Route path="/assign-routine/:id" element={<PrivateRoute><StudentRow /></PrivateRoute>} />
         </Route>
       </Routes>
     </Router>
