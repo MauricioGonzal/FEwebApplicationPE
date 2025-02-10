@@ -5,18 +5,20 @@ import api from '../Api';
 import { logout } from "./Logout";
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import RoutineForm from "./CreateRoutine";
 
 const TrainerDashboard = () => {
     const navigate = useNavigate();
 
-    const [trainerData, setTrainerData] = useState({});
+    //const [trainerData, setTrainerData] = useState({});
     const [students, setStudents] = useState([]);
-    const [allStudents, setAllStudents] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [exercises, setExercises] = useState([]);
+    const [filteredStudents, setFilteredStudents] = useState([]); // Nueva variable para la búsqueda
 
-    useEffect(() => {
+    const [allStudents, setAllStudents] = useState([]);
+    const [filteredAllStudents, setFilteredAllStudents] = useState([]); // Nueva variable para la búsqueda
+
+    const [loading, setLoading] = useState(true);
+
+    /*useEffect(() => {
         const token = localStorage.getItem('token');
         const decoded = jwtDecode(token);
         api.get('/users/' + decoded.sub) // Cambia la URL según tu API
@@ -25,7 +27,7 @@ const TrainerDashboard = () => {
                 setLoading(false);
             })
             .catch((error) => console.error("Error al cargar los datos:", error));
-    }, []);
+    }, []);*/
 
     useEffect(() => {
         // Simulación: Fetch de datos del entrenador
@@ -34,6 +36,7 @@ const TrainerDashboard = () => {
         api.get('/users/' + decoded.id + '/clients') // Cambia la URL según tu API
             .then((response) => {
                 setStudents(response.data);
+                setFilteredStudents(response.data); // Inicializa la búsqueda con todos los datos
                 setLoading(false);
             })
             .catch((error) => console.error("Error al cargar los datos:", error));
@@ -42,36 +45,12 @@ const TrainerDashboard = () => {
     useEffect(() => {
         api.get('/users/getAllByRole/client') // Cambia la URL según tu API
             .then((response) => {
-                console.log(response.data);
                 setAllStudents(response.data);
+                setFilteredAllStudents(response.data); // Inicializa la búsqueda con todos los datos
                 setLoading(false);
             })
             .catch((error) => console.error("Error al cargar los datos:", error));
     }, []);
-
-      // Obtener ejercicios desde el backend
-  useEffect(() => {
-    api
-      .get("/exercises")  // Asegúrate de que esta sea la URL correcta de tu API
-      .then((response) => {
-        setExercises(response.data); // Asumiendo que la respuesta es un array de ejercicios
-        setLoading(false); // Desactivar el estado de carga
-      })
-      .catch((error) => {
-        console.error("Error al obtener los ejercicios", error);
-        setLoading(false); // De todas formas desactivamos el estado de carga en caso de error
-      });
-  }, []); // Este efecto se ejecuta solo una vez al cargar el componente
-
-
-    const handleRoutineSubmit = (data) => {
-        api.post('/routines', {
-            title: data.name,
-            description: data.description,
-            isCustom: false,
-            exercises: data.schedule
-          });
-    };
 
     if (loading) {
         return <div className="text-center mt-5"><h4>Cargando datos...</h4></div>;
@@ -88,7 +67,7 @@ const TrainerDashboard = () => {
                         </button>
                         <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                             <li><button className="dropdown-item" onClick={() => navigate('/perfil')}>Perfil</button></li>
-                            <li><button className="dropdown-item" data-bs-toggle="modal" data-bs-target="#createRoutineModal">Crear Nueva Rutina</button></li>
+                            <li><button className="dropdown-item" onClick={() => navigate('/create-routine/0')}>Crear Nueva Rutina</button></li>
                             <li><button className="dropdown-item text-danger" onClick={() => logout(navigate)}>Cerrar Sesión</button></li>
                         </ul>
                     </div>
@@ -107,9 +86,13 @@ const TrainerDashboard = () => {
                                 placeholder="Buscar alumno..."
                                 onChange={(e) => {
                                     const query = e.target.value.toLowerCase();
-                                    setStudents(trainerData.students.filter(student =>
-                                        student.name.toLowerCase().includes(query)
-                                    ));
+                                    if (query === "") {
+                                        setFilteredStudents([...students]); // Restaurar lista completa
+                                    } else {
+                                        setFilteredStudents(students.filter(student =>
+                                            student.fullName.toLowerCase().includes(query)
+                                        ));
+                                    }
                                 }}
                             />
                         </div>
@@ -122,18 +105,36 @@ const TrainerDashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {students.map((student) => (
+                                    {filteredStudents.map((student) => (
                                         <tr key={student.id}>
-                                            <td>{student.fullName}</td>
-                                            <td>
-                                                <button
-                                                    className="btn btn-primary btn-sm"
-                                                    onClick={() => navigate(`/edit-routine/${student.id}`)}
-                                                >
-                                                    Ver Rutina
-                                                </button>
-                                            </td>
-                                        </tr>
+                                        <td>{student.fullName}</td>
+                                        <td>
+                                        {student.routine !== null ? (
+                                            <button
+                                                className="btn btn-primary btn-sm"
+                                                onClick={() => navigate(`/edit-routine/${student.id}`)}
+                                            >
+                                                Ver Rutina
+                                            </button>
+                                        ) : (
+                                            <>
+                                            <button
+                                                className="btn btn-success btn-sm me-2"
+                                                onClick={() => navigate(`/assign-routine/${student.id}`)}
+                                            >
+                                                Asignar Rutina
+                                            </button>
+                                            <button
+                                                className="btn btn-secondary btn-sm"
+                                                onClick={() => console.log(`Opción extra para ${student.fullName}`)}
+                                            >
+                                                Crear Rutina Personalizada
+                                            </button>
+                                            </> // Texto alternativo si no tiene rutina
+                                            
+                                        )}
+                                        </td>
+                                    </tr>
                                     ))}
                                 </tbody>
                             </table>
@@ -153,9 +154,13 @@ const TrainerDashboard = () => {
                                 placeholder="Buscar alumno..."
                                 onChange={(e) => {
                                     const query = e.target.value.toLowerCase();
-                                    setAllStudents(trainerData.students.filter(student =>
-                                        student.name.toLowerCase().includes(query)
-                                    ));
+                                    if (query === "") {
+                                        setFilteredAllStudents([...allStudents]); // Restaurar lista completa
+                                    } else {
+                                        setFilteredAllStudents(allStudents.filter(student =>
+                                            student.fullName.toLowerCase().includes(query)
+                                        ));
+                                    }
                                 }}
                             />
                         </div>
@@ -168,7 +173,7 @@ const TrainerDashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {allStudents.map((student) => (
+                                    {filteredAllStudents.map((student) => (
                                         <tr key={student.id}>
                                             <td>{student.fullName}</td>
                                             <td>
@@ -189,7 +194,7 @@ const TrainerDashboard = () => {
                                                 </button>
                                                 <button
                                                     className="btn btn-secondary btn-sm"
-                                                    onClick={() => console.log(`Opción extra para ${student.fullName}`)}
+                                                    onClick={() => navigate(`/create-routine/1/${student.id}`)}
                                                 >
                                                     Crear Rutina Personalizada
                                                 </button>
@@ -205,23 +210,9 @@ const TrainerDashboard = () => {
                     </div>
                 </div>
             </div>
-            <div className="modal fade" id="createRoutineModal" tabIndex="-1" aria-labelledby="createRoutineModalLabel" aria-hidden="true">
-                            <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="createRoutineModalLabel">Crear Nueva Rutina</h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                        </div>
-                        <div className="modal-body">
-                            <RoutineForm exercises={exercises} onSubmit={handleRoutineSubmit} />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             {/* Footer */}
             <footer className="text-center py-3 bg-light">
-                <small>© 2025 Pura Esencia. Todos los derechos reservados.</small>
+                <small></small>
             </footer>
         </div>
     );

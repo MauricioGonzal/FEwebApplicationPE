@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Login = ({ setToken }) => {
   const [email, setEmail] = useState('');
@@ -29,27 +30,41 @@ const Login = ({ setToken }) => {
   };
 
   return (
-    <form onSubmit={handleLogin}>
-      <label>
-        Usuario:
-        <input 
-          type="text" 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
-        />
-      </label>
-      <br />
-      <label>
-        Contraseña:
-        <input 
-          type="password" 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-        />
-      </label>
-      <br />
-      <button type="submit">Iniciar sesión</button>
-    </form>
+    <div className="d-flex justify-content-center align-items-center vh-100">
+      <div className="card p-4" style={{ width: '100%', maxWidth: '400px' }}>
+        <h2 className="card-title text-center mb-4">Iniciar sesión</h2>
+        
+        <form onSubmit={handleLogin}>
+          <div className="mb-3">
+            <label htmlFor="email" className="form-label">Usuario:</label>
+            <input
+              id="email"
+              type="text"
+              className="form-control"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Introduce tu correo"
+              required
+            />
+          </div>
+          
+          <div className="mb-3">
+            <label htmlFor="password" className="form-label">Contraseña:</label>
+            <input
+              id="password"
+              type="password"
+              className="form-control"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Introduce tu contraseña"
+              required
+            />
+          </div>
+          
+          <button type="submit" className="btn btn-primary w-100">Iniciar sesión</button>
+        </form>
+      </div>
+    </div>
   );
 };
 

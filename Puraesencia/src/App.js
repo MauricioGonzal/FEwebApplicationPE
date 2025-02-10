@@ -12,6 +12,7 @@ import RoleBasedRedirect from './components/RoleBasedRedirect ';
 import ProtectedLayout from "./components/ProtectedLayout";
 import EditRoutine from './pages/EditRoutine';
 import StudentRow from './pages/AssignNoCustomRoutine';
+import RoutineForm from './pages/CreateRoutine';
 
 
 function App() {
@@ -26,8 +27,10 @@ function App() {
         <Route path="/admin-dashboard" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
         <Route path="/client-dashboard" element={<PrivateRoute><ClientDashboard /></PrivateRoute>} />
         <Route path="/trainer-dashboard" element={<PrivateRoute><TrainerDashboard /></PrivateRoute>} />
-        <Route path="/edit-routine/:id" element={<PrivateRoute><EditRoutine /></PrivateRoute>} />
+        <Route path="/edit-routine/:userId" element={<PrivateRoute><EditRoutine /></PrivateRoute>} />
         <Route path="/assign-routine/:id" element={<PrivateRoute><StudentRow /></PrivateRoute>} />
+        <Route path="/create-routine/:isCustom" element={<PrivateRoute><RoutineForm /></PrivateRoute>} />
+        <Route path="/create-routine/:isCustom/:userId" element={<PrivateRoute><RoutineForm /></PrivateRoute>} />
         </Route>
       </Routes>
     </Router>
