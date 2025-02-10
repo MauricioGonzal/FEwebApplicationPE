@@ -14,6 +14,7 @@ const EditRoutine = () => {
     useEffect(() => {
         api.get('/users/' + userId + '/routine') // Cambia la URL según tu API
             .then((response) => {
+              console.log(response.data.exercisesByDay);
                 setRoutine(response.data);
                 setSchedule(response.data.exercisesByDay);
                 setLoading(false);

@@ -13,7 +13,7 @@ import ProtectedLayout from "./components/ProtectedLayout";
 import EditRoutine from './pages/EditRoutine';
 import StudentRow from './pages/AssignNoCustomRoutine';
 import RoutineForm from './pages/CreateRoutine';
-
+import CreateExercise from './pages/CreateExercise';
 
 function App() {
   return (
@@ -31,6 +31,7 @@ function App() {
         <Route path="/assign-routine/:id" element={<PrivateRoute><StudentRow /></PrivateRoute>} />
         <Route path="/create-routine/:isCustom" element={<PrivateRoute><RoutineForm /></PrivateRoute>} />
         <Route path="/create-routine/:isCustom/:userId" element={<PrivateRoute><RoutineForm /></PrivateRoute>} />
+        <Route path="/create-exercise" element={<PrivateRoute><CreateExercise /></PrivateRoute>} />
         </Route>
       </Routes>
     </Router>

@@ -68,6 +68,7 @@ const TrainerDashboard = () => {
                         <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                             <li><button className="dropdown-item" onClick={() => navigate('/perfil')}>Perfil</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate('/create-routine/0')}>Crear Nueva Rutina</button></li>
+                            <li><button className="dropdown-item" onClick={() => navigate('/create-exercise')}>Crear Ejercicio</button></li>
                             <li><button className="dropdown-item text-danger" onClick={() => logout(navigate)}>Cerrar Sesión</button></li>
                         </ul>
                     </div>

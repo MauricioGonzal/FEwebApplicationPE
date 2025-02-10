@@ -55,7 +55,7 @@ const RoutineForm = () => {
         }
         else{
           alert("Rutina creada correctamente");
-          navigate('/')
+          navigate('/');
         }
     })
     .catch(error => console.error("Error al crear rutina:", error));

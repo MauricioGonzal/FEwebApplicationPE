@@ -19,9 +19,6 @@ const Login = ({ setToken }) => {
 
       // Guarda el token JWT recibido en el almacenamiento local
       localStorage.setItem('token', response.data);
-
-      console.log(localStorage.getItem('token'));
-      alert('Login exitoso!');
       navigate('/'); // Redirige a la página deseada
     } catch (error) {
       console.error('Error de autenticación:', error);
