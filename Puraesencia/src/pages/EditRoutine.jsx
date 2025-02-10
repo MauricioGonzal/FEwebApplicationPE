@@ -9,6 +9,7 @@ const EditRoutine = () => {
     const [loading, setLoading] = useState(true);
     const [routine, setRoutine] = useState(null);
     const [schedule, setSchedule] = useState({});
+    const [exercises, setExercises] = useState([]);
 
     useEffect(() => {
         api.get('/users/' + userId + '/routine') // Cambia la URL según tu API
@@ -19,6 +20,18 @@ const EditRoutine = () => {
             })
             .catch((error) => console.error("Error al cargar los datos:", error));
     }, [userId]);
+
+    // Obtener ejercicios desde el backend
+    useEffect(() => {
+      api
+        .get("/exercises")  // Asegúrate de que esta sea la URL correcta de tu API
+        .then((response) => {
+          setExercises(response.data); // Asumiendo que la respuesta es un array de ejercicios
+        })
+        .catch((error) => {
+          console.error("Error al obtener los ejercicios", error);
+        });
+    }, []); // Este efecto se ejecuta solo una vez al cargar el componente
   
     const handleChangeExercise = (day, index, field, value) => {
       setSchedule((prevSchedule) => ({
@@ -32,7 +45,7 @@ const EditRoutine = () => {
     const handleAddExercise = (day) => {
       setSchedule((prevSchedule) => ({
         ...prevSchedule,
-        [day]: [...prevSchedule[day], { exerciseId: "", name: "", series: "", repetitions: "" }],
+        [day]: [...prevSchedule[day], { exerciseId: "", name:"", description:"", series: "", repetitions: "" }],
       }));
     };
   
@@ -45,8 +58,25 @@ const EditRoutine = () => {
   
     const handleSubmit = (e) => {
       e.preventDefault();
-      const updatedRoutine = { ...routine, exercisesByDay: schedule };
-      console.log(updatedRoutine);
+
+
+          // Mapear schedule agregando el name y description del ejercicio correspondiente
+    const updatedSchedule = Object.keys(schedule).reduce((acc, day) => {
+      acc[day] = schedule[day].map((exercise) => {
+          const fullExercise = exercises.find(ex => ex.id === exercise.exerciseId) || {};
+          console.log(fullExercise);
+          return {
+              ...exercise,
+              name: fullExercise.name || "",
+              description: fullExercise.description || ""
+          };
+      });
+      return acc;
+  }, {});
+
+
+      const updatedRoutine = { ...routine, exercisesByDay: updatedSchedule };
+
       if(updatedRoutine.isCustom === false){
         //tengo que crear un registro nuevo y actualizar el campo routine_id en user
         //tengo que llamar a /routines method post con todos los datos de rutina y luego llamar a endpoint para asignar rutina a usuario
@@ -80,7 +110,6 @@ const EditRoutine = () => {
         .catch(error => console.error("Error al crear rutina:", error));
       }
       else{
-        console.log(updatedRoutine.exercisesByDay);
         //CREAR ENDPOINT PARA EDITAR
         api.put('/routines/' + updatedRoutine.id, {
             title: updatedRoutine.name,
@@ -148,13 +177,17 @@ const EditRoutine = () => {
                 {schedule[day].map((exercise, index) => (
                   <div key={index} className="mb-3 row">
                     <div className="col-md-4">
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Ejercicio"
-                        value={exercise.name}
-                        onChange={(e) => handleChangeExercise(day, index, "name", e.target.value)}
-                      />
+                      <select
+                      className="form-select"
+                      value={exercise.exerciseId}
+                      onChange={(e) => handleChangeExercise(day, index, "exerciseId", e.target.value)}
+                      required
+                    >
+                      <option value="">Seleccionar ejercicio</option>
+                      {exercises.map((ex) => (
+                        <option key={ex.id} value={ex.id}>{ex.name}</option>
+                      ))}
+                  </select>
                     </div>
                     <div className="col-md-3">
                       <input
