@@ -128,15 +128,14 @@ const handleSubmit = (e) => {
     var exerciseIdsAux = [];
     var groupItem = { exerciseIds: [], series: "", repetitions: ""}
     exercises.forEach((ex, index)=>{
-      if(ex.groupId !== undefined){
+      if(ex.exercises !== undefined){
         ex.exercises.forEach((exOfGroup)=>{
           exerciseIdsAux.push(exOfGroup.exerciseId);
           groupItem.series = exOfGroup.series;
           groupItem.repetitions = exOfGroup.repetitions;
         })
         groupItem.exerciseIds = exerciseIdsAux;
-        exercises.splice(1, index);
-        schedule[day].push(groupItem);
+        schedule[day][index] = groupItem;
       }
       else{
         schedule[day][index].exerciseIds = [ex.exerciseId]
@@ -184,7 +183,7 @@ const handleSubmit = (e) => {
         {schedule[day].map((item, index) =>
           item.groupId ? (
             <div key={item.groupId} className="border rounded p-3 mb-3 bg-light">
-              <h6 className="text-primary">Grupo de Ejercicios</h6>
+              <h6 className="text-primary">Ejercicios Combinados</h6>
               {item.exercises.map((exercise, i) => (
                 <div key={i} className="row g-2 mb-2">
                   <div className="col-md-5">
@@ -321,7 +320,7 @@ const handleSubmit = (e) => {
           className="btn btn-primary btn-sm"
           onClick={() => handleAddExercise(day, true)}
         >
-          + Crear Grupo de Ejercicios
+          + Crear Ejercicios Combinados
         </button>
       </div>
       

@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import api from "../Api"; 
 import { useNavigate, useParams } from "react-router-dom";
-import jwtDecode from 'jwt-decode';
-
+import api from "../Api";
+import jwtDecode from "jwt-decode";
 
 const StudentRow = () => {
     const [routines, setRoutines] = useState([]);
@@ -10,90 +9,111 @@ const StudentRow = () => {
     const { id } = useParams();
     const navigate = useNavigate();
 
-    // Obtener rutinas del backend
     useEffect(() => {
-        api.get('/routines/nocustom') // Cambia la URL según tu API
+        api.get("/routines/nocustom")
             .then((response) => {
                 setRoutines(response.data);
             })
             .catch((error) => console.error("Error al cargar los datos:", error));
     }, []);
 
-    // Función para asignar la rutina al estudiante
     const assignRoutine = () => {
         if (!selectedRoutine) return;
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         const decoded = jwtDecode(token);
-        console.log(decoded);
-        api.put(`/users/assign-routine`, {
+        api.put("/users/assign-routine", {
             trainerId: decoded.id,
             userId: id,
-            routineId: selectedRoutine.id
-        }
-        )
+            routineId: selectedRoutine,
+        })
             .then(() => {
                 alert("Rutina asignada correctamente");
-                navigate('/')
+                navigate("/");
             })
-            .catch(error => console.error("Error al asignar rutina:", error));
+            .catch((error) => console.error("Error al asignar rutina:", error));
     };
-
 
     return (
         <div className="d-flex justify-content-center align-items-center min-vh-100 bg-light p-4">
-            <div className="bg-white shadow rounded p-4 w-100" style={{ maxWidth: '900px' }}>
+            <div className="bg-white shadow rounded p-4 w-100" style={{ maxWidth: "900px" }}>
                 <h2 className="text-center text-dark mb-4">Seleccionar Rutina</h2>
-                
+
                 <ul className="list-unstyled">
-                    {routines.map(routine => (
-                        <li key={routine.id} className="p-4 border rounded shadow-sm bg-light mb-3 hover:bg-secondary transition">
+                    {Object.entries(routines).map(([id, routine]) => (
+                        <div 
+                            key={`routine-${id}`}  // Rutina tiene una clave única
+                            className="bg-white shadow rounded p-4 w-100" 
+                            style={{ maxWidth: "900px" }}
+                        >
                             <div className="form-check">
                                 <input 
                                     type="radio" 
                                     name="routine" 
-                                    value={routine.id} 
-                                    onChange={() => setSelectedRoutine(routine)} 
+                                    value={id} 
+                                    onChange={() => setSelectedRoutine(id)} 
                                     className="form-check-input"
                                 />
-                                <label className="form-check-label">
+                                <label className="form-check-label"></label>
                                     <strong className="h5">{routine.name}</strong>
                                     <p className="text-muted">{routine.description}</p>
 
                                     <ul className="mt-2">
-                                        {Object.entries(routine.exercisesByDay).map(([day, exercises]) => (
-                                            <li key={day} className="border-start ps-3">
-                                                <strong className="text-primary">{day}</strong>
-                                                <ul className="mt-1">
-                                                    {exercises.map(ex => (
-                                                        <li key={ex.exerciseId} className="text-dark">
-                                                            {`${ex.name}: ${ex.series} series de ${ex.repetitions} repeticiones`}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </li>
-                                        ))}
+                                    {Object.entries(routine).map(([day, exercises]) => (
+    <div key={`routine-${id}-day-${day}`} className="mb-4">
+        <h4 className="text-primary">{day}</h4>
+        <div className="d-flex flex-column gap-3">
+            {exercises.map((ex, index) => (
+                <div 
+                    key={`routine-${id}-day-${day}-exercise-${index}`} 
+                    className={`p-3 rounded shadow-sm ${ex.exerciseList.length > 1 ? "bg-warning-subtle" : "bg-white"}`}
+                >
+                    {ex.exerciseList.length > 1 && (
+                        <h5 className="fw-bold text-dark mb-2">Ejercicios Combinados</h5>
+                    )}
+                    <div className="card border-0">
+                        <div className="card-body p-2">
+                            <ul className="list-group list-group-flush">
+                                {ex.exerciseList.map((exercise) => (
+                                    <li 
+                                        key={`routine-${id}-exercise-${exercise.id}`} 
+                                        className="list-group-item d-flex justify-content-between align-items-center border-0"
+                                    >
+                                        <span className="fw-semibold">{exercise.name}</span>
+                                        <small className="text-muted">
+                                            {ex.series} series de {ex.repetitions} repeticiones
+                                        </small>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+))}
+
+
                                     </ul>
-                                </label>
+                                
                             </div>
-                        </li>
+                        </div>
                     ))}
                 </ul>
 
                 <div className="mt-4 d-flex justify-content-end">
-                    <button 
-                        onClick={assignRoutine} 
-                        disabled={!selectedRoutine} 
+                    <button
+                        onClick={assignRoutine}
+                        disabled={!selectedRoutine}
                         className={`btn ${selectedRoutine ? "btn-primary" : "btn-secondary"} me-2`}
                     >
                         Asignar
                     </button>
-                    <button className="btn btn-outline-secondary" onClick={()=> navigate('/')}>
-                        Cancelar
-                    </button>
+                    <button className="btn btn-outline-secondary" onClick={() => navigate("/")}>Cancelar</button>
                 </div>
             </div>
         </div>
     );
-}
+};
 
 export default StudentRow;
