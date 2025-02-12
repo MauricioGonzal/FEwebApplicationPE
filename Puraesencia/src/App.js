@@ -14,6 +14,7 @@ import EditRoutine from './pages/EditRoutine';
 import StudentRow from './pages/AssignNoCustomRoutine';
 import RoutineForm from './pages/CreateRoutine';
 import CreateExercise from './pages/CreateExercise';
+import CreateUserForm from './pages/CreateUserForm';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
         <Route path="/create-routine/:isCustom" element={<PrivateRoute><RoutineForm /></PrivateRoute>} />
         <Route path="/create-routine/:isCustom/:userId" element={<PrivateRoute><RoutineForm /></PrivateRoute>} />
         <Route path="/create-exercise" element={<PrivateRoute><CreateExercise /></PrivateRoute>} />
+        <Route path="/create-user" element={<PrivateRoute><CreateUserForm /></PrivateRoute>} />
         </Route>
       </Routes>
     </Router>

@@ -145,6 +145,25 @@ const handleSubmit = (e) => {
   handleRoutineSubmit({ title: routineName, description: routineDescription, schedule });
 };
 
+const [query, setQuery] = useState("");
+  const [selectedExercise, setSelectedExercise] = useState(null);
+
+  const handleSearchChange = (e) => {
+    setQuery(e.target.value);
+  };
+
+  const handleSelectExercise = (exercise) => {
+    setSelectedExercise(exercise);
+    setQuery(exercise.name); // Puedes elegir si quieres que se mantenga el texto o no.
+  };
+
+  // Filtra los ejercicios que coinciden con la búsqueda
+  const filteredExercises = query
+    ? exercises.filter((exercise) =>
+        exercise.name.toLowerCase().includes(query.toLowerCase())
+      )
+    : [];
+
 
   return (
     <form onSubmit={handleSubmit}>
@@ -186,23 +205,38 @@ const handleSubmit = (e) => {
               <h6 className="text-primary">Ejercicios Combinados</h6>
               {item.exercises.map((exercise, i) => (
                 <div key={i} className="row g-2 mb-2">
-                  <div className="col-md-5">
-                    <select
-                      className="form-select"
-                      value={exercise.exerciseId}
-                      onChange={(e) =>
-                        handleChangeExercise(day, i, "exerciseId", e.target.value, item.groupId)
-                      }
-                      required
-                    >
-                      <option value="">Seleccionar ejercicio</option>
-                      {exercises.map((ex) => (
-                        <option key={ex.id} value={ex.id}>
-                          {ex.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+  <div className="row g-2 mb-2">
+      <div className="col-md-5">
+        {/* Campo de búsqueda */}
+        <input
+          type="text"
+          className="form-control form-control-sm"
+          placeholder="Buscar ejercicio..."
+          value={query}
+          onChange={handleSearchChange}
+        />
+      </div>
+
+      {/* Sugerencias de ejercicios */}
+      {query && (
+        <div className="list-group mt-2" style={{ maxHeight: "200px", overflowY: "auto" }}>
+          {filteredExercises.length > 0 ? (
+            filteredExercises.map((exercise) => (
+              <div
+                key={exercise.id}
+                className="list-group-item list-group-item-action"
+                onClick={() => handleSelectExercise(exercise)}
+                style={{ cursor: "pointer" }}
+              >
+                {exercise.name}
+              </div>
+            ))
+          ) : (
+            <div className="list-group-item">No hay resultados</div>
+          )}
+        </div>
+      )}
+    </div>
 
                   <div className="col-md-3">
                     <input
@@ -251,23 +285,45 @@ const handleSubmit = (e) => {
             </div>
           ) : (
             <div key={index} className="row g-2 mb-2">
-              <div className="col-md-5">
-                <select
-                  className="form-select"
-                  value={item.exerciseId}
-                  onChange={(e) =>
-                    handleChangeExercise(day, index, "exerciseId", e.target.value)
-                  }
-                  required
-                >
-                  <option value="">Seleccionar ejercicio</option>
-                  {exercises.map((ex) => (
-                    <option key={ex.id} value={ex.id}>
-                      {ex.name}
-                    </option>
-                  ))}
-                </select>
+  <div className="row g-2 mb-2">
+      <div className="col-md-5">
+        {/* Campo de búsqueda */}
+        <input
+          type="text"
+          className="form-control form-control-sm"
+          placeholder="Buscar ejercicio..."
+          value={query}
+          onChange={handleSearchChange}
+        />
+      </div>
+
+      {/* Muestra el ejercicio seleccionado */}
+      {selectedExercise && (
+        <div className="mb-3">
+          <strong>Ejercicio seleccionado:</strong> {selectedExercise.name}
+        </div>
+      )}
+
+      {/* Sugerencias de ejercicios */}
+      {query && (
+        <div className="list-group mt-2" style={{ maxHeight: "200px", overflowY: "auto" }}>
+          {filteredExercises.length > 0 ? (
+            filteredExercises.map((exercise) => (
+              <div
+                key={exercise.id}
+                className="list-group-item list-group-item-action"
+                onClick={() => handleSelectExercise(exercise)}
+                style={{ cursor: "pointer" }}
+              >
+                {exercise.name}
               </div>
+            ))
+          ) : (
+            <div className="list-group-item">No hay resultados</div>
+          )}
+        </div>
+      )}
+    </div>
 
               <div className="col-md-3">
                 <input
@@ -329,8 +385,11 @@ const handleSubmit = (e) => {
           <button type="submit" className="btn btn-primary">Guardar Rutina</button>
           <button className="btn btn-outline-secondary" onClick={() => navigate('/')}>Cancelar</button>
         </div>
+        
   </div>
+
   </form>
+  
   );
 };
 
