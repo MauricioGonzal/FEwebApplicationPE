@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import api from '../Api'; 
 
-
 const CreateExercise = () => {
     const navigate = useNavigate();
     
@@ -37,47 +36,69 @@ const CreateExercise = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center mb-4">Crear Ejercicio</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="name" className="form-label">Nombre:</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            className="form-control"
-            value={exercise.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
+      <div className="row justify-content-center">
+        <div className="col-md-6">
+          <div className="card shadow-sm border-0">
+            <div className="card-body">
+              <h2 className="text-center mb-4 text-primary">Crear Ejercicio</h2>
+              <form onSubmit={handleSubmit}>
+                <div className="mb-3">
+                  <label htmlFor="name" className="form-label">Nombre:</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    className="form-control"
+                    value={exercise.name}
+                    onChange={handleChange}
+                    required
+                    placeholder="Ej. Flexiones"
+                  />
+                </div>
 
-        <div className="mb-3">
-          <label htmlFor="description" className="form-label">Descripción:</label>
-          <textarea
-            id="description"
-            name="description"
-            className="form-control"
-            value={exercise.description}
-            onChange={handleChange}
-            required
-          />
-        </div>
+                <div className="mb-3">
+                  <label htmlFor="description" className="form-label">Descripción:</label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    className="form-control"
+                    value={exercise.description}
+                    onChange={handleChange}
+                    required
+                    placeholder="Descripción detallada del ejercicio"
+                  />
+                </div>
 
-        <div className="mb-3">
-          <label htmlFor="url" className="form-label">URL (opcional):</label>
-          <input
-            type="url"
-            id="url"
-            name="url"
-            className="form-control"
-            value={exercise.url}
-            onChange={handleChange}
-          />
-        </div>
+                <div className="mb-3">
+                  <label htmlFor="url" className="form-label">URL (opcional):</label>
+                  <input
+                    type="url"
+                    id="url"
+                    name="url"
+                    className="form-control"
+                    value={exercise.url}
+                    onChange={handleChange}
+                    placeholder="Ej. https://ejemplo.com/video"
+                  />
+                </div>
 
-        <button type="submit" className="btn btn-primary w-100">Crear Ejercicio</button>
-      </form>
+                <div className="d-flex justify-content-between">
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    onClick={() => navigate('/')}
+                  >
+                    Cancelar
+                  </button>
+                  <button type="submit" className="btn btn-primary">
+                    Crear Ejercicio
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
