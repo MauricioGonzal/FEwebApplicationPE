@@ -1,56 +1,47 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import jwtDecode from 'jwt-decode';
-import api from '../Api'; 
+import jwtDecode from "jwt-decode";
+import api from "../Api";
 import { logout } from "./Logout";
 import { useNavigate } from "react-router-dom";
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import { FaUser, FaSignOutAlt, FaSearch, FaPlus, FaClipboardList } from "react-icons/fa";
 
 const TrainerDashboard = () => {
     const navigate = useNavigate();
-
-    //const [trainerData, setTrainerData] = useState({});
     const [students, setStudents] = useState([]);
-    const [filteredStudents, setFilteredStudents] = useState([]); // Nueva variable para la búsqueda
-
+    const [filteredStudents, setFilteredStudents] = useState([]);
     const [allStudents, setAllStudents] = useState([]);
-    const [filteredAllStudents, setFilteredAllStudents] = useState([]); // Nueva variable para la búsqueda
-
+    const [filteredAllStudents, setFilteredAllStudents] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    /*useEffect(() => {
-        const token = localStorage.getItem('token');
-        const decoded = jwtDecode(token);
-        api.get('/users/' + decoded.sub) // Cambia la URL según tu API
-            .then((response) => {
-                setTrainerData(response.data);
-                setLoading(false);
-            })
-            .catch((error) => console.error("Error al cargar los datos:", error));
-    }, []);*/
-
     useEffect(() => {
-        // Simulación: Fetch de datos del entrenador
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         const decoded = jwtDecode(token);
-        api.get('/users/' + decoded.id + '/clients') // Cambia la URL según tu API
+        api.get(`/users/${decoded.id}/clients`)
             .then((response) => {
                 setStudents(response.data);
-                setFilteredStudents(response.data); // Inicializa la búsqueda con todos los datos
+                setFilteredStudents(response.data);
                 setLoading(false);
+                console.log(decoded);
             })
             .catch((error) => console.error("Error al cargar los datos:", error));
     }, []);
 
     useEffect(() => {
-        api.get('/users/getAllByRole/client') // Cambia la URL según tu API
+        api.get("/users/getAllByRole/client")
             .then((response) => {
                 setAllStudents(response.data);
-                setFilteredAllStudents(response.data); // Inicializa la búsqueda con todos los datos
+                setFilteredAllStudents(response.data);
                 setLoading(false);
             })
             .catch((error) => console.error("Error al cargar los datos:", error));
     }, []);
+
+    const handleSearch = (e, setFiltered, data) => {
+        const query = e.target.value.toLowerCase();
+        setFiltered(query ? data.filter(student => student.fullName.toLowerCase().includes(query)) : [...data]);
+    };
 
     if (loading) {
         return <div className="text-center mt-5"><h4>Cargando datos...</h4></div>;
@@ -58,162 +49,78 @@ const TrainerDashboard = () => {
 
     return (
         <div className="container-fluid">
-            {/* Navbar */}
-            <nav className="navbar navbar-expand-lg navbar-light bg-light mb-4">
-                <div className="container">
-                    <div className="dropdown ms-auto">
-                        <button className="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="./puraesencia.png" alt="Pura Esencia" width="30" height="30" className="d-inline-block align-top" />
+            <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+            <div className="container d-flex justify-content-between">
+                <a className="navbar-brand fw-bold" href="/">
+                        <img src="./puraesencia.png" alt="Logo" width="40" height="40" className="me-2" />
+                        Trainer Panel
+                    </a>                    <div className="dropdown">
+                        <button className="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
+                            <FaUser />
                         </button>
-                        <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <li><button className="dropdown-item" onClick={() => navigate('/perfil')}>Perfil</button></li>
-                            <li><button className="dropdown-item" onClick={() => navigate('/create-routine/0')}>Crear Nueva Rutina</button></li>
-                            <li><button className="dropdown-item" onClick={() => navigate('/create-exercise')}>Crear Ejercicio</button></li>
-                            <li><button className="dropdown-item text-danger" onClick={() => logout(navigate)}>Cerrar Sesión</button></li>
+                        <ul className="dropdown-menu">
+                            <li><button className="dropdown-item" onClick={() => navigate("/perfil")}>Perfil</button></li>
+                            <li><button className="dropdown-item" onClick={() => navigate("/create-routine/0")}>Crear Nueva Rutina</button></li>
+                            <li><button className="dropdown-item" onClick={() => navigate("/create-exercise")}>Crear Ejercicio</button></li>
+                            <li><button className="dropdown-item text-danger" onClick={() => logout(navigate)}><FaSignOutAlt /> Cerrar Sesión</button></li>
                         </ul>
                     </div>
                 </div>
             </nav>
 
-            {/* Mis alumnos */}
-            <div className="row mb-4">
-                <div className="col-md-12">
-                    <div className="card">
-                        <div className="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                            <h5>Mis Alumnos</h5>
-                            <input
-                                type="text"
-                                className="form-control form-control-sm w-25"
-                                placeholder="Buscar alumno..."
-                                onChange={(e) => {
-                                    const query = e.target.value.toLowerCase();
-                                    if (query === "") {
-                                        setFilteredStudents([...students]); // Restaurar lista completa
-                                    } else {
-                                        setFilteredStudents(students.filter(student =>
-                                            student.fullName.toLowerCase().includes(query)
-                                        ));
-                                    }
-                                }}
-                            />
-                        </div>
-                        <div className="card-body">
-                            <table className="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredStudents.map((student) => (
-                                        <tr key={student.id}>
-                                        <td>{student.fullName}</td>
-                                        <td>
-                                        {student.routine !== null ? (
-                                            <button
-                                                className="btn btn-primary btn-sm"
-                                                onClick={() => navigate(`/edit-routine/${student.id}`)}
-                                            >
-                                                Ver Rutina
-                                            </button>
-                                        ) : (
-                                            <>
-                                            <button
-                                                className="btn btn-success btn-sm me-2"
-                                                onClick={() => navigate(`/assign-routine/${student.id}`)}
-                                            >
-                                                Asignar Rutina
-                                            </button>
-                                            <button
-                                                className="btn btn-secondary btn-sm"
-                                                onClick={() => console.log(`Opción extra para ${student.fullName}`)}
-                                            >
-                                                Crear Rutina Personalizada
-                                            </button>
-                                            </> // Texto alternativo si no tiene rutina
-                                            
-                                        )}
-                                        </td>
-                                    </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {/* Lista de alumnos */}
-            <div className="row mb-4">
-                <div className="col-md-12">
-                    <div className="card">
-                        <div className="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                            <h5>Lista de alumnos</h5>
-                            <input
-                                type="text"
-                                className="form-control form-control-sm w-25"
-                                placeholder="Buscar alumno..."
-                                onChange={(e) => {
-                                    const query = e.target.value.toLowerCase();
-                                    if (query === "") {
-                                        setFilteredAllStudents([...allStudents]); // Restaurar lista completa
-                                    } else {
-                                        setFilteredAllStudents(allStudents.filter(student =>
-                                            student.fullName.toLowerCase().includes(query)
-                                        ));
-                                    }
-                                }}
-                            />
-                        </div>
-                        <div className="card-body">
-                            <table className="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredAllStudents.map((student) => (
-                                        <tr key={student.id}>
-                                            <td>{student.fullName}</td>
-                                            <td>
-                                            {student.routine !== null ? (
-                                                <button
-                                                    className="btn btn-primary btn-sm"
-                                                    onClick={() => navigate(`/edit-routine/${student.id}`)}
-                                                >
-                                                    Ver Rutina
-                                                </button>
-                                            ) : (
-                                                <>
-                                                <button
-                                                    className="btn btn-success btn-sm me-2"
-                                                    onClick={() => navigate(`/assign-routine/${student.id}`)}
-                                                >
-                                                    Asignar Rutina
-                                                </button>
-                                                <button
-                                                    className="btn btn-secondary btn-sm"
-                                                    onClick={() => navigate(`/create-routine/1/${student.id}`)}
-                                                >
-                                                    Crear Rutina Personalizada
-                                                </button>
-                                                </> // Texto alternativo si no tiene rutina
-                                                
-                                            )}
-                                            </td>
+            {[{ title: "Mis Alumnos", data: filteredStudents, setData: setFilteredStudents, allData: students },
+              { title: "Lista de Alumnos", data: filteredAllStudents, setData: setFilteredAllStudents, allData: allStudents }]
+              .map((section, index) => (
+                <div key={index} className="row my-4">
+                    <div className="col-md-12">
+                        <div className="card shadow">
+                            <div className="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                <h5>{section.title}</h5>
+                                <div className="input-group w-25">
+                                    <span className="input-group-text"><FaSearch /></span>
+                                    <input type="text" className="form-control" placeholder="Buscar..." onChange={(e) => handleSearch(e, section.setData, section.allData)} />
+                                </div>
+                            </div>
+                            <div className="card-body">
+                                <table className="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Acciones</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {section.data.map(student => (
+                                            <tr key={student.id}>
+                                                <td>{student.fullName}</td>
+                                                <td>
+                                                    {student.routine ? (
+                                                        <button className="btn btn-primary btn-sm me-2" onClick={() => navigate(`/edit-routine/${student.routine.id}/${student.id}`)}>
+                                                            <FaClipboardList /> Ver Rutina
+                                                        </button>
+                                                    ) : (
+                                                        <>
+                                                            <button className="btn btn-success btn-sm me-2" onClick={() => navigate(`/assign-routine/${student.id}`)}>
+                                                                <FaPlus /> Asignar Rutina
+                                                            </button>
+                                                            <button className="btn btn-secondary btn-sm" onClick={() => navigate(`/create-routine/1/${student.id}`)}>
+                                                                <FaClipboardList /> Crear Rutina Personalizada
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            {/* Footer */}
-            <footer className="text-center py-3 bg-light">
-                <small></small>
+            ))}
+
+            <footer className="text-center py-3 bg-light mt-4">
+                <small>&copy; 2025 Pura Esencia - Todos los derechos reservados.</small>
             </footer>
         </div>
     );

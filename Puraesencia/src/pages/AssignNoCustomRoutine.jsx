@@ -13,6 +13,7 @@ const StudentRow = () => {
         api.get("/routines/nocustom")
             .then((response) => {
                 setRoutines(response.data);
+                console.log(response.data);
             })
             .catch((error) => console.error("Error al cargar los datos:", error));
     }, []);

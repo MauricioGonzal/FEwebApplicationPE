@@ -1,396 +1,291 @@
-import api from "../Api"; 
 import { useState, useEffect } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { Modal, Button, Form, ListGroup } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import jwtDecode from 'jwt-decode';
+import api from '../Api'; 
 
+export default function GymRoutineForm() {
+  const daysOfWeek = [
+    { index: 1, name: "Lunes" }, { index: 2, name: "Martes" }, { index: 3, name: "Miércoles" },
+    { index: 4, name: "Jueves" }, { index: 5, name: "Viernes" }, { index: 6, name: "Sábado" }, { index: 7, name: "Domingo" }
+  ];
 
-const RoutineForm = () => {
-  const [schedule, setSchedule] = useState({});
-  const [exercises, setExercises] = useState([]);
-  const navigate = useNavigate();
+  const [exercisesList, setExercises] = useState([]);
+  const [routine, setRoutine] = useState({ title: "", description: "", isCustom: false, exercises: {} });
+  const [showModal, setShowModal] = useState(false);
+  const [selectedDay, setSelectedDay] = useState("");
+  const [selectedExercises, setSelectedExercises] = useState([]);
+  const [exercise, setExercise] = useState({ name: "", series: "", repetitions: "", rest: "" });
+  const [search, setSearch] = useState("");
+  const [filteredExercises, setFilteredExercises] = useState(exercisesList);
   const { isCustom, userId } = useParams();
-  const [routineName, setRoutineName] = useState("");
-  const [routineDescription, setRoutineDescription] = useState("");
+  const navigate = useNavigate();
 
-  // Obtener ejercicios desde el backend
+  const openModal = (day) => {
+    setSelectedDay(day);
+    setShowModal(true);
+    setSelectedExercises([]);
+  };
+
   useEffect(() => {
     api
-      .get("/exercises")  // Asegúrate de que esta sea la URL correcta de tu API
+      .get("/exercises")
       .then((response) => {
-        setExercises(response.data); // Asumiendo que la respuesta es un array de ejercicios
+        setExercises(response.data);
       })
       .catch((error) => {
         console.error("Error al obtener los ejercicios", error);
       });
-  }, []); // Este efecto se ejecuta solo una vez al cargar el componente
+  }, []);
 
-  const handleAddDay = () => {
-    const newDay = Object.keys(schedule).length + 1;
-    setSchedule({ ...schedule, [newDay]: [] });
-  };
-
-  const handleAddExercise = (day, isGroup = false) => {
-    if (isGroup) {
-      // Crear un nuevo grupo de ejercicios con un ID único
-      const newGroup = {
-        groupId: Date.now(),
-        exercises: [],
+  const handleSaveExercise = () => {
+    let newExercise = {};
+    if (selectedExercises.length === 1) {
+      newExercise = {
+        name: selectedExercises[0].name,
+        exerciseIds: [selectedExercises[0].id],
+        series: exercise.series,
+        repetitions: exercise.repetitions,
+        rest: exercise.rest,
       };
-      setSchedule({ ...schedule, [day]: [...schedule[day], newGroup] });
     } else {
-      // Agregar un ejercicio normal
-      const newExercise = { exerciseIds: "", series: "", repetitions: "" };
-      setSchedule({
-        ...schedule,
-        [day]: [...schedule[day], newExercise],
-      });
-    }
-  };
-
-  const handleAddExerciseToGroup = (day, groupId) => {
-    const updatedDay = schedule[day].map((item) => {
-      if (item.groupId === groupId) {
-        return { ...item, exercises: [...item.exercises, { exerciseIds: "", series: "", repetitions: "" }] };
-      }
-      return item;
-    });
-
-    setSchedule({ ...schedule, [day]: updatedDay });
-  };
-
-  const handleChangeExercise = (day, index, field, value, groupId = null) => {
-    const updatedDay = [...schedule[day]];
-    
-    if (groupId) {
-      updatedDay.forEach((group) => {
-        if (group.groupId === groupId) {
-          group.exercises[index][field] = value;
-        }
-      });
-    } else {
-      updatedDay[index] = { ...updatedDay[index], [field]: value };
+      newExercise = {
+        name: selectedExercises.map((exercise) => exercise.name).join(" + "),
+        exerciseIds: selectedExercises.map((exercise) => exercise.id),
+        series: exercise.series,
+        repetitions: exercise.repetitions,
+        rest: exercise.rest,
+      };
     }
 
-    setSchedule({ ...schedule, [day]: updatedDay });
+    setRoutine((prev) => ({
+      ...prev,
+      exercises: {
+        ...prev.exercises,
+        [selectedDay.index]: [
+          ...(prev.exercises[selectedDay.index] || []),
+          newExercise,
+        ],
+      },
+    }));
+    setShowModal(false);
+    setSelectedExercises([]);
+    setExercise({ name: "", series: "", repetitions: "", rest: "" });
+    setSearch("");
   };
 
-  const handleRemoveExercise = (day, index, groupId = null) => {
-    const updatedDay = schedule[day].map((item) => {
-      if (groupId && item.groupId === groupId) {
-        item.exercises = item.exercises.filter((_, i) => i !== index);
-      }
-      return item;
+  const handleRemoveExerciseFromDay = (dayIndex, exerciseToRemove) => {
+    setRoutine((prev) => {
+      const updatedExercises = { ...prev.exercises };
+      updatedExercises[dayIndex] = updatedExercises[dayIndex].filter(
+        (ex) => ex.name !== exerciseToRemove.name
+      );
+      return { ...prev, exercises: updatedExercises };
     });
-
-    setSchedule({ ...schedule, [day]: updatedDay });
   };
 
-  const handleRoutineSubmit = (data) => {
-    var customAux = false;
-    if(isCustom === "1"){
+  const handleSaveRoutine = () => {
+    let customAux = false;
+    let routineFormatted = routine;
+    let exercisesFormatted = Object.keys(routine.exercises).reduce((acc, key) => {
+      acc[key] = routine.exercises[key].map(({ name, ...rest }) => rest);
+      return acc;
+    }, {});
+    routineFormatted.exercises = exercisesFormatted;
+    routineFormatted.isCustom = customAux;
+
+    if (isCustom === "1") {
       customAux = true;
     }
-    
-    api.post('/routines', {
-        title: data.title,
-        description: data.description,
-        isCustom: customAux,
-        exercises: data.schedule
-      })
+
+    api.post('/routines', routineFormatted)
       .then((response) => {
-        if(userId !== undefined){
+        if (userId !== undefined) {
           const token = localStorage.getItem('token');
           const decoded = jwtDecode(token);
           api.put(`/users/assign-routine`, {
             trainerId: decoded.id,
             userId: userId,
             routineId: response.data.id
-          }
-          )
-            .then((response) => {
+          })
+            .then(() => {
               alert("Rutina creada correctamente");
-              navigate('/')
+              navigate('/');
             })
             .catch(error => console.error("Error al crear rutina:", error));
-        }
-        else{
+        } else {
           alert("Rutina creada correctamente");
           navigate('/');
         }
-    })
-    .catch(error => console.error("Error al crear rutina:", error));
-};
-
-const handleSubmit = (e) => {
-  e.preventDefault();
-
-  Object.entries(schedule).forEach(([day, exercises]) => {
-    var exerciseIdsAux = [];
-    var groupItem = { exerciseIds: [], series: "", repetitions: ""}
-    exercises.forEach((ex, index)=>{
-      if(ex.exercises !== undefined){
-        ex.exercises.forEach((exOfGroup)=>{
-          exerciseIdsAux.push(exOfGroup.exerciseId);
-          groupItem.series = exOfGroup.series;
-          groupItem.repetitions = exOfGroup.repetitions;
-        })
-        groupItem.exerciseIds = exerciseIdsAux;
-        schedule[day][index] = groupItem;
-      }
-      else{
-        schedule[day][index].exerciseIds = [ex.exerciseId]
-      }
-    });
-  });
-  handleRoutineSubmit({ title: routineName, description: routineDescription, schedule });
-};
-
-const [query, setQuery] = useState("");
-  const [selectedExercise, setSelectedExercise] = useState(null);
-
-  const handleSearchChange = (e) => {
-    setQuery(e.target.value);
+      })
+      .catch(error => console.error("Error al crear rutina:", error));
   };
 
-  const handleSelectExercise = (exercise) => {
-    setSelectedExercise(exercise);
-    setQuery(exercise.name); // Puedes elegir si quieres que se mantenga el texto o no.
+  const handleCancel = () => {
+    window.location.href = "/";
   };
 
-  // Filtra los ejercicios que coinciden con la búsqueda
-  const filteredExercises = query
-    ? exercises.filter((exercise) =>
-        exercise.name.toLowerCase().includes(query.toLowerCase())
-      )
-    : [];
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearch(value);
+    setFilteredExercises(exercisesList.filter((ex) => ex.name.toLowerCase().includes(value.toLowerCase())));
+  };
 
+  const handleSelectExercise = (ex) => {
+    if (!selectedExercises.includes(ex)) {
+      setSelectedExercises([...selectedExercises, ex]);
+    }
+    setSearch("");
+    setFilteredExercises([]);
+  };
+
+  const handleRemoveExercise = (ex) => {
+    setSelectedExercises(selectedExercises.filter((item) => item !== ex));
+  };
 
   return (
-    <form onSubmit={handleSubmit}>
     <div className="container mt-4">
-    <h2 className="text-center mb-4">Crear Rutina</h2>
-    <div className="mb-3">
-          <label className="form-label">Título</label>
-          <input
+      <h1 className="mb-3">Crear Rutina</h1>
+      <Form onSubmit={(e) => e.preventDefault()}>
+        <Form.Group className="mb-2">
+          <Form.Control
             type="text"
-            className="form-control"
-            placeholder="Ingrese el título"
-            value={routineName}
-            onChange={(e) => setRoutineName(e.target.value)}
-            required
+            placeholder="Nombre de la rutina"
+            value={routine.title}
+            onChange={(e) => setRoutine({ ...routine, title: e.target.value })}
           />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Descripción</label>
-          <textarea
-            className="form-control"
-            placeholder="Ingrese una descripción"
-            value={routineDescription}
-            onChange={(e) => setRoutineDescription(e.target.value)}
-            required
+        </Form.Group>
+        <Form.Group className="mb-4">
+          <Form.Control
+            type="text"
+            placeholder="Descripción"
+            value={routine.description}
+            onChange={(e) => setRoutine({ ...routine, description: e.target.value })}
           />
-        </div>
-    <button type="button" className="btn btn-primary mb-3" onClick={handleAddDay}>
-      + Agregar Día
-    </button>
+        </Form.Group>
+      </Form>
 
-    {Object.keys(schedule).map((day) => (
-      <div key={day} className="border rounded p-3 mb-3">
-        <h5 className="text-dark">Día {day}</h5>
-
-        {schedule[day].map((item, index) =>
-          item.groupId ? (
-            <div key={item.groupId} className="border rounded p-3 mb-3 bg-light">
-              <h6 className="text-primary">Ejercicios Combinados</h6>
-              {item.exercises.map((exercise, i) => (
-                <div key={i} className="row g-2 mb-2">
-  <div className="row g-2 mb-2">
-      <div className="col-md-5">
-        {/* Campo de búsqueda */}
-        <input
-          type="text"
-          className="form-control form-control-sm"
-          placeholder="Buscar ejercicio..."
-          value={query}
-          onChange={handleSearchChange}
-        />
-      </div>
-
-      {/* Sugerencias de ejercicios */}
-      {query && (
-        <div className="list-group mt-2" style={{ maxHeight: "200px", overflowY: "auto" }}>
-          {filteredExercises.length > 0 ? (
-            filteredExercises.map((exercise) => (
-              <div
-                key={exercise.id}
-                className="list-group-item list-group-item-action"
-                onClick={() => handleSelectExercise(exercise)}
-                style={{ cursor: "pointer" }}
-              >
-                {exercise.name}
-              </div>
-            ))
-          ) : (
-            <div className="list-group-item">No hay resultados</div>
-          )}
-        </div>
-      )}
-    </div>
-
-                  <div className="col-md-3">
-                    <input
-                      type="number"
-                      className="form-control"
-                      placeholder="Series"
-                      value={exercise.series}
-                      onChange={(e) =>
-                        handleChangeExercise(day, i, "series", e.target.value, item.groupId)
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div className="col-md-3">
-                    <input
-                      type="number"
-                      className="form-control"
-                      placeholder="Repeticiones"
-                      value={exercise.repetitions}
-                      onChange={(e) =>
-                        handleChangeExercise(day, i, "repetitions", e.target.value, item.groupId)
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div className="col-md-1 d-flex align-items-center">
-                    <button
-                      type="button"
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleRemoveExercise(day, i, item.groupId)}
-                    >
-                      ✖
-                    </button>
-                  </div>
-                </div>
-              ))}
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm"
-                onClick={() => handleAddExerciseToGroup(day, item.groupId)}
-              >
-                + Agregar Ejercicio al Grupo
-              </button>
+      <div className="row">
+        {daysOfWeek.map((day) => (
+          <div key={day.index} className="col-md-6 mb-3">
+            <div className="card p-3 shadow-sm">
+              <h5 className="card-title">{day.name}</h5>
+              <p className="card-text">
+                {routine.exercises[day.index] && routine.exercises[day.index].length > 0
+                  ? routine.exercises[day.index].map((ex, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          backgroundColor: ex.exerciseIds ? "#d1f7d1" : "transparent",
+                          padding: "5px",
+                          marginBottom: "5px",
+                          borderRadius: "5px",
+                        }}
+                      >
+                        {ex.exerciseIds.length > 1
+                          ? `${ex.name} - ${ex.series} series de ${ex.repetitions} repeticiones, descanso: ${ex.rest}s (Combinado)`
+                          : `${ex.name} - ${ex.series} series de ${ex.repetitions} repeticiones, descanso: ${ex.rest}s`}
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => handleRemoveExerciseFromDay(day.index, ex)}
+                          style={{ marginLeft: '10px' }}
+                        >
+                          ×
+                        </Button>
+                      </div>
+                    ))
+                  : "Sin ejercicios"}
+              </p>
+              <Button variant="primary" onClick={() => openModal(day)}>
+                Agregar Ejercicio
+              </Button>
             </div>
-          ) : (
-            <div key={index} className="row g-2 mb-2">
-  <div className="row g-2 mb-2">
-      <div className="col-md-5">
-        {/* Campo de búsqueda */}
-        <input
-          type="text"
-          className="form-control form-control-sm"
-          placeholder="Buscar ejercicio..."
-          value={query}
-          onChange={handleSearchChange}
-        />
+          </div>
+        ))}
       </div>
 
-      {/* Muestra el ejercicio seleccionado */}
-      {selectedExercise && (
-        <div className="mb-3">
-          <strong>Ejercicio seleccionado:</strong> {selectedExercise.name}
-        </div>
-      )}
+      <div className="mt-4 d-flex justify-content-between">
+        <Button variant="danger" onClick={handleCancel}>
+          Cancelar
+        </Button>
+        <Button variant="success" onClick={handleSaveRoutine}>
+          Guardar Rutina
+        </Button>
+      </div>
 
-      {/* Sugerencias de ejercicios */}
-      {query && (
-        <div className="list-group mt-2" style={{ maxHeight: "200px", overflowY: "auto" }}>
-          {filteredExercises.length > 0 ? (
-            filteredExercises.map((exercise) => (
-              <div
-                key={exercise.id}
-                className="list-group-item list-group-item-action"
-                onClick={() => handleSelectExercise(exercise)}
-                style={{ cursor: "pointer" }}
-              >
-                {exercise.name}
-              </div>
-            ))
-          ) : (
-            <div className="list-group-item">No hay resultados</div>
-          )}
-        </div>
-      )}
-    </div>
-
-              <div className="col-md-3">
-                <input
-                  type="number"
-                  className="form-control"
-                  placeholder="Series"
-                  value={item.series}
-                  onChange={(e) =>
-                    handleChangeExercise(day, index, "series", e.target.value)
-                  }
-                  required
-                />
-              </div>
-
-              <div className="col-md-3">
-                <input
-                  type="number"
-                  className="form-control"
-                  placeholder="Repeticiones"
-                  value={item.repetitions}
-                  onChange={(e) =>
-                    handleChangeExercise(day, index, "repetitions", e.target.value)
-                  }
-                  required
-                />
-              </div>
-
-              <div className="col-md-1 d-flex align-items-center">
-                <button
-                  type="button"
-                  className="btn btn-danger btn-sm"
-                  onClick={() => handleRemoveExercise(day, index)}
-                >
-                  ✖
-                </button>
-              </div>
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Agregar Ejercicio para {selectedDay.name}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={(e) => e.preventDefault()}>
+            <Form.Group className="mb-2">
+              <Form.Control
+                type="text"
+                placeholder="Buscar ejercicio"
+                value={search}
+                onChange={handleSearch}
+              />
+            </Form.Group>
+            {search && (
+              <ListGroup>
+                {filteredExercises.map((ex, index) => (
+                  <ListGroup.Item key={index} action onClick={() => handleSelectExercise(ex)}>
+                    {ex.name}
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+            )}
+            <div className="mt-3">
+              <h6>Ejercicios Seleccionados:</h6>
+              <ListGroup>
+                {selectedExercises.map((ex, idx) => (
+                  <ListGroup.Item key={idx} className="d-flex justify-content-between">
+                    {ex.name}
+                    <Button variant="danger" size="sm" onClick={() => handleRemoveExercise(ex)}>
+                      Eliminar
+                    </Button>
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
             </div>
-          )
-        )}
-
-        <button
-          type="button"
-          className="btn btn-success btn-sm me-2"
-          onClick={() => handleAddExercise(day)}
-        >
-          + Agregar Ejercicio
-        </button>
-        <button
-          type="button"
-          className="btn btn-primary btn-sm"
-          onClick={() => handleAddExercise(day, true)}
-        >
-          + Crear Ejercicios Combinados
-        </button>
-      </div>
-      
-    ))}
-            <div className="d-flex justify-content-end gap-2 mt-4">
-          <button type="submit" className="btn btn-primary">Guardar Rutina</button>
-          <button className="btn btn-outline-secondary" onClick={() => navigate('/')}>Cancelar</button>
-        </div>
-        
-  </div>
-
-  </form>
-  
+            <Form.Group className="mt-3">
+              <Form.Control
+                type="number"
+                placeholder="Series"
+                value={exercise.series}
+                onChange={(e) => setExercise({ ...exercise, series: e.target.value })}
+              />
+            </Form.Group>
+            <Form.Group className="mb-2">
+              <Form.Control
+                type="number"
+                placeholder="Repeticiones"
+                value={exercise.repetitions}
+                onChange={(e) => setExercise({ ...exercise, repetitions: e.target.value })}
+              />
+            </Form.Group>
+            <Form.Group className="mb-2">
+              <Form.Control
+                type="number"
+                placeholder="Descanso (segundos)"
+                value={exercise.rest}
+                onChange={(e) => setExercise({ ...exercise, rest: e.target.value })}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Cancelar
+          </Button>
+          <Button variant="primary" onClick={handleSaveExercise}>
+            Guardar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </div>
   );
-};
-
-export default RoutineForm;
+}

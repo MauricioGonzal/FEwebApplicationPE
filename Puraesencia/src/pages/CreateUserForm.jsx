@@ -1,19 +1,48 @@
 import api from "../Api";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Card, Row, Col, Button, Form, ProgressBar } from "react-bootstrap";
+import { FaUserPlus, FaSave, FaTimes } from "react-icons/fa";
 
 const CreateUserForm = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('member');
+  const [role, setRole] = useState('client');
+
+  // Ficha de salud
+  const [height, setHeight] = useState('');
+  const [weight, setWeight] = useState('');
+  const [bloodType, setBloodType] = useState('');
+  const [healthConditions, setHealthConditions] = useState('');
+
+  const [healthRecordId, setHealthRecordId] = useState(null);
   const navigate = useNavigate();
+
+  const handleHealthRecordSubmit = () => {
+    const fichaData = { height, weight, bloodType, healthConditions };
+
+    api.post('/health-records', fichaData)
+      .then((response) => {
+        setHealthRecordId(response.data.id);
+        alert("Ficha de salud guardada.");
+      })
+      .catch((error) => {
+        console.error("Error al guardar ficha de salud", error);
+        alert("Hubo un error al guardar la ficha de salud.");
+      });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    api.post('/users', { fullName, email, password, role })
-      .then((response) => {
+    if (!healthRecordId) {
+      alert("Primero debe crear una ficha de salud.");
+      return;
+    }
+
+    api.post('/users', { fullName, email, password, role: role.toUpperCase(), healthRecordId })
+      .then(() => {
         alert("Usuario creado exitosamente!");
         navigate('/');
       })
@@ -25,81 +54,95 @@ const CreateUserForm = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center mb-4">Crear Usuario</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="fullName" className="form-label">Nombre completo</label>
-          <input
-            id="fullName"
-            type="text"
-            className="form-control"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            required
-            aria-describedby="fullNameHelp"
-          />
-          <div id="fullNameHelp" className="form-text">Introduce el nombre completo del usuario.</div>
-        </div>
+      <Card className="shadow-lg p-4">
+        <h2 className="text-center mb-4 text-primary">Crear Usuario</h2>
+        
+        {/* Barra de progreso */}
+        <ProgressBar now={healthRecordId ? 100 : 50} className="mb-3" variant={healthRecordId ? "success" : "warning"} />
 
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">Correo electrónico</label>
-          <input
-            id="email"
-            type="email"
-            className="form-control"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            aria-describedby="emailHelp"
-          />
-          <div id="emailHelp" className="form-text">Asegúrate de que el correo sea válido.</div>
-        </div>
+        <Form onSubmit={handleSubmit}>
+          <Row className="mb-4">
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Nombre completo</Form.Label>
+                <Form.Control type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Correo electrónico</Form.Label>
+                <Form.Control type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              </Form.Group>
+            </Col>
+          </Row>
 
-        <div className="mb-3">
-          <label htmlFor="password" className="form-label">Contraseña</label>
-          <input
-            id="password"
-            type="password"
-            className="form-control"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            aria-describedby="passwordHelp"
-          />
-          <div id="passwordHelp" className="form-text">La contraseña debe tener al menos 8 caracteres.</div>
-        </div>
+          <Row className="mb-4">
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Contraseña</Form.Label>
+                <Form.Control type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Rol</Form.Label>
+                <Form.Select value={role} onChange={(e) => setRole(e.target.value)} required>
+                  <option value="client">Miembro</option>
+                  <option value="trainer">Entrenador</option>
+                  <option value="admin">Administrador</option>
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          </Row>
 
-        <div className="mb-3">
-          <label htmlFor="role" className="form-label">Rol</label>
-          <select
-            id="role"
-            className="form-control"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            required
-          >
-            <option value="member">Miembro</option>
-            <option value="trainer">Entrenador</option>
-            <option value="admin">Administrador</option>
-          </select>
-        </div>
+          <h4 className="mt-4 text-success">Ficha de Salud</h4>
+          <hr />
 
-        <div className="d-flex justify-content-between">
-          <button
-            type="button"
-            className="btn btn-outline-secondary"
-            onClick={() => navigate('/')}
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            className="btn btn-primary"
-          >
-            Crear Usuario
-          </button>
-        </div>
-      </form>
+          <Row className="mb-4">
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Altura (cm)</Form.Label>
+                <Form.Control type="number" value={height} onChange={(e) => setHeight(e.target.value)} required />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Peso (kg)</Form.Label>
+                <Form.Control type="number" value={weight} onChange={(e) => setWeight(e.target.value)} required />
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <Row className="mb-4">
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Tipo de sangre</Form.Label>
+                <Form.Control type="text" value={bloodType} onChange={(e) => setBloodType(e.target.value)} required />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Condiciones de salud</Form.Label>
+                <Form.Control as="textarea" value={healthConditions} onChange={(e) => setHealthConditions(e.target.value)} required />
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <div className="d-flex justify-content-between mt-4">
+            <Button variant="outline-danger" onClick={() => navigate('/')} className="d-flex align-items-center">
+              <FaTimes className="me-2" /> Cancelar
+            </Button>
+
+            <Button variant="success" onClick={handleHealthRecordSubmit} className="d-flex align-items-center">
+              <FaSave className="me-2" /> Guardar Ficha de Salud
+            </Button>
+
+            <Button type="submit" variant="primary" className="d-flex align-items-center">
+              <FaUserPlus className="me-2" /> Crear Usuario
+            </Button>
+          </div>
+        </Form>
+      </Card>
     </div>
   );
 };

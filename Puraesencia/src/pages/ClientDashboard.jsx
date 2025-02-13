@@ -1,138 +1,84 @@
-import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Card, Navbar, Nav } from 'react-bootstrap';
-import api from '../Api'; // Archivo de configuración de Axios
+import React, { useEffect, useState } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
 import jwtDecode from 'jwt-decode';
-import { logout } from './Logout';
+import api from '../Api';
+import { logout } from "./Logout";
 import { useNavigate } from "react-router-dom";
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 const ClientDashboard = () => {
     const navigate = useNavigate();
-    const [routine, setRoutine] = useState([]);
+    const [routine, setRoutine] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [trainer, setTrainer] = useState(null);
-    const [trainerError, setTrainerError] = useState(null);
 
-    // Cargar la rutina al montar el componente
     useEffect(() => {
-        const fetchRoutine = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const decoded = jwtDecode(token);
-                const response = await api.get('/routines/email/' + decoded.sub);
-                setRoutine(response.data.exercises); // Asume que el backend devuelve un array de ejercicios
-            } catch (err) {
-                console.error("Error al cargar la rutina:", err);
-                setError("No se pudo cargar la rutina. Intenta nuevamente.");
-            } finally {
+        const token = localStorage.getItem('token');
+        const decoded = jwtDecode(token);
+        api.get(`/users/${decoded.id}/routine`) // Ajusta la URL según tu API
+            .then(response => {
+                setRoutine(response.data);
                 setLoading(false);
-            }
-        };
-
-        fetchRoutine();
+                console.log(response.data);
+            })
+            .catch(error => console.error("Error al cargar la rutina:", error));
     }, []);
 
-    // Cargar el entrenador del cliente
-    useEffect(() => {
-        const fetchTrainer = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const decoded = jwtDecode(token);
-                const response = await api.get('/users/' + decoded.id + '/trainer');
-                setTrainer(response.data);
-            } catch (err) {
-                console.error("Error al cargar info del trainer:", err);
-                setTrainerError("No tienes un entrenador asignado.");
-            }
-        };
-
-        fetchTrainer();
-    }, []);
+    if (loading) {
+        return <div className="text-center mt-5"><h4>Cargando rutina...</h4></div>;
+    }
 
     return (
-        <>
-            {/* Header */}
-            <Navbar bg="dark" variant="dark" expand="lg" className="mb-4">
-                <Container>
-                    <Navbar.Brand href="#home">Gym Dashboard</Navbar.Brand>
-                    <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                    <Navbar.Collapse id="basic-navbar-nav">
-                        <Nav className="me-auto">
-                            <Nav.Link href="#routine">Rutina</Nav.Link>
-                            <Nav.Link href="#profile">Mis Datos</Nav.Link>
-                            <Nav.Link href="#trainer">Mi Entrenador</Nav.Link>
-                        </Nav>
-                    </Navbar.Collapse>
-                </Container>
-            </Navbar>
+        <div className="container-fluid">
+            {/* Navbar */}
+            <nav className="navbar navbar-expand-lg navbar-light bg-light mb-4">
+                <div className="container">
+                    <button className="btn btn-secondary" onClick={() => navigate('/perfil')}>Perfil</button>
+                    <button className="btn btn-danger ms-auto" onClick={() => logout(navigate)}>Cerrar Sesión</button>
+                </div>
+            </nav>
 
-            {/* Main Content */}
-            <Container fluid>
-                <Row>
-                    {/* Sidebar */}
-                    <Col md={3} className="bg-light">
-                        <Nav className="flex-column p-3">
-                            <Nav.Link href="#routine">Ver Rutina</Nav.Link>
-                            <Nav.Link href="#profile">Datos Personales</Nav.Link>
-                            <Nav.Link href="#trainer">Mi Entrenador</Nav.Link>
-                            <Nav.Link onClick={() => logout(navigate)}>Cerrar Sesión</Nav.Link>
-                        </Nav>
-                    </Col>
-
-                    {/* Main Sections */}
-                    <Col md={9}>
-                        {/* Rutina */}
-                        <Card id="routine" className="mb-4">
-                            <Card.Header>Mi Rutina</Card.Header>
-                            <Card.Body>
-                                {loading ? (
-                                    <p>Cargando rutina...</p>
-                                ) : error ? (
-                                    <p className="text-danger">{error}</p>
-                                ) : routine.length > 0 ? (
-                                    <ul>
-                                        {routine.map((exercise, index) => (
-                                            <li key={index}>
-                                                {exercise.name} - {exercise.sets}x{exercise.reps}
-                                            </li>
+            {/* Rutina */}
+            <div className="row mb-4">
+                <div className="col-md-12">
+                    <div className="card">
+                        <div className="card-header bg-primary text-white">
+                            <h5>Mi Rutina</h5>
+                        </div>
+                        <div className="card-body">
+                            {routine ? (
+                                <table className="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Ejercicio</th>
+                                            <th>Repeticiones</th>
+                                            <th>Series</th>
+                                            <th>Descanso</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {routine.exercisesByDay.map(exercise => (
+                                            <tr key={exercise.id}>
+                                                <td>{exercise.name}</td>
+                                                <td>{exercise.repetitions}</td>
+                                                <td>{exercise.series}</td>
+                                                <td>{exercise.rest}</td>
+                                            </tr>
                                         ))}
-                                    </ul>
-                                ) : (
-                                    <p>No tienes ejercicios asignados.</p>
-                                )}
-                            </Card.Body>
-                        </Card>
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <p>No tienes una rutina asignada aún.</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                        {/* Datos Personales */}
-                        <Card id="profile" className="mb-4">
-                            <Card.Header>Mis Datos</Card.Header>
-                            <Card.Body>
-                                <p><strong>Nombre:</strong> Juan Pérez</p>
-                                <p><strong>Altura:</strong> 1.75 m</p>
-                                <p><strong>Peso:</strong> 70 kg</p>
-                                <p><strong>Edad:</strong> 28 años</p>
-                            </Card.Body>
-                        </Card>
-
-                        {/* Entrenador */}
-                        <Card id="trainer">
-                            <Card.Header>Mi Entrenador</Card.Header>
-                            <Card.Body>
-                                {trainer ? (
-                                    <>
-                                        <p><strong>Nombre:</strong> {trainer.firstName}</p>
-                                        <p><strong>Email:</strong> {trainer.email}</p>
-                                        <p><strong>Teléfono:</strong> {trainer.phone || "No disponible"}</p>
-                                    </>
-                                ) : (
-                                    <p className="text-danger">{trainerError}</p>
-                                )}
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row>
-            </Container>
-        </>
+            {/* Footer */}
+            <footer className="text-center py-3 bg-light">
+                <small>&copy; 2025 Gimnasio Pura Esencia</small>
+            </footer>
+        </div>
     );
 };
 
