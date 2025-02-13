@@ -49,6 +49,7 @@ const ClientDashboard = () => {
             <nav className="navbar navbar-expand-lg navbar-light bg-light mb-4">
                 <div className="container">
                     <button className="btn btn-secondary" onClick={() => navigate('/perfil')}>Perfil</button>
+                    <button className="dropdown-item" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button>
                     <button className="btn btn-danger ms-auto" onClick={() => logout(navigate)}>Cerrar Sesión</button>
                 </div>
             </nav>
