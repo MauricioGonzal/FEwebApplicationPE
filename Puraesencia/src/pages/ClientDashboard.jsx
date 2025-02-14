@@ -18,11 +18,11 @@ const ClientDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [exercises, setExercises] = useState([]);
     const [sessionData, setSessionData] = useState({}); // Estado individual por ejercicio
-    const token = localStorage.getItem('token');
-    const decoded = jwtDecode(token);
+  
 
     useEffect(() => {
-        
+      const token = localStorage.getItem('token');
+      const decoded = jwtDecode(token);
         api.get(`/users/${decoded.id}/routine`)
             .then(response => {
                 setRoutine(response.data);
@@ -59,8 +59,6 @@ const ClientDashboard = () => {
       const token = localStorage.getItem('token');
       const decoded = jwtDecode(token);
   
-      console.log(sessionData);  // Verifica el contenido de sessionData
-  
       // Filtrar solo los ejercicios donde el usuario ingresó datos
       const logs = Object.entries(sessionData).map(([exerciseId, data]) => {
           console.log(exerciseId, data);  // Verifica los datos para cada ejercicio
@@ -83,8 +81,6 @@ const ClientDashboard = () => {
           logs: logs
       };
   
-      console.log(workoutSession); // Verifica la estructura de la sesión antes de enviarla
-  
       api.post("/workout-sessions", workoutSession)
           .then(() => {
               alert("Sesión guardada correctamente");
@@ -104,7 +100,6 @@ const ClientDashboard = () => {
                 <div className="container d-flex justify-content-between">
                     <a className="navbar-brand fw-bold" href="/">
                         <img src="./puraesencia.png" alt="Logo" width="40" height="40" className="me-2" />
-                        User Panel
                     </a>
                     <div className="dropdown">
                         <button className="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">

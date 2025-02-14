@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import jwtDecode from 'jwt-decode';
-import { Card, Button, ListGroup, Container, Row, Col } from "react-bootstrap";
+import {Button, ListGroup, Container, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import api from '../Api';
 
