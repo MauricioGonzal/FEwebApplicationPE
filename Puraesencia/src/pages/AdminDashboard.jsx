@@ -108,7 +108,7 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Sección de Finanzas */}
-                <h2 className="text-center fw-bold mt-5 mb-3 text-dark">Gestión Financiera</h2>
+                <h2 className="text-center fw-bold mt-5 mb-3 text-dark">Caja</h2>
                 <div className="card shadow-sm p-4">
                     <h5>Registrar Ingreso</h5>
                     <div className="row">

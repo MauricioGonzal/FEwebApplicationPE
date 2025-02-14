@@ -43,9 +43,6 @@ const ClientDashboard = () => {
 
     // Manejar cambios en los inputs de peso, repeticiones y comentarios
     const handleInputChange = (exerciseId, field, value) => {
-      console.log(exerciseId);
-      console.log(field);
-      console.log(value);
         setSessionData(prevState => ({
             ...prevState,
             [exerciseId]: {
@@ -61,7 +58,6 @@ const ClientDashboard = () => {
   
       // Filtrar solo los ejercicios donde el usuario ingresó datos
       const logs = Object.entries(sessionData).map(([exerciseId, data]) => {
-          console.log(exerciseId, data);  // Verifica los datos para cada ejercicio
           return {
               exerciseId: parseInt(exerciseId), // Asegúrate de que exerciseId sea un número válido
               repetitions: parseInt(data.reps),
