@@ -127,7 +127,11 @@ const ClientDashboard = () => {
                                         {routine.exercisesByDay[day.index] && routine.exercisesByDay[day.index].length > 0
                                             ? routine.exercisesByDay[day.index].map((ex, idx) => (
                                                 <div key={idx} className="mb-3 p-2 border rounded">
-                                                    <strong>Ejercicio Combinado</strong>
+                                                  <>
+                                                  {ex.exerciseIds.length > 1 && 
+                                                    <strong>Ejercicio Combinado</strong> 
+                                                  }
+                                                    </>
                                                     {ex.exerciseIds.map((exerciseId) => {
                                                         const exerciseDetails = exercises.find((exercise) => exercise.id === exerciseId);
                                                         return (

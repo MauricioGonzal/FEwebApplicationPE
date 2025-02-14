@@ -73,7 +73,7 @@ export default function EditGymRoutineForm() {
     setRoutine((prev) => ({
       ...prev,
       exercisesByDay: {
-        ...prev.exercises,
+        ...prev.exercisesByDay,
         [selectedDay.index]: [
           ...(prev.exercisesByDay[selectedDay.index] || []),
           newExercise,
@@ -103,7 +103,7 @@ export default function EditGymRoutineForm() {
       acc[key] = routine.exercisesByDay[key].map(({ name, ...rest }) => rest);
       return acc;
     }, {});
-    routineFormatted.exercisesByDay = exercisesFormatted;
+    routineFormatted.exercises = exercisesFormatted;
     routineFormatted.isCustom = customAux;
 
     if (routine.isCustom === true) {
