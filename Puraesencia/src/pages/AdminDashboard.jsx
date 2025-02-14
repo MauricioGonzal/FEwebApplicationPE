@@ -58,6 +58,19 @@ const AdminDashboard = () => {
             .catch((error) => console.error("Error al cerrar caja", error));
     };
 
+    const handleDeleteUser = (userId) => {
+        const confirmDelete = window.confirm("¿Seguro que quiere eliminar este usuario?");
+        if (confirmDelete) {
+            api.delete(`/users/${userId}`)
+                .then(() => {
+                    setUsers(users.filter(user => user.id !== userId));
+                    alert("Usuario eliminado con éxito");
+                })
+                .catch((error) => console.error("Error al eliminar usuario", error));
+        }
+    };
+    
+
     return (
         <div className="bg-light min-vh-100">
             {/* Navbar */}
@@ -97,7 +110,7 @@ const AdminDashboard = () => {
                                     <td>{user.fullName}</td>
                                     <td>{user.email}</td>
                                     <td>
-                                        <button className="btn btn-danger btn-sm">
+                                        <button className="btn btn-danger btn-sm" onClick={() => handleDeleteUser(user.id)}>
                                             <FaTrash className="me-1" /> Eliminar
                                         </button>
                                     </td>
