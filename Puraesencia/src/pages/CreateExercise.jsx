@@ -24,7 +24,8 @@ const CreateExercise = () => {
     // Aquí puedes enviar los datos del ejercicio a una API o a un backend
     api.post('/exercises/create', {
         name: exercise.name,
-        description: exercise.description
+        description: exercise.description,
+        url: exercise.url 
     }) // Cambia la URL según tu API
     .then((response) => {
         alert("Ejercicio creado correctamente");

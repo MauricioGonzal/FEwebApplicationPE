@@ -17,6 +17,8 @@ import CreateExercise from './pages/CreateExercise';
 import CreateUserForm from './pages/CreateUserForm';
 import ChangePasswordForm from './pages/ChangePasswordForm';
 import WorkoutHistory from './pages/WorkoutHistory';
+import HealthForm from './pages/HealthForm';
+import PriceList from './pages/PriceList';
 
 function App() {
   return (
@@ -37,7 +39,9 @@ function App() {
         <Route path="/create-exercise" element={<PrivateRoute><CreateExercise /></PrivateRoute>} />
         <Route path="/create-user" element={<PrivateRoute><CreateUserForm /></PrivateRoute>} />
         <Route path="/changepass" element={<PrivateRoute><ChangePasswordForm /></PrivateRoute>} />
+        <Route path="/create-health-record/:userId" element={<PrivateRoute><HealthForm /></PrivateRoute>} />
         <Route path="/workout-sessions" element={<PrivateRoute><WorkoutHistory /></PrivateRoute>} />
+        <Route path="/price-list" element={<PrivateRoute><PriceList /></PrivateRoute>} />
         </Route>
       </Routes>
     </Router>

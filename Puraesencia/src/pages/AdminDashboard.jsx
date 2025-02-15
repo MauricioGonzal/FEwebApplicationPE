@@ -2,7 +2,7 @@ import api from "../Api";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "./Logout";
-import { FaUserPlus, FaSignOutAlt, FaTrash, FaCashRegister, FaBox } from "react-icons/fa";
+import { FaUser, FaTrash, FaCashRegister, FaBox } from "react-icons/fa";
 
 const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
@@ -75,18 +75,21 @@ const AdminDashboard = () => {
         <div className="bg-light min-vh-100">
             {/* Navbar */}
             <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow">
-                <div className="container">
-                    <a className="navbar-brand fw-bold" href="/">
+            <div className="container d-flex justify-content-between">
+                <a className="navbar-brand fw-bold" href="/">
                         <img src="./puraesencia.png" alt="Logo" width="40" height="40" className="me-2" />
                         Admin Panel
-                    </a>
-                    <div className="ms-auto">
-                        <button className="btn btn-outline-light me-2" onClick={() => navigate('/create-user')}>
-                            <FaUserPlus className="me-1" /> Crear Usuario
+                    </a>                    
+                    <div className="dropdown">
+                        <button className="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
+                            <FaUser />
                         </button>
-                        <button className="btn btn-danger" onClick={() => logout(navigate)}>
-                            <FaSignOutAlt className="me-1" /> Cerrar Sesión
-                        </button>
+                        <ul className="dropdown-menu">
+                            <li><button className="dropdown-item" onClick={() => navigate('/create-user')}>Crear Usuario</button></li>
+                            <li><button className="dropdown-item" onClick={() => navigate("/price-list")}>Lista de precios</button></li>
+                            <li><button className="dropdown-item" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button></li>
+                            <li><button className="dropdown-item" onClick={() => logout(navigate)}>Cerrar Sesion</button></li>
+                        </ul>
                     </div>
                 </div>
             </nav>
@@ -110,6 +113,12 @@ const AdminDashboard = () => {
                                     <td>{user.fullName}</td>
                                     <td>{user.email}</td>
                                     <td>
+                                        {user.health_record_id !== null &&
+                                            <button className="btn btn-success btn-sm" onClick={() => navigate('/create-health-record/' + user.id)}>
+                                                <FaTrash className="me-1" /> Cargar Ficha de salud
+                                            </button>
+                                        
+                                        }
                                         <button className="btn btn-danger btn-sm" onClick={() => handleDeleteUser(user.id)}>
                                             <FaTrash className="me-1" /> Eliminar
                                         </button>
