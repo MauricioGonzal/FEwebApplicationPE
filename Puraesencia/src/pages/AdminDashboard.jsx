@@ -2,10 +2,11 @@ import api from "../Api";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "./Logout";
-import { FaCheck, FaUser, FaTrash, FaCashRegister, FaBox } from "react-icons/fa";
+import { FaUser, FaCashRegister, FaBox } from "react-icons/fa";
 import Select from "react-select";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button } from 'react-bootstrap';
+import UserTable from '../components/UserTable';
 
 const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
@@ -20,19 +21,19 @@ const AdminDashboard = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [selectedTransactionCategory, setSelectedTransactionCategory] = useState('');
     const [errorMessage, setErrorMessage] = useState("");
+    const [comment, setComment] = useState("");
+    const [amount, setAmount] = useState(0);
     const [showErrorModal, setShowErrorModal] = useState(false); // Estado para mostrar el modal
 
     useEffect(() => {
         api.get('/users/getAllByRole/client')
             .then((response) =>{ 
-                console.log(response.data);
                 setUsers(response.data)}
             )
             .catch((error) => console.error("Error al obtener usuarios", error));
 
         api.get('/transactions')
             .then((response) => {
-                console.log(response.data);
                 setTransactions(response.data);
                 calcularTotalCaja(response.data);
             })
@@ -43,7 +44,6 @@ const AdminDashboard = () => {
         api.get('/payment-methods')
             .then((response) =>{ 
                 setPaymentTypes(response.data);
-                console.log(response.data);
             }
             )
             .catch((error) => console.error("Error al obtener medios de pago", error));
@@ -53,7 +53,6 @@ const AdminDashboard = () => {
         api.get('/products')
             .then((response) =>{ 
                 setProducts(response.data);
-                console.log(response.data);
             }
             )
             .catch((error) => console.error("Error al obtener medios de pago", error));
@@ -63,7 +62,6 @@ const AdminDashboard = () => {
         api.get('/transaction-categories')
             .then((response) =>{ 
                 setTransactionCategories(response.data);
-                console.log(response.data);
             }
             )
             .catch((error) => console.error("Error al obtener categorias de transacciones", error));
@@ -72,11 +70,12 @@ const AdminDashboard = () => {
     const handleAddTransaction = () => {
 
         const newTransaction = { 
-            user: selectedUser.value,
+            user: selectedUser?.value,
             transactionCategory: selectedTransactionCategory.value,
             paymentMethod: selectedPaymentType.value,
-            amount: 0, 
-            date: new Date().toISOString() 
+            amount: amount, 
+            date: new Date().toISOString(),
+            comment: comment
         };
 
         console.log(newTransaction);
@@ -186,51 +185,22 @@ const AdminDashboard = () => {
 
             <div className="container mt-4">
                 <h2 className="text-center fw-bold mb-4 text-dark">Usuarios Registrados</h2>
-                <div className="table-responsive">
-                    <table className="table table-hover table-bordered shadow-sm">
-                        <thead className="table-dark text-center">
-                            <tr>
-                                <th>ID</th>
-                                <th>Nombre</th>
-                                <th>Correo</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody className="text-center">
-                            {users.map((user) => (
-                                <tr key={user.id}>
-                                    <td>{user.id}</td>
-                                    <td>{user.fullName}</td>
-                                    <td>{user.email}</td>
-                                    <td>
-                                        {user.healthRecord === null &&
-                                            <button className="btn btn-success btn-sm" onClick={() => navigate('/create-health-record/' + user.id)}>
-                                                <FaTrash className="me-1" /> Cargar Ficha de salud
-                                            </button>
-                                        }
-                                        <button className="btn btn-primary btn-sm me-2" onClick={() => handleMarkAttendance(user.id)}>
-                                            <FaCheck className="me-1" /> Marcar Presente
-                                        </button>
-                                        <button className="btn btn-danger btn-sm" onClick={() => handleDeleteUser(user.id)}>
-                                            <FaTrash className="me-1" /> Eliminar
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                <UserTable 
+                    users={users} 
+                    handleMarkAttendance={handleMarkAttendance} 
+                    handleDeleteUser={handleDeleteUser} 
+                />
 
                 {/* Sección de Finanzas */}
                 <h2 className="text-center fw-bold mt-5 mb-3 text-dark">Caja</h2>
                 <div className="card shadow-sm p-4">
-                    <h5>Registrar Ingreso</h5>
+                    <h5>Registrar Movimiento</h5>
                     <div className="row">
                         <div className="col-md-4">
                             <Select
                                 options={transactionCategoryOptions}
                                 value={selectedTransactionCategory}
-                                onChange={(selectedOption) => setSelectedTransactionCategory(selectedOption)}
+                                onChange={(selectedOption) => {setSelectedTransactionCategory(selectedOption)}}
                                 placeholder="Seleccionar categoria..."
                                 isSearchable
                             />
@@ -244,7 +214,40 @@ const AdminDashboard = () => {
                                 isSearchable
                             />
                         </div>
-                        {selectedTransactionCategory !== "Producto" ? (
+                        {selectedTransactionCategory?.value?.name === "Egreso" ? (
+                            <div>
+                                <div className="col-md-4">
+                                    <input
+                                        type="number"
+                                        className="form-control"
+                                        placeholder="Ingrese el monto..."
+                                        value={amount}
+                                        onChange={(e) => setAmount(e.target.value)}
+                                    />
+                                </div>
+                                <div className="col-md-4">
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        placeholder="Ingrese un comentario..."
+                                        value={comment}
+                                        onChange={(e) => setComment(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                        ) : selectedTransactionCategory?.value?.name === "Producto" ? (
+                            // Select de productos si es "Producto"
+                            <div className="col-md-4">
+                                <Select
+                                    options={productOptions}
+                                    value={selectedProduct}
+                                    onChange={(selectedOption) => setSelectedProduct(selectedOption)}
+                                    placeholder="Seleccionar producto..."
+                                    isSearchable
+                                />
+                            </div>
+                        ) : (
+                            // Select de usuario para otros casos
                             <div className="col-md-4">
                                 <Select
                                     options={userOptions}
@@ -254,16 +257,7 @@ const AdminDashboard = () => {
                                     isSearchable
                                 />
                             </div>
-                        ):
-                        (  <div className="col-md-4">
-                                <Select
-                                    options={productOptions}
-                                    value={selectedProduct}
-                                    onChange={(selectedOption) => setSelectedProduct(selectedOption)}
-                                    placeholder="Seleccionar producto..."
-                                    isSearchable
-                                />
-                            </div>)}
+                        )}
                         <div className="col-md-4 mt-2">
                             <button className="btn btn-success" onClick={handleAddTransaction}>
                                 <FaCashRegister className="me-1" /> Agregar
@@ -286,7 +280,7 @@ const AdminDashboard = () => {
                 </Modal>
 
                 {/* Historial de ingresos */}
-                <h5 className="mt-4">Historial de Ingresos</h5>
+                <h5 className="mt-4">Historial de Movimientos</h5>
                 <div className="table-responsive">
                     <table className="table table-hover table-bordered shadow-sm">
                         <thead className="table-dark text-center">
@@ -294,6 +288,7 @@ const AdminDashboard = () => {
                                 <th>Monto</th>
                                 <th>Medio de pago</th>
                                 <th>Categoria</th>
+                                <th>Comentario</th>
                                 <th>Fecha</th>
                             </tr>
                         </thead>
@@ -303,6 +298,7 @@ const AdminDashboard = () => {
                                     <td>${transaction.amount}</td>
                                     <td>{transaction.paymentMethod.name}</td>
                                     <td>{transaction.transactionCategory.name}</td>
+                                    <td>{transaction.comment}</td>
                                     <td>{new Date(transaction.date).toLocaleString()}</td>
                                 </tr>
                             ))}
