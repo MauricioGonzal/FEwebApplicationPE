@@ -2,40 +2,101 @@ import api from "../Api";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "./Logout";
-import { FaUser, FaTrash, FaCashRegister, FaBox } from "react-icons/fa";
+import { FaCheck, FaUser, FaTrash, FaCashRegister, FaBox } from "react-icons/fa";
+import Select from "react-select";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Modal, Button } from 'react-bootstrap';
 
 const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
     const [transactions, setTransactions] = useState([]);
-    const [amount, setAmount] = useState('');
-    const [type, setType] = useState('Membresía');
     const [totalCaja, setTotalCaja] = useState(0);
+    const [paymentTypes, setPaymentTypes] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [selectedPaymentType, setSelectedPaymentType] = useState(null);
+    const [transactionCategories, setTransactionCategories] = useState([]);
     const navigate = useNavigate();
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [selectedTransactionCategory, setSelectedTransactionCategory] = useState('');
+    const [errorMessage, setErrorMessage] = useState("");
+    const [showErrorModal, setShowErrorModal] = useState(false); // Estado para mostrar el modal
 
     useEffect(() => {
         api.get('/users/getAllByRole/client')
-            .then((response) => setUsers(response.data))
+            .then((response) =>{ 
+                console.log(response.data);
+                setUsers(response.data)}
+            )
             .catch((error) => console.error("Error al obtener usuarios", error));
 
         api.get('/transactions')
             .then((response) => {
+                console.log(response.data);
                 setTransactions(response.data);
                 calcularTotalCaja(response.data);
             })
             .catch((error) => console.error("Error al obtener transacciones", error));
     }, []);
 
+    useEffect(() => {
+        api.get('/payment-methods')
+            .then((response) =>{ 
+                setPaymentTypes(response.data);
+                console.log(response.data);
+            }
+            )
+            .catch((error) => console.error("Error al obtener medios de pago", error));
+    }, []);
+
+    useEffect(() => {
+        api.get('/products')
+            .then((response) =>{ 
+                setProducts(response.data);
+                console.log(response.data);
+            }
+            )
+            .catch((error) => console.error("Error al obtener medios de pago", error));
+    }, []);
+
+    useEffect(() => {
+        api.get('/transaction-categories')
+            .then((response) =>{ 
+                setTransactionCategories(response.data);
+                console.log(response.data);
+            }
+            )
+            .catch((error) => console.error("Error al obtener categorias de transacciones", error));
+    }, []);
+
     const handleAddTransaction = () => {
-        const newTransaction = { amount, type, date: new Date().toISOString() };
+
+        const newTransaction = { 
+            user: selectedUser.value,
+            transactionCategory: selectedTransactionCategory.value,
+            paymentMethod: selectedPaymentType.value,
+            amount: 0, 
+            date: new Date().toISOString() 
+        };
+
+        console.log(newTransaction);
 
         api.post('/transactions', newTransaction)
             .then((response) => {
+                console.log(response);
                 const updatedTransactions = [...transactions, response.data];
                 setTransactions(updatedTransactions);
-                setAmount('');
                 calcularTotalCaja(updatedTransactions);
+                setShowErrorModal(false);  // Cerrar modal en caso de éxito            
             })
-            .catch((error) => console.error("Error al agregar transacción", error));
+            .catch((error) => {
+                if (error.response && error.response.data) {
+                    setErrorMessage(error.response.data.error || "Error desconocido");
+                  } else {
+                    setErrorMessage("Error al realizar la solicitud");
+                  }
+                  setShowErrorModal(true);  // Mostrar modal con el error
+        });
     };
 
     const calcularTotalCaja = (transactions) => {
@@ -70,6 +131,35 @@ const AdminDashboard = () => {
         }
     };
     
+    const handleMarkAttendance = (userId) => {
+        const attendance = { userId: userId};
+        
+        api.post('/attendance', attendance)
+            .then(() => {
+                alert("Asistencia registrada con éxito");
+            })
+            .catch((error) => console.error("Error al registrar asistencia", error));
+    };
+
+    const userOptions = users.map(user => ({
+        value: user, // Guarda el objeto entero en `value`
+        label: `${user.fullName} (${user.email})`
+    }));
+    
+    const productOptions = products.map(product => ({
+        value: product, 
+        label: product.name
+    }));
+    
+    const transactionCategoryOptions = transactionCategories.map(category => ({
+        value: category,
+        label: category.name
+    }));
+    
+    const paymentTypesOptions = paymentTypes.map(paymentType => ({
+        value: paymentType,
+        label: paymentType.name
+    }));
 
     return (
         <div className="bg-light min-vh-100">
@@ -113,12 +203,14 @@ const AdminDashboard = () => {
                                     <td>{user.fullName}</td>
                                     <td>{user.email}</td>
                                     <td>
-                                        {user.health_record_id !== null &&
+                                        {user.healthRecord === null &&
                                             <button className="btn btn-success btn-sm" onClick={() => navigate('/create-health-record/' + user.id)}>
                                                 <FaTrash className="me-1" /> Cargar Ficha de salud
                                             </button>
-                                        
                                         }
+                                        <button className="btn btn-primary btn-sm me-2" onClick={() => handleMarkAttendance(user.id)}>
+                                            <FaCheck className="me-1" /> Marcar Presente
+                                        </button>
                                         <button className="btn btn-danger btn-sm" onClick={() => handleDeleteUser(user.id)}>
                                             <FaTrash className="me-1" /> Eliminar
                                         </button>
@@ -135,15 +227,44 @@ const AdminDashboard = () => {
                     <h5>Registrar Ingreso</h5>
                     <div className="row">
                         <div className="col-md-4">
-                            <input type="number" className="form-control" placeholder="Monto" value={amount} onChange={(e) => setAmount(e.target.value)} />
+                            <Select
+                                options={transactionCategoryOptions}
+                                value={selectedTransactionCategory}
+                                onChange={(selectedOption) => setSelectedTransactionCategory(selectedOption)}
+                                placeholder="Seleccionar categoria..."
+                                isSearchable
+                            />
                         </div>
                         <div className="col-md-4">
-                            <select className="form-control" value={type} onChange={(e) => setType(e.target.value)}>
-                                <option value="Membresía">Membresía</option>
-                                <option value="Venta de producto">Venta de producto</option>
-                            </select>
+                            <Select
+                                options={paymentTypesOptions}
+                                value={selectedPaymentType}
+                                onChange={(selectedOption) => setSelectedPaymentType(selectedOption)}
+                                placeholder="Seleccionar medio de pago..."
+                                isSearchable
+                            />
                         </div>
-                        <div className="col-md-4">
+                        {selectedTransactionCategory !== "Producto" ? (
+                            <div className="col-md-4">
+                                <Select
+                                    options={userOptions}
+                                    value={selectedUser}
+                                    onChange={(selectedOption) => setSelectedUser(selectedOption)}
+                                    placeholder="Seleccionar usuario..."
+                                    isSearchable
+                                />
+                            </div>
+                        ):
+                        (  <div className="col-md-4">
+                                <Select
+                                    options={productOptions}
+                                    value={selectedProduct}
+                                    onChange={(selectedOption) => setSelectedProduct(selectedOption)}
+                                    placeholder="Seleccionar producto..."
+                                    isSearchable
+                                />
+                            </div>)}
+                        <div className="col-md-4 mt-2">
                             <button className="btn btn-success" onClick={handleAddTransaction}>
                                 <FaCashRegister className="me-1" /> Agregar
                             </button>
@@ -151,23 +272,38 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
+                {/* Modal emergente para mostrar el error */}
+                <Modal show={showErrorModal} onHide={() => setShowErrorModal(false)}>
+                    <Modal.Header closeButton>
+                    <Modal.Title>Error</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>{errorMessage}</Modal.Body>
+                    <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowErrorModal(false)}>
+                        Cerrar
+                    </Button>
+                    </Modal.Footer>
+                </Modal>
+
                 {/* Historial de ingresos */}
                 <h5 className="mt-4">Historial de Ingresos</h5>
                 <div className="table-responsive">
                     <table className="table table-hover table-bordered shadow-sm">
                         <thead className="table-dark text-center">
                             <tr>
-                                <th>Fecha</th>
                                 <th>Monto</th>
-                                <th>Tipo</th>
+                                <th>Medio de pago</th>
+                                <th>Categoria</th>
+                                <th>Fecha</th>
                             </tr>
                         </thead>
                         <tbody className="text-center">
                             {transactions.map((transaction, index) => (
                                 <tr key={index}>
-                                    <td>{new Date(transaction.date).toLocaleString()}</td>
                                     <td>${transaction.amount}</td>
-                                    <td>{transaction.type}</td>
+                                    <td>{transaction.paymentMethod.name}</td>
+                                    <td>{transaction.transactionCategory.name}</td>
+                                    <td>{new Date(transaction.date).toLocaleString()}</td>
                                 </tr>
                             ))}
                         </tbody>
