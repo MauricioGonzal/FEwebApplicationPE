@@ -58,7 +58,7 @@ const TrainerDashboard = () => {
                         <button className="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
                             <FaUser />
                         </button>
-                        <ul className="dropdown-menu">
+                        <ul className="dropdown-menu dropdown-menu-end">
                             <li><button className="dropdown-item" onClick={() => navigate("/create-routine/0")}>Crear Nueva Rutina</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/create-exercise")}>Crear Ejercicio</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button></li>

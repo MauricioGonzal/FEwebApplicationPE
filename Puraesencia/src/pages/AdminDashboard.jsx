@@ -8,6 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button } from 'react-bootstrap';
 import UserTable from '../components/UserTable';
 
+
 const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
     const [transactions, setTransactions] = useState([]);
@@ -174,6 +175,7 @@ const AdminDashboard = () => {
                             <FaUser />
                         </button>
                         <ul className="dropdown-menu">
+                            <li><button className="dropdown-item" onClick={() => navigate('/overdue-payments')}>Ver Cuotas Vencidas</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate('/create-user')}>Crear Usuario</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/price-list")}>Lista de precios</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button></li>
@@ -288,6 +290,7 @@ const AdminDashboard = () => {
                                 <th>Monto</th>
                                 <th>Medio de pago</th>
                                 <th>Categoria</th>
+                                <th>Usuario</th>
                                 <th>Comentario</th>
                                 <th>Fecha</th>
                             </tr>
@@ -298,6 +301,7 @@ const AdminDashboard = () => {
                                     <td>${transaction.amount}</td>
                                     <td>{transaction.paymentMethod.name}</td>
                                     <td>{transaction.transactionCategory.name}</td>
+                                    <td>{transaction?.user?.fullName}</td>
                                     <td>{transaction.comment}</td>
                                     <td>{new Date(transaction.date).toLocaleString()}</td>
                                 </tr>
