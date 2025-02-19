@@ -88,6 +88,8 @@ const AdminDashboard = () => {
                 setTransactions(updatedTransactions);
                 calcularTotalCaja(updatedTransactions);
                 setShowErrorModal(false);  // Cerrar modal en caso de éxito            
+                setComment("");
+                setAmount(0);
             })
             .catch((error) => {
                 if (error.response && error.response.data) {

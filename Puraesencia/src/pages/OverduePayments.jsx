@@ -25,12 +25,9 @@ const OverduePayments = () => {
     const handleSearch = (e) => {
         const query = e.target.value;
         setSearchDay(query);
-    
-        // Filtrar las cuotas por el día del mes (cortar la fecha de tipo string)
-        setFilteredPayments(query ? payments.filter(p => {
-            // Cortar la fecha de vencimiento para obtener el día (posición 8-10 en 'YYYY-MM-DD')
+            setFilteredPayments(query ? payments.filter(p => {
             const dueDateDay = p.dueDate.slice(8, 10); 
-            return dueDateDay === query.padStart(2, '0'); // Comparar el día (asegurándonos que tenga 2 dígitos)
+            return dueDateDay === query.padStart(2, '0');
         }) : [...payments]);
     };
     
@@ -56,7 +53,7 @@ const OverduePayments = () => {
                 <tbody>
                     {filteredPayments.length > 0 ? filteredPayments.map((payment, index) => (
                         <tr key={index}>
-                            <td>{payment.dueDate}</td>
+                            <td>{payment.paymentDate}</td>
                             <td>{payment.user.fullName}</td>
                         </tr>
                     )) : (
