@@ -20,11 +20,15 @@ const AdminDashboard = () => {
     const [transactionCategories, setTransactionCategories] = useState([]);
     const navigate = useNavigate();
     const [selectedUser, setSelectedUser] = useState(null);
+    const [selectedUserForDueDate, setSelectedUserForDueDate] = useState(null);
     const [selectedTransactionCategory, setSelectedTransactionCategory] = useState('');
     const [errorMessage, setErrorMessage] = useState("");
     const [comment, setComment] = useState("");
     const [amount, setAmount] = useState(0);
     const [showErrorModal, setShowErrorModal] = useState(false); // Estado para mostrar el modal
+
+    const [showModal, setShowModal] = useState(false);
+    const [dueDate, setDueDate] = useState(new Date().toISOString().split("T")[0]); // Fecha de hoy
 
     useEffect(() => {
         api.get('/users/getAllByRole/client')
@@ -134,13 +138,56 @@ const AdminDashboard = () => {
     };
     
     const handleMarkAttendance = (userId) => {
-        const attendance = { userId: userId};
-        
-        api.post('/attendance', attendance)
-            .then(() => {
-                alert("Asistencia registrada con éxito");
+        const attendance = { userId: userId };
+    
+        // 1️⃣ Verificar si la cuota está vencida antes de registrar la asistencia
+        api.get("/payments/isOutDueDate/" + userId)
+            .then((response) => {
+                console.log("isOutDueDate:", response.data); // Verificar qué valor retorna
+    
+                if (response.data) { // Asegura que funcione con true, "true" o cualquier truthy
+                    console.log('hola');
+                    setSelectedUserForDueDate(userId); // Guardar el usuario para actualizar la cuota
+                    setDueDate(new Date().toISOString().split("T")[0]); // Fecha de hoy
+                    setShowModal(true); // Mostrar el modal
+    
+                    // 🔹 Retrasar el registro de asistencia hasta que el modal se cierre
+                    //return Promise.reject("Modal abierto, asistencia detenida");
+                }
+                console.log("por ir"); // Verificar qué valor retorna
+
+                api.post("/attendance", attendance)
+                .then(() => {
+                    alert("Asistencia registrada con éxito");
+                })
+                .catch((error) => {
+                    console.error("Error al registrar la asistencia:", error);
+                });
+               
             })
-            .catch((error) => console.error("Error al registrar asistencia", error));
+            .catch((error) => {
+                if (error !== "Modal abierto, asistencia detenida") {
+                    console.error("Error en el proceso de asistencia", error);
+                }
+            })
+            .finally(() => {
+
+            });
+    };
+    
+
+    const handleUpdateDueDate = () => {
+console.log(dueDate);
+console.log(selectedUserForDueDate);
+
+        if (selectedUserForDueDate) {
+            api.put(`/payments/updateDueDate/${selectedUserForDueDate}`, { dueDate })
+                .then(() => {
+                    alert("Fecha de vencimiento actualizada con éxito");
+                    setShowModal(false);
+                })
+                .catch((error) => console.error("Error al actualizar la fecha de vencimiento", error));
+        }
     };
 
     const userOptions = users.map(user => ({
@@ -269,6 +316,30 @@ const AdminDashboard = () => {
                         </div>
                     </div>
                 </div>
+
+{/* Modal de actualización de cuota */}
+
+
+<Modal show={showModal} onHide={() => setShowModal(false)}>
+<Modal.Header closeButton>
+<Modal.Title>Actualizar Fecha de Vencimiento</Modal.Title>
+</Modal.Header>
+<Modal.Body>            <label>Fecha de vencimiento:</label>
+            <input 
+                type="date" 
+                value={dueDate} 
+                onChange={(e) => setDueDate(e.target.value)} 
+            />
+            <button onClick={handleUpdateDueDate}>Actualizar</button>
+            </Modal.Body>
+<Modal.Footer>
+<Button variant="secondary" onClick={() => setShowModal(false)}>
+    Cerrar
+</Button>
+</Modal.Footer>
+</Modal>
+
+
 
                 {/* Modal emergente para mostrar el error */}
                 <Modal show={showErrorModal} onHide={() => setShowErrorModal(false)}>

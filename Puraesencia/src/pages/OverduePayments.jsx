@@ -53,7 +53,7 @@ const OverduePayments = () => {
                 <tbody>
                     {filteredPayments.length > 0 ? filteredPayments.map((payment, index) => (
                         <tr key={index}>
-                            <td>{payment.paymentDate}</td>
+                            <td>{payment.dueDate}</td>
                             <td>{payment.user.fullName}</td>
                         </tr>
                     )) : (
