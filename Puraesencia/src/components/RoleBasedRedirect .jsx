@@ -20,8 +20,8 @@ const RoleBasedRedirect = () => {
             // Redirige según el rol
             if (role === 'ADMIN') {
                 navigate('/admin-dashboard');
-            } else if (role === 'CLIENT') {
-                navigate('/client-dashboard');
+            } else if (role === 'CLIENT_GYM') {
+                navigate('/client-gym-dashboard');
             }
             else if(role === 'TRAINER'){
                 navigate('/trainer-dashboard')

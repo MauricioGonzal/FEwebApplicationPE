@@ -1,10 +1,12 @@
 import React from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Asegúrate de importar los estilos
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Routines from './pages/Routines';
 import CreateRoutine from './pages/CreateRoutine';
 import Login from './pages/Login';
-import ClientDashboard from './pages/ClientDashboard';
+import ClientGymDashboard from './pages/ClientGymDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import TrainerDashboard from './pages/TrainerDashboard';
 import PrivateRoute from './components/PrivateRoute';
@@ -24,6 +26,8 @@ import OverduePayments from './pages/OverduePayments';
 function App() {
   return (
     <Router>
+      {/* Contenedor de notificaciones en cualquier ruta */}
+      <ToastContainer />
       <Routes>
         <Route element={<ProtectedLayout />}>
         <Route path="/routines" element={<Routines />} />
@@ -31,7 +35,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<RoleBasedRedirect />} /> {/* Redirige según el rol */}
         <Route path="/admin-dashboard" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
-        <Route path="/client-dashboard" element={<PrivateRoute><ClientDashboard /></PrivateRoute>} />
+        <Route path="/client-gym-dashboard" element={<PrivateRoute><ClientGymDashboard /></PrivateRoute>} />
         <Route path="/trainer-dashboard" element={<PrivateRoute><TrainerDashboard /></PrivateRoute>} />
         <Route path="/edit-routine/:routineId/:userId" element={<PrivateRoute><EditRoutine /></PrivateRoute>} />
         <Route path="/assign-routine/:id" element={<PrivateRoute><StudentRow /></PrivateRoute>} />

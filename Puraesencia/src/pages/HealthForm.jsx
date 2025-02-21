@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Form, Button, Container, Row, Col, Card } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../Api";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';// Para los estilos de las notificaciones
 
 const HealthForm = () => {
   const navigate = useNavigate();
@@ -36,15 +38,20 @@ const HealthForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
-
+  
     api.post(`/health-records/create/${userId}`, formData)
-    .then(response => {
-      navigate('/')
-    })
-    .catch(error => {
-      console.error("Error al guardar ficha de salud", error);
-    });
+      .then(response => {
+        toast.success("Ficha de salud creada con éxito!", {
+          position: "top-right", // Ahora directamente como string
+        });
+        navigate('/');
+      })
+      .catch(error => {
+        console.error("Error al guardar ficha de salud", error);
+        toast.error("Hubo un error al guardar la ficha", {
+          position: "top-right", // Para mostrar el error si ocurre algo
+        });
+      });
   };
 
   return (

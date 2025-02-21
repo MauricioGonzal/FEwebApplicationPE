@@ -31,7 +31,7 @@ const AdminDashboard = () => {
     const [dueDate, setDueDate] = useState(new Date().toISOString().split("T")[0]); // Fecha de hoy
 
     useEffect(() => {
-        api.get('/users/getAllByRole/client')
+        api.get('/users/getAllByRole/clients')
             .then((response) =>{ 
                 setUsers(response.data)}
             )

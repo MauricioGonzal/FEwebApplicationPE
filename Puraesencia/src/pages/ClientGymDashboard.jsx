@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { FaUser } from "react-icons/fa";
 
-const ClientDashboard = () => {
+const ClientGymDashboard = () => {
     const daysOfWeek = [
         { index: 1, name: "Lunes" }, { index: 2, name: "Martes" }, { index: 3, name: "Miércoles" },
         { index: 4, name: "Jueves" }, { index: 5, name: "Viernes" }, { index: 6, name: "Sábado" }, { index: 7, name: "Domingo" }
@@ -190,4 +190,4 @@ const ClientDashboard = () => {
     );
 };
 
-export default ClientDashboard;
+export default ClientGymDashboard;

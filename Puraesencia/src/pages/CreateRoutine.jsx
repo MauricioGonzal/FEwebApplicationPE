@@ -3,7 +3,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Modal, Button, Form, ListGroup } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import jwtDecode from 'jwt-decode';
-import api from '../Api'; 
+import api from '../Api';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';// Para los estilos de las notificaciones
 
 export default function GymRoutineForm() {
   const daysOfWeek = [
@@ -110,7 +112,9 @@ export default function GymRoutineForm() {
             routineId: response.data.id
           })
             .then(() => {
-              alert("Rutina creada correctamente");
+              toast.success("Rutina creada correctamente", {
+                position: "top-right", // Ahora directamente como string
+              });
               navigate('/');
             })
             .catch(error => console.error("Error al crear rutina:", error));
