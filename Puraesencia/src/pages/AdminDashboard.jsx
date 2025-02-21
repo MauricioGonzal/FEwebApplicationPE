@@ -26,6 +26,8 @@ const AdminDashboard = () => {
     const [comment, setComment] = useState("");
     const [amount, setAmount] = useState(0);
     const [showErrorModal, setShowErrorModal] = useState(false); // Estado para mostrar el modal
+    const [attendanceStatus, setAttendanceStatus] = useState({});
+
 
     const [showModal, setShowModal] = useState(false);
     const [dueDate, setDueDate] = useState(new Date().toISOString().split("T")[0]); // Fecha de hoy
@@ -72,6 +74,22 @@ const AdminDashboard = () => {
             .catch((error) => console.error("Error al obtener categorias de transacciones", error));
     }, []);
 
+    // Cargar estado de asistencia al montar el componente
+    useEffect(() => {
+        api.get("/attendance/today")
+            .then(response => {
+                const presentUsers = response.data; // Lista de IDs de usuarios presentes
+                const attendanceMap = presentUsers.reduce((acc, userId) => {
+                    acc[userId] = true;
+                    return acc;
+                }, {});
+                setAttendanceStatus(attendanceMap);
+            })
+            .catch(error => {
+                console.error("Error al obtener asistencia", error);
+            });
+    }, []);
+
     const handleAddTransaction = () => {
 
         const newTransaction = { 
@@ -82,8 +100,6 @@ const AdminDashboard = () => {
             date: new Date().toISOString(),
             comment: comment
         };
-
-        console.log(newTransaction);
 
         api.post('/transactions', newTransaction)
             .then((response) => {
@@ -159,6 +175,8 @@ const AdminDashboard = () => {
                 api.post("/attendance", attendance)
                 .then(() => {
                     alert("Asistencia registrada con éxito");
+                    // Actualizar el estado local de asistencia después de marcar presente
+                    setAttendanceStatus(prev => ({ ...prev, [userId]: true }));
                 })
                 .catch((error) => {
                     console.error("Error al registrar la asistencia:", error);
@@ -177,9 +195,6 @@ const AdminDashboard = () => {
     
 
     const handleUpdateDueDate = () => {
-console.log(dueDate);
-console.log(selectedUserForDueDate);
-
         if (selectedUserForDueDate) {
             api.put(`/payments/updateDueDate/${selectedUserForDueDate}`, { dueDate })
                 .then(() => {
@@ -240,6 +255,7 @@ console.log(selectedUserForDueDate);
                     users={users} 
                     handleMarkAttendance={handleMarkAttendance} 
                     handleDeleteUser={handleDeleteUser} 
+                    attendanceStatus={attendanceStatus}
                 />
 
                 {/* Sección de Finanzas */}

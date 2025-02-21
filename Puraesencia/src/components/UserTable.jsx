@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FaCheck, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
-const UserTable = ({ users, handleMarkAttendance, handleDeleteUser }) => {
+const UserTable = ({ users, handleMarkAttendance, handleDeleteUser, attendanceStatus }) => {
     const [search, setSearch] = useState("");
     const navigate = useNavigate();
 
@@ -49,12 +49,16 @@ const UserTable = ({ users, handleMarkAttendance, handleDeleteUser }) => {
                                             <FaTrash className="me-1" /> Cargar Ficha de salud
                                         </button>
                                     )}
-                                    <button className="btn btn-primary btn-sm me-2" onClick={() => handleMarkAttendance(user.id)}>
-                                        <FaCheck className="me-1" /> Marcar Presente
-                                    </button>
-                                    <button className="btn btn-danger btn-sm" onClick={() => handleDeleteUser(user.id)}>
-                                        <FaTrash className="me-1" /> Eliminar
-                                    </button>
+                                    {/* Mostrar botón o mensaje según asistencia */}
+                                    {attendanceStatus[user.id] ? (
+                                        <span className="text-success fw-bold">
+                                            <FaCheck className="me-1" /> Presente Hoy
+                                        </span>
+                                    ) : (
+                                        <button className="btn btn-primary btn-sm me-2" onClick={() => handleMarkAttendance(user.id)}>
+                                            <FaCheck className="me-1" /> Marcar Presente
+                                        </button>
+                                    )}
                                 </td>
                             </tr>
                         ))}
