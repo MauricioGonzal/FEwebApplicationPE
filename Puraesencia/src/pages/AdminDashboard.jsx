@@ -7,7 +7,6 @@ import Select from "react-select";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button } from 'react-bootstrap';
 import UserTable from '../components/UserTable';
-import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';// Para los estilos de las notificaciones
 import TransactionsTable from "../components/TransactionsTable";
 
@@ -23,20 +22,11 @@ const AdminDashboard = () => {
     const [transactionCategories, setTransactionCategories] = useState([]);
     const navigate = useNavigate();
     const [selectedUser, setSelectedUser] = useState(null);
-    const [selectedUserForDueDate, setSelectedUserForDueDate] = useState(null);
     const [selectedTransactionCategory, setSelectedTransactionCategory] = useState('');
     const [errorMessage, setErrorMessage] = useState("");
     const [comment, setComment] = useState("");
     const [amount, setAmount] = useState(0);
     const [showErrorModal, setShowErrorModal] = useState(false); // Estado para mostrar el modal
-    const [attendanceStatus, setAttendanceStatus] = useState({});
-
-    const [attendanceTypes, setAttendanceTypes] = useState([]);
-    const [selectedAttendanceType, setSelectedAttendanceType] = useState([]);
-
-
-    const [showModal, setShowModal] = useState(false);
-    const [dueDate, setDueDate] = useState(new Date().toISOString().split("T")[0]); // Fecha de hoy
 
     useEffect(() => {
         api.get('/users/getAllByRole/clients')
@@ -52,46 +42,27 @@ const AdminDashboard = () => {
                 calcularTotalCaja(response.data);
             })
             .catch((error) => console.error("Error al obtener transacciones", error));
-    }, []);
 
-    useEffect(() => {
-        api.get('/payment-methods')
+            api.get('/payment-methods')
             .then((response) =>{ 
                 setPaymentTypes(response.data);
             }
             )
             .catch((error) => console.error("Error al obtener medios de pago", error));
-    }, []);
 
-    useEffect(() => {
-        api.get('/products')
+            api.get('/products')
             .then((response) =>{ 
                 setProducts(response.data);
             }
             )
             .catch((error) => console.error("Error al obtener medios de pago", error));
-    }, []);
 
-    useEffect(() => {
-        api.get('/transaction-categories')
+            api.get('/transaction-categories')
             .then((response) =>{ 
                 setTransactionCategories(response.data);
             }
             )
             .catch((error) => console.error("Error al obtener categorias de transacciones", error));
-    }, []);
-
-    // Cargar estado de asistencia al montar el componente
-    useEffect(() => {
-        api.get("/attendance/today")
-            .then(response => {
-                console.log(response.data);
-
-                setAttendanceStatus(response.data);
-            })
-            .catch(error => {
-                console.error("Error al obtener asistencia", error);
-            });
     }, []);
 
     const handleAddTransaction = () => {
@@ -167,74 +138,6 @@ const AdminDashboard = () => {
                 .catch((error) => console.error("Error al eliminar usuario", error));
         }
     };
-    
-    const handleMarkAttendance = (userId) => {
-        const attendance = { userId: userId, attendanceType: selectedAttendanceType.value };
-        api.get("/payments/isOutDueDate/" + userId)
-            .then((response) => {
-                if (response.data) { // Asegura que funcione con true, "true" o cualquier truthy
-                    setSelectedUserForDueDate(userId); // Guardar el usuario para actualizar la cuota
-                    setDueDate(new Date().toISOString().split("T")[0]); // Fecha de hoy
-                    setShowModal(true); // Mostrar el modal
-                }
-                api.post("/attendance", attendance)
-                .then(() => {
-                    api.get("/users/getById/" + userId)
-                    .then((response)=>{
-                        api.get("/attendance/today")
-                        .then(response => {
-                            console.log(response.data);
-            
-                            setAttendanceStatus(response.data);
-                        })
-                        .catch(error => {
-                            console.error("Error al obtener asistencia", error);
-                        });
-                    })
-                    
-                    toast.success("Asistencia registrada con éxito", {
-                        position: "top-right", // Ahora directamente como string
-                    });
-                    // Actualizar el estado local de asistencia después de marcar presente
-                })
-                .catch((error) => {
-                    console.error("Error al registrar la asistencia:", error);
-                });
-            })
-            .catch((error) => {
-                if (error !== "Modal abierto, asistencia detenida") {
-                    console.error("Error en el proceso de asistencia", error);
-                }
-            })
-    };
-    
-
-    const handleUpdateDueDate = () => {
-        if (selectedUserForDueDate) {
-            api.put(`/payments/updateDueDate/${selectedUserForDueDate}`, { dueDate })
-                .then(() => {
-                    toast.success("Fecha de vencimiento actualizada con éxito", {
-                        position: "top-right", // Ahora directamente como string
-                    });
-                    setShowModal(false);
-                })
-                .catch((error) => console.error("Error al actualizar la fecha de vencimiento", error));
-        }
-    };
-
-    useEffect(() => {
-        api.get('/attendance-type')
-            .then((response) =>{ 
-                setAttendanceTypes(response.data);
-            }
-            )
-            .catch((error) => console.error("Error al obtener categorias de presente", error));
-    }, []);
-
-    const attendanceTypeOptions = attendanceTypes.map(attendanceType => ({
-        value: attendanceType,
-        label: attendanceType.name
-    }));
 
     const userOptions = users.map(user => ({
         value: user, // Guarda el objeto entero en `value`
@@ -273,6 +176,8 @@ const AdminDashboard = () => {
                             <li><button className="dropdown-item" onClick={() => navigate('/overdue-payments')}>Ver Cuotas Vencidas</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate('/create-user')}>Crear Usuario</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/price-list")}>Lista de precios</button></li>
+                            <li><button className="dropdown-item" onClick={() => navigate("/user-classes-table")}>Usuarios clases</button></li>
+                            <li><button className="dropdown-item" onClick={() => navigate("/user-gym-table")}>Usuarios Musculacion</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button></li>
                             <li><button className="dropdown-item" onClick={() => logout(navigate)}>Cerrar Sesion</button></li>
                         </ul>
@@ -284,12 +189,7 @@ const AdminDashboard = () => {
                 <h2 className="text-center fw-bold mb-4 text-dark">Usuarios Registrados</h2>
                 <UserTable 
                     users={users} 
-                    handleMarkAttendance={handleMarkAttendance} 
-                    handleDeleteUser={handleDeleteUser} 
-                    attendanceStatus={attendanceStatus}
-                    attendanceTypeOptions={attendanceTypeOptions}
-                    selectedAttendanceType= {selectedAttendanceType}
-                    setSelectedAttendanceType={setSelectedAttendanceType}
+                    handleDeleteUser={handleDeleteUser}
                 />
 
                 {/* Sección de Finanzas */}
@@ -366,25 +266,6 @@ const AdminDashboard = () => {
                         </div>
                     </div>
                 </div>
-                {/* Modal de actualización de cuota */}
-                <Modal show={showModal} onHide={() => setShowModal(false)}>
-                <Modal.Header closeButton>
-                <Modal.Title>Actualizar Fecha de Vencimiento</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>            <label>Fecha de vencimiento:</label>
-                            <input 
-                                type="date" 
-                                value={dueDate} 
-                                onChange={(e) => setDueDate(e.target.value)} 
-                            />
-                            <button onClick={handleUpdateDueDate}>Actualizar</button>
-                            </Modal.Body>
-                <Modal.Footer>
-                <Button variant="secondary" onClick={() => setShowModal(false)}>
-                    Cerrar
-                </Button>
-                </Modal.Footer>
-                </Modal>
                 {/* Modal emergente para mostrar el error */}
                 <Modal show={showErrorModal} onHide={() => setShowErrorModal(false)}>
                     <Modal.Header closeButton>

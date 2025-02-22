@@ -1,5 +1,5 @@
 import React from 'react';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; // Asegúrate de importar los estilos
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
@@ -22,6 +22,9 @@ import WorkoutHistory from './pages/WorkoutHistory';
 import HealthForm from './pages/HealthForm';
 import PriceList from './pages/PriceList';
 import OverduePayments from './pages/OverduePayments';
+import UserClassAttendance from './pages/UserClassesTable';
+import UserGymAttendance from './pages/UserGymTable';
+
 
 function App() {
   return (
@@ -48,6 +51,8 @@ function App() {
         <Route path="/workout-sessions" element={<PrivateRoute><WorkoutHistory /></PrivateRoute>} />
         <Route path="/price-list" element={<PrivateRoute><PriceList /></PrivateRoute>} />
         <Route path="/overdue-payments" element={<PrivateRoute><OverduePayments /></PrivateRoute>} />
+        <Route path="/user-classes-table" element={<PrivateRoute><UserClassAttendance /></PrivateRoute>} />
+        <Route path="/user-gym-table" element={<PrivateRoute><UserGymAttendance /></PrivateRoute>} />
         </Route>
       </Routes>
     </Router>

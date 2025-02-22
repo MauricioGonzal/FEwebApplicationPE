@@ -1,21 +1,39 @@
 import api from "../Api";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, Row, Col, Button, Form } from "react-bootstrap";
 import { FaUserPlus, FaTimes } from "react-icons/fa";
+import Select from "react-select";
+
 
 const CreateUserForm = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('client_gym');
+  const [memberships, setMemberships] = useState([]);
+  const [selectedMembership, setSelectedMembership] = useState(null);
+
   const navigate = useNavigate();
+
+  
+  useEffect(() => {
+    api.get('/membership')
+        .then((response) =>{ 
+          setMemberships(response.data);
+        }
+        )
+        .catch((error) => console.error("Error al categorias de membresias", error));
+}, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    api.post('/users', { fullName, email, password, role: role.toUpperCase() })
+console.log(selectedMembership);
+
+    api.post('/users', { fullName, email, password, role: role.toUpperCase(), membership: selectedMembership.value })
       .then(() => {
+        setSelectedMembership([]);
         alert("Usuario creado exitosamente!");
         navigate('/');
       })
@@ -24,6 +42,13 @@ const CreateUserForm = () => {
         alert("Hubo un error al crear el usuario.");
       });
   };
+
+
+  const membershipsOptions = memberships.map(m => ({
+    value: m,
+    label: m.name
+  }));
+  
 
   return (
     <div className="container mt-5">
@@ -66,6 +91,16 @@ const CreateUserForm = () => {
                 </Form.Select>
               </Form.Group>
             </Col>
+            {(role === "client_classes" || role === "client_both") && 
+                        <Select
+                        options={membershipsOptions}
+                        value={selectedMembership}
+                        onChange={(selectedOption) => {setSelectedMembership(selectedOption)}}
+                        placeholder="Seleccionar membresia..."
+                        isSearchable
+                    />
+            }
+
           </Row>
           <hr />
           <div className="d-flex justify-content-between mt-4">
