@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { FaCheck, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import Select from "react-select";
 
-const UserTable = ({ users, handleMarkAttendance, handleDeleteUser, attendanceStatus }) => {
+const UserTable = ({ users, handleMarkAttendance, attendanceStatus, attendanceTypeOptions, selectedAttendanceType, setSelectedAttendanceType }) => {
     const [search, setSearch] = useState("");
     const navigate = useNavigate();
 
-    // Filtrar usuarios según el término de búsqueda
+
     const filteredUsers = users.filter(user =>
         user.fullName.toLowerCase().includes(search.toLowerCase()) ||
         user.email.toLowerCase().includes(search.toLowerCase())
@@ -50,15 +51,75 @@ const UserTable = ({ users, handleMarkAttendance, handleDeleteUser, attendanceSt
                                         </button>
                                     )}
                                     {/* Mostrar botón o mensaje según asistencia */}
-                                    {attendanceStatus[user.id] ? (
-                                        <span className="text-success fw-bold">
-                                            <FaCheck className="me-1" /> Presente Hoy
-                                        </span>
-                                    ) : (
-                                        <button className="btn btn-primary btn-sm me-2" onClick={() => handleMarkAttendance(user.id)}>
-                                            <FaCheck className="me-1" /> Marcar Presente
-                                        </button>
-                                    )}
+                                    
+                                    {user.role !== "CLIENT_BOTH" ? (
+  attendanceStatus.some((as) => as.user.id === user.id) ? (
+    <span className="text-success fw-bold">
+      <FaCheck className="me-1" /> Presente Hoy
+    </span>
+  ) : (
+    <button className="btn btn-primary btn-sm me-2" onClick={() => handleMarkAttendance(user.id)}>
+      <FaCheck className="me-1" /> Marcar Presente
+    </button>
+  )
+) : (
+  (() => {
+    const userAttendances = attendanceStatus.filter((as) => as.user.id === user.id);
+    const hasGym = userAttendances.some((as) => as.attendanceType.name === "Gimnasio");
+    const hasClasses = userAttendances.some((as) => as.attendanceType.name === "Clases");
+
+    if (hasGym && hasClasses) {
+      return (
+        <>
+          <span className="text-success fw-bold">
+            <FaCheck className="me-1" /> Presente Gimnasio
+          </span>
+          <br />
+          <span className="text-success fw-bold">
+            <FaCheck className="me-1" /> Presente Clases
+          </span>
+        </>
+      );
+    }
+
+    return (
+      <>
+        {hasGym && (
+          <span className="text-success fw-bold">
+            <FaCheck className="me-1" /> Presente Gimnasio
+          </span>
+        )}
+        {hasClasses && (
+          <span className="text-success fw-bold">
+            <FaCheck className="me-1" /> Presente Clases
+          </span>
+        )}
+
+        {/* Mostrar el botón si falta marcar una asistencia */}
+        {!(hasGym && hasClasses) && (
+          <>
+            <Select
+              options={attendanceTypeOptions}
+              value={selectedAttendanceType}
+              onChange={(selectedOption) => setSelectedAttendanceType(selectedOption)}
+              placeholder="Seleccionar tipo de presente..."
+              isSearchable
+            />
+            <button
+              disabled={!selectedAttendanceType}
+              className="btn btn-primary btn-sm me-2"
+              onClick={() => handleMarkAttendance(user.id)}
+            >
+              <FaCheck className="me-1" /> Marcar Presente
+            </button>
+          </>
+        )}
+      </>
+    );
+  })()
+)}
+
+
                                 </td>
                             </tr>
                         ))}

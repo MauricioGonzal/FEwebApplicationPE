@@ -7,6 +7,9 @@ import Select from "react-select";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button } from 'react-bootstrap';
 import UserTable from '../components/UserTable';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';// Para los estilos de las notificaciones
+import TransactionsTable from "../components/TransactionsTable";
 
 
 const AdminDashboard = () => {
@@ -28,6 +31,9 @@ const AdminDashboard = () => {
     const [showErrorModal, setShowErrorModal] = useState(false); // Estado para mostrar el modal
     const [attendanceStatus, setAttendanceStatus] = useState({});
 
+    const [attendanceTypes, setAttendanceTypes] = useState([]);
+    const [selectedAttendanceType, setSelectedAttendanceType] = useState([]);
+
 
     const [showModal, setShowModal] = useState(false);
     const [dueDate, setDueDate] = useState(new Date().toISOString().split("T")[0]); // Fecha de hoy
@@ -39,8 +45,9 @@ const AdminDashboard = () => {
             )
             .catch((error) => console.error("Error al obtener usuarios", error));
 
-        api.get('/transactions')
+        api.get('/transactions/today')
             .then((response) => {
+                console.log(response.data);
                 setTransactions(response.data);
                 calcularTotalCaja(response.data);
             })
@@ -78,12 +85,9 @@ const AdminDashboard = () => {
     useEffect(() => {
         api.get("/attendance/today")
             .then(response => {
-                const presentUsers = response.data; // Lista de IDs de usuarios presentes
-                const attendanceMap = presentUsers.reduce((acc, userId) => {
-                    acc[userId] = true;
-                    return acc;
-                }, {});
-                setAttendanceStatus(attendanceMap);
+                console.log(response.data);
+
+                setAttendanceStatus(response.data);
             })
             .catch(error => {
                 console.error("Error al obtener asistencia", error);
@@ -103,7 +107,6 @@ const AdminDashboard = () => {
 
         api.post('/transactions', newTransaction)
             .then((response) => {
-                console.log(response);
                 const updatedTransactions = [...transactions, response.data];
                 setTransactions(updatedTransactions);
                 calcularTotalCaja(updatedTransactions);
@@ -132,7 +135,19 @@ const AdminDashboard = () => {
     const handleCierreCaja = () => {
         const cierre = { date: new Date().toISOString(), total: totalCaja };
 
-        api.post('/transactions/close', cierre)
+        api.post('/transactions/dailyClosing', cierre)
+            .then(() => {
+                alert(`Cierre de caja realizado con éxito. Total: $${totalCaja}`);
+                setTransactions([]); // Opcional: limpiar transacciones después del cierre
+                setTotalCaja(0);
+            })
+            .catch((error) => console.error("Error al cerrar caja", error));
+    };
+
+    const handleCierreMesCaja = () => {
+        const cierre = { date: new Date().toISOString(), total: totalCaja };
+
+        api.post('/transactions/dailyClosing', cierre)
             .then(() => {
                 alert(`Cierre de caja realizado con éxito. Total: $${totalCaja}`);
                 setTransactions([]); // Opcional: limpiar transacciones después del cierre
@@ -154,43 +169,43 @@ const AdminDashboard = () => {
     };
     
     const handleMarkAttendance = (userId) => {
-        const attendance = { userId: userId };
-    
-        // 1️⃣ Verificar si la cuota está vencida antes de registrar la asistencia
+        const attendance = { userId: userId, attendanceType: selectedAttendanceType.value };
         api.get("/payments/isOutDueDate/" + userId)
             .then((response) => {
-                console.log("isOutDueDate:", response.data); // Verificar qué valor retorna
-    
                 if (response.data) { // Asegura que funcione con true, "true" o cualquier truthy
-                    console.log('hola');
                     setSelectedUserForDueDate(userId); // Guardar el usuario para actualizar la cuota
                     setDueDate(new Date().toISOString().split("T")[0]); // Fecha de hoy
                     setShowModal(true); // Mostrar el modal
-    
-                    // 🔹 Retrasar el registro de asistencia hasta que el modal se cierre
-                    //return Promise.reject("Modal abierto, asistencia detenida");
                 }
-                console.log("por ir"); // Verificar qué valor retorna
-
                 api.post("/attendance", attendance)
                 .then(() => {
-                    alert("Asistencia registrada con éxito");
+                    api.get("/users/getById/" + userId)
+                    .then((response)=>{
+                        api.get("/attendance/today")
+                        .then(response => {
+                            console.log(response.data);
+            
+                            setAttendanceStatus(response.data);
+                        })
+                        .catch(error => {
+                            console.error("Error al obtener asistencia", error);
+                        });
+                    })
+                    
+                    toast.success("Asistencia registrada con éxito", {
+                        position: "top-right", // Ahora directamente como string
+                    });
                     // Actualizar el estado local de asistencia después de marcar presente
-                    setAttendanceStatus(prev => ({ ...prev, [userId]: true }));
                 })
                 .catch((error) => {
                     console.error("Error al registrar la asistencia:", error);
                 });
-               
             })
             .catch((error) => {
                 if (error !== "Modal abierto, asistencia detenida") {
                     console.error("Error en el proceso de asistencia", error);
                 }
             })
-            .finally(() => {
-
-            });
     };
     
 
@@ -198,12 +213,28 @@ const AdminDashboard = () => {
         if (selectedUserForDueDate) {
             api.put(`/payments/updateDueDate/${selectedUserForDueDate}`, { dueDate })
                 .then(() => {
-                    alert("Fecha de vencimiento actualizada con éxito");
+                    toast.success("Fecha de vencimiento actualizada con éxito", {
+                        position: "top-right", // Ahora directamente como string
+                    });
                     setShowModal(false);
                 })
                 .catch((error) => console.error("Error al actualizar la fecha de vencimiento", error));
         }
     };
+
+    useEffect(() => {
+        api.get('/attendance-type')
+            .then((response) =>{ 
+                setAttendanceTypes(response.data);
+            }
+            )
+            .catch((error) => console.error("Error al obtener categorias de presente", error));
+    }, []);
+
+    const attendanceTypeOptions = attendanceTypes.map(attendanceType => ({
+        value: attendanceType,
+        label: attendanceType.name
+    }));
 
     const userOptions = users.map(user => ({
         value: user, // Guarda el objeto entero en `value`
@@ -256,6 +287,9 @@ const AdminDashboard = () => {
                     handleMarkAttendance={handleMarkAttendance} 
                     handleDeleteUser={handleDeleteUser} 
                     attendanceStatus={attendanceStatus}
+                    attendanceTypeOptions={attendanceTypeOptions}
+                    selectedAttendanceType= {selectedAttendanceType}
+                    setSelectedAttendanceType={setSelectedAttendanceType}
                 />
 
                 {/* Sección de Finanzas */}
@@ -332,31 +366,25 @@ const AdminDashboard = () => {
                         </div>
                     </div>
                 </div>
-
-{/* Modal de actualización de cuota */}
-
-
-<Modal show={showModal} onHide={() => setShowModal(false)}>
-<Modal.Header closeButton>
-<Modal.Title>Actualizar Fecha de Vencimiento</Modal.Title>
-</Modal.Header>
-<Modal.Body>            <label>Fecha de vencimiento:</label>
-            <input 
-                type="date" 
-                value={dueDate} 
-                onChange={(e) => setDueDate(e.target.value)} 
-            />
-            <button onClick={handleUpdateDueDate}>Actualizar</button>
-            </Modal.Body>
-<Modal.Footer>
-<Button variant="secondary" onClick={() => setShowModal(false)}>
-    Cerrar
-</Button>
-</Modal.Footer>
-</Modal>
-
-
-
+                {/* Modal de actualización de cuota */}
+                <Modal show={showModal} onHide={() => setShowModal(false)}>
+                <Modal.Header closeButton>
+                <Modal.Title>Actualizar Fecha de Vencimiento</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>            <label>Fecha de vencimiento:</label>
+                            <input 
+                                type="date" 
+                                value={dueDate} 
+                                onChange={(e) => setDueDate(e.target.value)} 
+                            />
+                            <button onClick={handleUpdateDueDate}>Actualizar</button>
+                            </Modal.Body>
+                <Modal.Footer>
+                <Button variant="secondary" onClick={() => setShowModal(false)}>
+                    Cerrar
+                </Button>
+                </Modal.Footer>
+                </Modal>
                 {/* Modal emergente para mostrar el error */}
                 <Modal show={showErrorModal} onHide={() => setShowErrorModal(false)}>
                     <Modal.Header closeButton>
@@ -369,42 +397,20 @@ const AdminDashboard = () => {
                     </Button>
                     </Modal.Footer>
                 </Modal>
-
-                {/* Historial de ingresos */}
-                <h5 className="mt-4">Historial de Movimientos</h5>
-                <div className="table-responsive">
-                    <table className="table table-hover table-bordered shadow-sm">
-                        <thead className="table-dark text-center">
-                            <tr>
-                                <th>Monto</th>
-                                <th>Medio de pago</th>
-                                <th>Categoria</th>
-                                <th>Usuario</th>
-                                <th>Comentario</th>
-                                <th>Fecha</th>
-                            </tr>
-                        </thead>
-                        <tbody className="text-center">
-                            {transactions.map((transaction, index) => (
-                                <tr key={index}>
-                                    <td>${transaction.amount}</td>
-                                    <td>{transaction.paymentMethod.name}</td>
-                                    <td>{transaction.transactionCategory.name}</td>
-                                    <td>{transaction?.user?.fullName}</td>
-                                    <td>{transaction.comment}</td>
-                                    <td>{new Date(transaction.date).toLocaleString()}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-
+                <TransactionsTable 
+                    transactions={transactions} 
+                />
                 {/* Cierre de caja */}
                 <h5 className="mt-4">Cierre de Caja</h5>
                 <div className="card shadow-sm p-4">
                     <p className="fw-bold">Total del día: <span className="text-success">${totalCaja.toFixed(2)}</span></p>
                     <button className="btn btn-primary" onClick={handleCierreCaja} disabled={totalCaja === 0}>
-                        <FaBox className="me-1" /> Realizar Cierre
+                        <FaBox className="me-1" /> Realizar Cierre Diario
+                    </button>
+                </div>
+                <div className="card shadow-sm p-4">
+                    <button className="btn btn-primary" onClick={handleCierreMesCaja}>
+                        <FaBox className="me-1" /> Realizar Cierre Mensual
                     </button>
                 </div>
             </div>

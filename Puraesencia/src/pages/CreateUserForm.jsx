@@ -8,7 +8,7 @@ const CreateUserForm = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('client-gym');
+  const [role, setRole] = useState('client_gym');
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
@@ -58,7 +58,7 @@ const CreateUserForm = () => {
               <Form.Group className="mb-3">
                 <Form.Label>Rol</Form.Label>
                 <Form.Select value={role} onChange={(e) => setRole(e.target.value)} required>
-                  <option value="client_gim">Miembro Gimnasio</option>
+                  <option value="client_gym">Miembro Gimnasio</option>
                   <option value="client_classes">Miembro Clases</option>
                   <option value="client_both">Miembro Ambas</option>
                   <option value="trainer">Entrenador</option>
