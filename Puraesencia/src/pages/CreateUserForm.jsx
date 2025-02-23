@@ -12,7 +12,7 @@ const CreateUserForm = () => {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('client_gym');
   const [memberships, setMemberships] = useState([]);
-  const [selectedMembership, setSelectedMembership] = useState(null);
+  const [selectedMembership, setSelectedMembership] = useState([]);
 
   const navigate = useNavigate();
 

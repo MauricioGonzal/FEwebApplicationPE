@@ -9,6 +9,7 @@ import { Modal, Button } from 'react-bootstrap';
 import UserTable from '../components/UserTable';
 import 'react-toastify/dist/ReactToastify.css';// Para los estilos de las notificaciones
 import TransactionsTable from "../components/TransactionsTable";
+import { toast } from 'react-toastify';
 
 
 const AdminDashboard = () => {
@@ -84,6 +85,9 @@ const AdminDashboard = () => {
                 setShowErrorModal(false);  // Cerrar modal en caso de éxito            
                 setComment("");
                 setAmount(0);
+                toast.success("Transaccion creada correctamente", {
+                    position: "top-right", // Ahora directamente como string
+                  });
             })
             .catch((error) => {
                 if (error.response && error.response.data) {
