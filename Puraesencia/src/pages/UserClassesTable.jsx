@@ -20,6 +20,14 @@ const UserClassAttendance = () => {
             .catch((error) => console.error("Error al obtener usuarios", error));
     }, []);
 
+    useEffect(() => {
+        api.get(`/attendance/current-month`)
+            .then((response) => {
+                setAttendances(response.data);
+            })
+            .catch((error) => console.error("Error al obtener asistencias", error));
+    }, []);
+
     const handleMarkAttendance = (userId) => {
         api.post("/attendance", { userId })
             .then(() => {
@@ -33,15 +41,9 @@ const UserClassAttendance = () => {
     };
 
     const getMonthlyAttendance = (user) => {
-        api.get(`/attendance/${user.id}/details`)
+        api.get(`/attendance/current-month`)
             .then((response) => {
-                const attendanceCount = response.data.reduce((acc, attendance) => {
-                    const date = new Date(attendance.date).toLocaleDateString();
-                    acc[date] = (acc[date] || 0) + 1;
-                    return acc;
-                }, {});
-                console.log(attendanceCount);
-                setAttendances(attendanceCount);
+                setAttendances(response.data);
                 setSelectedUser(user);
                 setShowModal(true);
             })
@@ -90,11 +92,21 @@ const UserClassAttendance = () => {
                         </thead>
                         <tbody className="text-center">
                             {filteredUsers.map((user) => {
-                                const totalAttendance = Object.values(attendances).reduce((sum, val) => sum + val, 0);
-                                const maxAttendance = user.membership?.maxClasses || 0;
-                                const reachedLimit = totalAttendance >= maxAttendance;
+                                var reachedLimit = false;
+                                if(attendances[user.id] !== undefined){
+                                    const totalAttendance = Object.values(attendances[user.id]).reduce((sum, val) => sum + val, 0);
+                                    const maxAttendance = user.membership?.maxClasses || 0;
+                                    reachedLimit = totalAttendance >= maxAttendance;
+
+                                    console.log(user.membership);
+                                console.log(attendances[user.id]);
+                                console.log(totalAttendance);
+                                console.log(maxAttendance);
+                                console.log(reachedLimit);
+                                }
                                 
-                                console.log(user.membership);
+                                
+                                
                                 return (
                                     <tr key={user.id}>
                                         <td>{user.id}</td>
@@ -144,12 +156,17 @@ const UserClassAttendance = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {Object.entries(attendances).map(([date, count], index) => (
-                                    <tr key={index}>
-                                        <td>{date}</td>
-                                        <td>{count}</td>
-                                    </tr>
-                                ))}
+                            {Object.entries(attendances).map(([userId, userAttendances], index) => {
+                                if (parseInt(userId) === selectedUser?.id) {  // Verificamos si el id coincide
+                                    return Object.entries(userAttendances).map(([date, count]) => (
+                                        <tr key={date}>  {/* Usamos "date" como key para cada fila */}
+                                            <td>{date}</td>
+                                            <td>{count}</td>
+                                        </tr>
+                                    ));
+                                }
+                                return null;  // Si no coincide, no renderizamos nada para este usuario
+                            })}
                             </tbody>
                         </table>
                     ) : (
