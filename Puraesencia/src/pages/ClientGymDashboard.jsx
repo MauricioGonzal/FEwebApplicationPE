@@ -17,9 +17,10 @@ const ClientGymDashboard = () => {
     const [routine, setRoutine] = useState(null);
     const [loading, setLoading] = useState(true);
     const [exercises, setExercises] = useState([]);
-    const [sessionData, setSessionData] = useState({}); // Estado individual por ejercicio
+    const [sessionData, setSessionData] = useState({});
+    const [expandedDays, setExpandedDays] = useState({});
+    const [expandedExercises, setExpandedExercises] = useState({});
   
-
     useEffect(() => {
       const token = localStorage.getItem('token');
       const decoded = jwtDecode(token);
@@ -41,7 +42,14 @@ const ClientGymDashboard = () => {
             });
     }, []);
 
-    // Manejar cambios en los inputs de peso, repeticiones y comentarios
+    const toggleDay = (dayIndex) => {
+        setExpandedDays(prev => ({ ...prev, [dayIndex]: !prev[dayIndex] }));
+    };
+
+    const toggleExercise = (exerciseId) => {
+        setExpandedExercises(prev => ({ ...prev, [exerciseId]: !prev[exerciseId] }));
+    };
+
     const handleInputChange = (exerciseId, field, value) => {
         setSessionData(prevState => ({
             ...prevState,
@@ -55,35 +63,34 @@ const ClientGymDashboard = () => {
     const saveWorkoutSession = () => {
       const token = localStorage.getItem('token');
       const decoded = jwtDecode(token);
-  
-      // Filtrar solo los ejercicios donde el usuario ingresó datos
+      
       const logs = Object.entries(sessionData).map(([exerciseId, data]) => {
           return {
-              exerciseId: parseInt(exerciseId), // Asegúrate de que exerciseId sea un número válido
+              exerciseId: parseInt(exerciseId),
               repetitions: parseInt(data.reps),
               weight: parseFloat(data.weight),
-              notes: data.notes || ""  // Asegúrate de que se esté capturando la nota
+              notes: data.notes || ""
           };
-      }).filter(log => log.repetitions && log.weight);  // Filtra solo los ejercicios con datos completos
-  
+      }).filter(log => log.repetitions && log.weight);
+      
       if (logs.length === 0) {
           alert("Debes ingresar al menos un ejercicio con peso y repeticiones.");
           return;
       }
-  
+      
       const workoutSession = {
           userId: decoded.id,
           date: new Date().toISOString(),
           logs: logs
       };
-  
+      
       api.post("/workout-sessions", workoutSession)
           .then(() => {
               alert("Sesión guardada correctamente");
               setSessionData({});
           })
           .catch(error => console.error("Error al guardar la sesión", error));
-  };
+    };
 
     if (loading) {
         return <div className="text-center mt-5"><h4>Cargando rutina...</h4></div>;
@@ -91,7 +98,6 @@ const ClientGymDashboard = () => {
 
     return (
         <div className="container-fluid">
-            {/* Navbar */}
             <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow">
                 <div className="container d-flex justify-content-between">
                     <a className="navbar-brand fw-bold" href="/">
@@ -111,81 +117,37 @@ const ClientGymDashboard = () => {
                 </div>
             </nav>
 
-            {/* Rutina */}
-            {routine !== "" ?
-                <div className="container mt-4">
-                    <div className="row">
-                        {daysOfWeek.map((day) => (
-                            <div key={day.index} className="col-md-6 mb-3">
-                                <div className="card p-3 shadow-sm">
-                                    <h5 className="card-title">{day.name}</h5>
-                                    <div className="card-text">
-                                        {routine.exercisesByDay[day.index] && routine.exercisesByDay[day.index].length > 0
-                                            ? routine.exercisesByDay[day.index].map((ex, idx) => (
-                                                <div key={idx} className="mb-3 p-2 border rounded">
-                                                  <>
-                                                  {ex.exerciseIds.length > 1 && 
-                                                    <strong>Ejercicio Combinado</strong> 
-                                                  }
-                                                    </>
-                                                    {ex.exerciseIds.map((exerciseId) => {
-                                                        const exerciseDetails = exercises.find((exercise) => exercise.id === exerciseId);
-                                                        return (
-                                                            <div key={exerciseId} className="mb-2">
-                                                                <span>{exerciseDetails?.name}</span> - {ex.series} series de {ex.repetitions} repeticiones, descanso: {ex.rest}s
-
-                                                                {/* Inputs para registrar el peso, repeticiones y comentario */}
-                                                                <div className="mt-2">
-                                                                    <input
-                                                                        type="number"
-                                                                        className="form-control mb-2"
-                                                                        placeholder="Peso (kg)"
-                                                                        value={sessionData[exerciseId]?.weight || ""}
-                                                                        onChange={(e) => handleInputChange(exerciseId, "weight", e.target.value)}
-                                                                    />
-                                                                    <input
-                                                                        type="number"
-                                                                        className="form-control mb-2"
-                                                                        placeholder="Repeticiones"
-                                                                        value={sessionData[exerciseId]?.reps || ""}
-                                                                        onChange={(e) => handleInputChange(exerciseId, "reps", e.target.value)}
-                                                                    />
-                                                                    <textarea
-                                                                        className="form-control mb-2"
-                                                                        placeholder="Comentario"
-                                                                        rows="2"
-                                                                        value={sessionData[exerciseId]?.notes || ""}
-                                                                        onChange={(e) => handleInputChange(exerciseId, "notes", e.target.value)}
-                                                                    />
-                                                                    <button
-                                                                        className="btn btn-success"
-                                                                        onClick={() => saveWorkoutSession(exerciseId)}
-                                                                    >
-                                                                        Guardar Sesión
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        );
-                                                    })}
+            <div className="container mt-4">
+                <div className="row">
+                    {daysOfWeek.map((day) => (
+                        <div key={day.index} className="col-md-6 mb-3">
+                            <div className="card p-3 shadow-sm">
+                                <h5 className="card-title" onClick={() => toggleDay(day.index)} style={{ cursor: "pointer" }}>{day.name}</h5>
+                                {expandedDays[day.index] && routine.exercisesByDay[day.index]?.map((ex, idx) => (
+                                    <div key={idx} className="mb-3 p-2 border rounded">
+                                        {ex.exerciseIds.map((exerciseId) => {
+                                            const exerciseDetails = exercises.find((exercise) => exercise.id === exerciseId);
+                                            return (
+                                                <div key={exerciseId} className="mb-2" onClick={() => toggleExercise(exerciseId)} style={{ cursor: "pointer" }}>
+                                                    <span>{exerciseDetails?.name}</span> - {ex.series} series de {ex.repetitions} repeticiones, descanso: {ex.rest}s
+                                                    {expandedExercises[exerciseId] && (
+                                                        <div className="mt-2">
+                                                            <input type="number" className="form-control mb-2" placeholder="Peso (kg)" onChange={(e) => handleInputChange(exerciseId, "weight", e.target.value)} />
+                                                            <input type="number" className="form-control mb-2" placeholder="Repeticiones" onChange={(e) => handleInputChange(exerciseId, "reps", e.target.value)} />
+                                                            <textarea className="form-control mb-2" placeholder="Comentario" rows="2" onChange={(e) => handleInputChange(exerciseId, "notes", e.target.value)} />
+                                                            <button className="btn btn-success" onClick={saveWorkoutSession}>Guardar Sesión</button>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            ))
-                                            : <p>Sin ejercicios</p>}
+                                            );
+                                        })}
                                     </div>
-                                </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))}
                 </div>
-                :
-                <div className="alert alert-warning text-center" role="alert">
-                    <h4 className="alert-heading">¡Atención!</h4>
-                    <p>Todavía no tienes una rutina asignada.</p>
-                </div>
-            }
-            {/* Footer */}
-            <footer className="text-center py-3 bg-light">
-                <small>&copy; 2025 Gimnasio Pura Esencia</small>
-            </footer>
+            </div>
         </div>
     );
 };

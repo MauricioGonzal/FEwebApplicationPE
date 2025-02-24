@@ -6,9 +6,10 @@ import { FaUser, FaCashRegister, FaBox } from "react-icons/fa";
 import Select from "react-select";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button } from 'react-bootstrap';
-import UserTable from '../components/UserTable';
 import 'react-toastify/dist/ReactToastify.css';// Para los estilos de las notificaciones
 import TransactionsTable from "../components/TransactionsTable";
+import UsersTabs from "../components/UserTabs";
+
 import { toast } from 'react-toastify';
 
 
@@ -131,17 +132,7 @@ const AdminDashboard = () => {
             .catch((error) => console.error("Error al cerrar caja", error));
     };
 
-    const handleDeleteUser = (userId) => {
-        const confirmDelete = window.confirm("¿Seguro que quiere eliminar este usuario?");
-        if (confirmDelete) {
-            api.delete(`/users/${userId}`)
-                .then(() => {
-                    setUsers(users.filter(user => user.id !== userId));
-                    alert("Usuario eliminado con éxito");
-                })
-                .catch((error) => console.error("Error al eliminar usuario", error));
-        }
-    };
+
 
     const userOptions = users.map(user => ({
         value: user, // Guarda el objeto entero en `value`
@@ -180,8 +171,8 @@ const AdminDashboard = () => {
                             <li><button className="dropdown-item" onClick={() => navigate('/overdue-payments')}>Ver Cuotas Vencidas</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate('/create-user')}>Crear Usuario</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/price-list")}>Lista de precios</button></li>
-                            <li><button className="dropdown-item" onClick={() => navigate("/user-classes-table")}>Usuarios clases</button></li>
-                            <li><button className="dropdown-item" onClick={() => navigate("/user-gym-table")}>Usuarios Musculacion</button></li>
+                            <li><button className="dropdown-item" onClick={() => navigate("/user-table")}>Lista de usuarios</button></li>
+                            <li><button className="dropdown-item" onClick={() => navigate("/user-table")}>Cierre Mensual</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button></li>
                             <li><button className="dropdown-item" onClick={() => logout(navigate)}>Cerrar Sesion</button></li>
                         </ul>
@@ -189,12 +180,9 @@ const AdminDashboard = () => {
                 </div>
             </nav>
 
+            <UsersTabs/>
+
             <div className="container mt-4">
-                <h2 className="text-center fw-bold mb-4 text-dark">Usuarios Registrados</h2>
-                <UserTable 
-                    users={users} 
-                    handleDeleteUser={handleDeleteUser}
-                />
 
                 {/* Sección de Finanzas */}
                 <h2 className="text-center fw-bold mt-5 mb-3 text-dark">Caja</h2>
@@ -291,11 +279,6 @@ const AdminDashboard = () => {
                     <p className="fw-bold">Total del día: <span className="text-success">${totalCaja.toFixed(2)}</span></p>
                     <button className="btn btn-primary" onClick={handleCierreCaja} disabled={totalCaja === 0}>
                         <FaBox className="me-1" /> Realizar Cierre Diario
-                    </button>
-                </div>
-                <div className="card shadow-sm p-4">
-                    <button className="btn btn-primary" onClick={handleCierreMesCaja}>
-                        <FaBox className="me-1" /> Realizar Cierre Mensual
                     </button>
                 </div>
             </div>

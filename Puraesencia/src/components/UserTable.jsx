@@ -1,17 +1,41 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaTimes } from "react-icons/fa";
+import api from "../Api";
 
 
-const UserTable = ({ users, handleDeleteUser }) => {
+
+const UserTable = () => {
     const [search, setSearch] = useState("");
     const navigate = useNavigate();
+    const [users, setUsers] = useState([]);
+
+
+    useEffect(() => {
+        api.get('/users/getAllByRole/clients')
+            .then((response) =>{ 
+                setUsers(response.data)}
+            )
+            .catch((error) => console.error("Error al obtener usuarios", error));
+    }, []);
 
     const filteredUsers = users.filter(user =>
         user.fullName.toLowerCase().includes(search.toLowerCase()) ||
         user.email.toLowerCase().includes(search.toLowerCase())
     );
 
+    
+    const handleDeleteUser = (userId) => {
+        const confirmDelete = window.confirm("¿Seguro que quiere eliminar este usuario?");
+        if (confirmDelete) {
+            api.delete(`/users/${userId}`)
+                .then(() => {
+                    setUsers(users.filter(user => user.id !== userId));
+                    alert("Usuario eliminado con éxito");
+                })
+                .catch((error) => console.error("Error al eliminar usuario", error));
+        }
+    };
 
 
     return (

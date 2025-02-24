@@ -24,6 +24,8 @@ import PriceList from './pages/PriceList';
 import OverduePayments from './pages/OverduePayments';
 import UserClassAttendance from './pages/UserClassesTable';
 import UserGymAttendance from './pages/UserGymTable';
+import UserTable from "./components/UserTable";
+
 
 
 function App() {
@@ -53,6 +55,7 @@ function App() {
         <Route path="/overdue-payments" element={<PrivateRoute><OverduePayments /></PrivateRoute>} />
         <Route path="/user-classes-table" element={<PrivateRoute><UserClassAttendance /></PrivateRoute>} />
         <Route path="/user-gym-table" element={<PrivateRoute><UserGymAttendance /></PrivateRoute>} />
+        <Route path="/user-table" element={<PrivateRoute><UserTable /></PrivateRoute>} />
         </Route>
       </Routes>
     </Router>

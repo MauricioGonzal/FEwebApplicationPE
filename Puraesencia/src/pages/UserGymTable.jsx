@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaCheck, FaCalendarAlt, FaArrowLeft } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { FaCheck, FaCalendarAlt } from "react-icons/fa";
 import api from "../Api";
 import { toast } from "react-toastify";
 import Modal from "react-bootstrap/Modal";
@@ -21,7 +20,6 @@ const UserGymAttendance = () => {
 
 
     const [attendancesToday, setAttendancesToday] = useState([]);
-    const navigate = useNavigate();
 
     useEffect(() => {
         api.get("/users/getAllByRole/clients")
@@ -47,7 +45,7 @@ const UserGymAttendance = () => {
                 setDueDate(new Date().toISOString().split("T")[0]); // Fecha de hoy
                 setShowModalDueDate(true); // Mostrar el modal
             }
-        api.post("/attendance", { userId })
+        api.post("/attendance", { userId, attendanceTypeId: 1 })
             .then(() => {
                 toast.success("Asistencia registrada con éxito", {
                     position: "top-right",
@@ -81,7 +79,7 @@ const UserGymAttendance = () => {
 
     const filteredUsers = users.filter(
         (user) =>
-            user.role === "CLIENT_GYM" &&
+            (user.role === "CLIENT_GYM" || user.role === "CLIENT_BOTH") &&
             (user.fullName.toLowerCase().includes(search.toLowerCase()) ||
                 user.email.toLowerCase().includes(search.toLowerCase()))
     );
@@ -100,20 +98,8 @@ const UserGymAttendance = () => {
     };
 
     return (
-        <div className="bg-light min-vh-100">
-            <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow">
-            <div className="container d-flex justify-content-between">
-                <a className="navbar-brand fw-bold" href="/">
-                        <img src="./puraesencia.png" alt="Logo" width="40" height="40" className="me-2" />
-                        Admin Panel
-                    </a>                    
-                </div>
-            </nav>
-            <div className="col-md-8 mx-auto">
-                <Button variant="secondary" className="mb-3" onClick={() => navigate("/")}>
-                    <FaArrowLeft className="me-2" /> Volver
-                </Button>
-
+        <div>
+            <div>
                 <input
                     type="text"
                     className="form-control mb-3 w-75 mx-auto"

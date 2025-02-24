@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaCheck, FaCalendarAlt, FaArrowLeft } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { FaCheck, FaCalendarAlt } from "react-icons/fa";
 import api from "../Api";
 import { toast } from "react-toastify";
 import Modal from "react-bootstrap/Modal";
@@ -12,7 +11,6 @@ const UserClassAttendance = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
     const [attendances, setAttendances] = useState([]);
-    const navigate = useNavigate();
 
     useEffect(() => {
         api.get("/users/getAllByRole/clients")
@@ -29,7 +27,7 @@ const UserClassAttendance = () => {
     }, []);
 
     const handleMarkAttendance = (userId) => {
-        api.post("/attendance", { userId })
+        api.post("/attendance", { userId, attendanceTypeId: 2 })
             .then(() => {
                 toast.success("Asistencia registrada con éxito", {
                     position: "top-right",
@@ -52,26 +50,14 @@ const UserClassAttendance = () => {
 
     const filteredUsers = users.filter(
         (user) =>
-            user.role === "CLIENT_CLASSES" &&
+            (user.role === "CLIENT_CLASSES" || user.role === "CLIENT_BOTH") &&
             (user.fullName.toLowerCase().includes(search.toLowerCase()) ||
                 user.email.toLowerCase().includes(search.toLowerCase()))
     );
 
     return (
-        <div className="bg-light min-vh-100">
-            <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow">
-                <div className="container d-flex justify-content-between">
-                    <a className="navbar-brand fw-bold" href="/">
-                        <img src="./puraesencia.png" alt="Logo" width="40" height="40" className="me-2" />
-                        Admin Panel
-                    </a>                    
-                </div>
-            </nav>
-            <div className="col-md-8 mx-auto">
-                <Button variant="secondary" className="mb-3" onClick={() => navigate("/")}> 
-                    <FaArrowLeft className="me-2" /> Volver
-                </Button>
-
+        <div>
+            <div>
                 <input
                     type="text"
                     className="form-control mb-3 w-75 mx-auto"
