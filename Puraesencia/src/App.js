@@ -8,6 +8,8 @@ import CreateRoutine from './pages/CreateRoutine';
 import Login from './pages/Login';
 import ClientGymDashboard from './pages/ClientGymDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import EmployeeDashboard from './pages/EmployeeDashboard';
+
 import TrainerDashboard from './pages/TrainerDashboard';
 import PrivateRoute from './components/PrivateRoute';
 import RoleBasedRedirect from './components/RoleBasedRedirect ';
@@ -40,6 +42,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<RoleBasedRedirect />} /> {/* Redirige según el rol */}
         <Route path="/admin-dashboard" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
+        <Route path="/employee-dashboard" element={<PrivateRoute><EmployeeDashboard /></PrivateRoute>} />
         <Route path="/client-gym-dashboard" element={<PrivateRoute><ClientGymDashboard /></PrivateRoute>} />
         <Route path="/trainer-dashboard" element={<PrivateRoute><TrainerDashboard /></PrivateRoute>} />
         <Route path="/edit-routine/:routineId/:userId" element={<PrivateRoute><EditRoutine /></PrivateRoute>} />

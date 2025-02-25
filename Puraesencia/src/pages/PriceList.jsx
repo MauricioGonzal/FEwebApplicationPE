@@ -23,14 +23,12 @@ const PriceList = () => {
     api
       .post("/pricelists", newPrice)
       .then((response) => {
-        console.log(response.data);
+        const updatedPriceList = [...prices, response.data];
+                setPrices(updatedPriceList);
       })
       .catch((error) => {
         console.error("Error al guardar precio", error);
       });
-
-    const newId = prices.length ? prices[prices.length - 1].id + 1 : 1;
-    setPrices([...prices, { ...newPrice, id: newId }]);
   };
 
   const handleDelete = (id) => {

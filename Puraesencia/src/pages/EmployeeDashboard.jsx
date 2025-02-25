@@ -2,7 +2,7 @@ import api from "../Api";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "./Logout";
-import { FaUser, FaCashRegister, FaBox } from "react-icons/fa";
+import { FaUser, FaCashRegister } from "react-icons/fa";
 import Select from "react-select";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button } from 'react-bootstrap';
@@ -13,10 +13,9 @@ import UsersTabs from "../components/UserTabs";
 import { toast } from 'react-toastify';
 
 
-const AdminDashboard = () => {
+const EmployeeDashboard = () => {
     const [users, setUsers] = useState([]);
     const [transactions, setTransactions] = useState([]);
-    const [totalCaja, setTotalCaja] = useState(0);
     const [paymentTypes, setPaymentTypes] = useState([]);
     const [products, setProducts] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState(null);
@@ -44,7 +43,6 @@ const AdminDashboard = () => {
             .then((response) => {
                 console.log(response.data);
                 setTransactions(response.data);
-                calcularTotalCaja(response.data);
             })
             .catch((error) => console.error("Error al obtener transacciones", error));
 
@@ -93,7 +91,6 @@ const AdminDashboard = () => {
             .then((response) => {
                 const updatedTransactions = [...transactions, response.data];
                 setTransactions(updatedTransactions);
-                calcularTotalCaja(updatedTransactions);
                 setShowErrorModal(false);  // Cerrar modal en caso de éxito            
                 setComment("");
                 setAmount(0);
@@ -110,40 +107,6 @@ const AdminDashboard = () => {
                   setShowErrorModal(true);  // Mostrar modal con el error
         });
     };
-
-    const calcularTotalCaja = (transactions) => {
-        const today = new Date().toISOString().split('T')[0]; // Obtiene la fecha de hoy (YYYY-MM-DD)
-        const total = transactions
-            .filter(t => t.date.startsWith(today))
-            .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-        setTotalCaja(total);
-    };
-
-    const handleCierreCaja = () => {
-        const cierre = { date: new Date().toISOString(), total: totalCaja };
-
-        api.post('/transactions/dailyClosing', cierre)
-            .then(() => {
-                alert(`Cierre de caja realizado con éxito. Total: $${totalCaja}`);
-                setTransactions([]); // Opcional: limpiar transacciones después del cierre
-                setTotalCaja(0);
-            })
-            .catch((error) => console.error("Error al cerrar caja", error));
-    };
-
-    const handleCierreMesCaja = () => {
-        const cierre = { date: new Date().toISOString(), total: totalCaja };
-
-        api.post('/transactions/dailyClosing', cierre)
-            .then(() => {
-                alert(`Cierre de caja realizado con éxito. Total: $${totalCaja}`);
-                setTransactions([]); // Opcional: limpiar transacciones después del cierre
-                setTotalCaja(0);
-            })
-            .catch((error) => console.error("Error al cerrar caja", error));
-    };
-
-
 
     const userClassesOptions = users.filter(user => user.role === "CLIENT_CLASSES" || user.role === "CLIENT_BOTH").map(user => ({
         value: user, // Guarda el objeto entero en `value`
@@ -187,7 +150,7 @@ const AdminDashboard = () => {
             <div className="container d-flex justify-content-between">
                 <a className="navbar-brand fw-bold" href="/">
                         <img src="./puraesencia.png" alt="Logo" width="40" height="40" className="me-2" />
-                        Admin Panel
+                        Panel
                     </a>                    
                     <div className="dropdown">
                         <button className="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
@@ -198,7 +161,6 @@ const AdminDashboard = () => {
                             <li><button className="dropdown-item" onClick={() => navigate('/create-user')}>Crear Usuario</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/price-list")}>Lista de precios</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/user-table")}>Lista de usuarios</button></li>
-                            <li><button className="dropdown-item" onClick={() => navigate("/user-table")}>Cierre Mensual</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button></li>
                             <li><button className="dropdown-item" onClick={() => logout(navigate)}>Cerrar Sesion</button></li>
                         </ul>
@@ -347,17 +309,9 @@ const AdminDashboard = () => {
                 <TransactionsTable 
                     transactions={transactions} 
                 />
-                {/* Cierre de caja */}
-                <h5 className="mt-4">Cierre de Caja</h5>
-                <div className="card shadow-sm p-4">
-                    <p className="fw-bold">Total del día: <span className="text-success">${totalCaja.toFixed(2)}</span></p>
-                    <button className="btn btn-primary" onClick={handleCierreCaja} disabled={totalCaja === 0}>
-                        <FaBox className="me-1" /> Realizar Cierre Diario
-                    </button>
-                </div>
             </div>
         </div>
     );
 };
 
-export default AdminDashboard;
+export default EmployeeDashboard;
