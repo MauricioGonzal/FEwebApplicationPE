@@ -59,8 +59,16 @@ const PriceForm = ({ onAddPrice }) => {
         paymentMethod: selectedPaymentType.value,
         amount: amount,
         product: selectedProduct?.value,
-        membership: selectedMembership?.value
+        membership: selectedMembership?.value,
+        validFrom: new Date().toISOString().split("T")[0],
+        isActive: true
       });
+
+      setAmount(0);
+      setSelectedCategory([]);
+      setSelectedMembership([]);
+      setSelectedPaymentType([]);
+      setSelectedProduct([]);
       
     
   };

@@ -23,7 +23,9 @@ export default function WorkoutHistory() {
 
     api.get(`/workout-sessions/${userId}`)
       .then((response) => {
-        setSessions(response.data);
+        if(response.data.length > 0){
+          setSessions(response.data);
+        }
         setLoading(false);
       })
       .catch((error) => {

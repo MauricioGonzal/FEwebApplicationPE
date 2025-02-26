@@ -27,6 +27,7 @@ import OverduePayments from './pages/OverduePayments';
 import UserClassAttendance from './pages/UserClassesTable';
 import UserGymAttendance from './pages/UserGymTable';
 import UserTable from "./components/UserTable";
+import CreateSalary from "./pages/SalaryForm";
 
 
 
@@ -59,6 +60,7 @@ function App() {
         <Route path="/user-classes-table" element={<PrivateRoute><UserClassAttendance /></PrivateRoute>} />
         <Route path="/user-gym-table" element={<PrivateRoute><UserGymAttendance /></PrivateRoute>} />
         <Route path="/user-table" element={<PrivateRoute><UserTable /></PrivateRoute>} />
+        <Route path="/salary" element={<PrivateRoute><CreateSalary /></PrivateRoute>} />
         </Route>
       </Routes>
     </Router>

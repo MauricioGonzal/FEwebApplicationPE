@@ -18,20 +18,21 @@ const AdminDashboard = () => {
     const [transactions, setTransactions] = useState([]);
     const [totalCaja, setTotalCaja] = useState(0);
     const [paymentTypes, setPaymentTypes] = useState([]);
-    const [products, setProducts] = useState([]);
-    const [selectedProduct, setSelectedProduct] = useState(null);
-    const [selectedPaymentType, setSelectedPaymentType] = useState(null);
     const [transactionCategories, setTransactionCategories] = useState([]);
+    const [products, setProducts] = useState([]);
     const [memberships, setMemberships] = useState([]);
-    const [selectedMembership, setSelectedMembership] = useState([]);
-
-    const navigate = useNavigate();
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [selectedTransactionCategory, setSelectedTransactionCategory] = useState('');
     const [errorMessage, setErrorMessage] = useState("");
     const [comment, setComment] = useState("");
     const [amount, setAmount] = useState(0);
-    const [showErrorModal, setShowErrorModal] = useState(false); // Estado para mostrar el modal
+    const [showErrorModal, setShowErrorModal] = useState(false);
+
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [selectedPaymentType, setSelectedPaymentType] = useState(null);
+    const [selectedMembership, setSelectedMembership] = useState([]);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [selectedTransactionCategory, setSelectedTransactionCategory] = useState('');
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         api.get('/users/getAllByRole/clients')
@@ -48,30 +49,26 @@ const AdminDashboard = () => {
             })
             .catch((error) => console.error("Error al obtener transacciones", error));
 
-            api.get('/payment-methods')
+        api.get('/payment-methods')
             .then((response) =>{ 
                 setPaymentTypes(response.data);
-            }
-            )
+            })
             .catch((error) => console.error("Error al obtener medios de pago", error));
 
-            api.get('/products')
+        api.get('/products')
             .then((response) =>{ 
                 setProducts(response.data);
-            }
-            )
+            })
             .catch((error) => console.error("Error al obtener medios de pago", error));
 
-            api.get('/transaction-categories')
+        api.get('/transaction-categories')
             .then((response) =>{ 
                 setTransactionCategories(response.data);
-            }
-            )
+            })
             .catch((error) => console.error("Error al obtener categorias de transacciones", error));
 
             api.get('/membership')
             .then((response) =>{ 
-                console.log(response.data);
                 setMemberships(response.data);
             }
             )
@@ -79,14 +76,14 @@ const AdminDashboard = () => {
     }, []);
 
     const handleAddTransaction = () => {
-
         const newTransaction = { 
             user: selectedUser?.value,
             transactionCategory: selectedTransactionCategory.value,
             paymentMethod: selectedPaymentType.value,
             amount: amount, 
             date: new Date().toISOString(),
-            comment: comment
+            comment: comment,
+            membership: selectedMembership.value
         };
 
         api.post('/transactions', newTransaction)
@@ -185,7 +182,7 @@ const AdminDashboard = () => {
             {/* Navbar */}
             <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow">
             <div className="container d-flex justify-content-between">
-                <a className="navbar-brand fw-bold" href="/">
+                <a className="navbar-brand fw-bold" style={{ fontFamily: 'Roboto' }} href="/">
                         <img src="./puraesencia.png" alt="Logo" width="40" height="40" className="me-2" />
                         Admin Panel
                     </a>                    
@@ -198,6 +195,7 @@ const AdminDashboard = () => {
                             <li><button className="dropdown-item" onClick={() => navigate('/create-user')}>Crear Usuario</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/price-list")}>Lista de precios</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/user-table")}>Lista de usuarios</button></li>
+                            <li><button className="dropdown-item" onClick={() => navigate("/salary")}>Sueldos</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/user-table")}>Cierre Mensual</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button></li>
                             <li><button className="dropdown-item" onClick={() => logout(navigate)}>Cerrar Sesion</button></li>

@@ -60,6 +60,10 @@ const ClientGymDashboard = () => {
         }));
     };
 
+    const handleInputClick = (e) => {
+        e.stopPropagation(); // Detiene la propagación del clic
+    };
+
     const saveWorkoutSession = () => {
       const token = localStorage.getItem('token');
       const decoded = jwtDecode(token);
@@ -132,9 +136,27 @@ const ClientGymDashboard = () => {
                                                     <span>{exerciseDetails?.name}</span> - {ex.series} series de {ex.repetitions} repeticiones, descanso: {ex.rest}s
                                                     {expandedExercises[exerciseId] && (
                                                         <div className="mt-2">
-                                                            <input type="number" className="form-control mb-2" placeholder="Peso (kg)" onChange={(e) => handleInputChange(exerciseId, "weight", e.target.value)} />
-                                                            <input type="number" className="form-control mb-2" placeholder="Repeticiones" onChange={(e) => handleInputChange(exerciseId, "reps", e.target.value)} />
-                                                            <textarea className="form-control mb-2" placeholder="Comentario" rows="2" onChange={(e) => handleInputChange(exerciseId, "notes", e.target.value)} />
+                                                            <input
+                                                                type="number"
+                                                                className="form-control mb-2"
+                                                                placeholder="Peso (kg)"
+                                                                onChange={(e) => handleInputChange(exerciseId, "weight", e.target.value)}
+                                                                onClick={handleInputClick} // Detiene la propagación
+                                                            />
+                                                            <input
+                                                                type="number"
+                                                                className="form-control mb-2"
+                                                                placeholder="Repeticiones"
+                                                                onChange={(e) => handleInputChange(exerciseId, "reps", e.target.value)}
+                                                                onClick={handleInputClick} // Detiene la propagación
+                                                            />
+                                                            <textarea
+                                                                className="form-control mb-2"
+                                                                placeholder="Comentario"
+                                                                rows="2"
+                                                                onChange={(e) => handleInputChange(exerciseId, "notes", e.target.value)}
+                                                                onClick={handleInputClick} // Detiene la propagación
+                                                            />
                                                             <button className="btn btn-success" onClick={saveWorkoutSession}>Guardar Sesión</button>
                                                         </div>
                                                     )}
