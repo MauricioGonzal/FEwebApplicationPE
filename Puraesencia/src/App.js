@@ -28,6 +28,7 @@ import UserClassAttendance from './pages/UserClassesTable';
 import UserGymAttendance from './pages/UserGymTable';
 import UserTable from "./components/UserTable";
 import CreateSalary from "./pages/SalaryForm";
+import DailyClosures from "./pages/DailyClosures";
 
 
 
@@ -61,6 +62,7 @@ function App() {
         <Route path="/user-gym-table" element={<PrivateRoute><UserGymAttendance /></PrivateRoute>} />
         <Route path="/user-table" element={<PrivateRoute><UserTable /></PrivateRoute>} />
         <Route path="/salary" element={<PrivateRoute><CreateSalary /></PrivateRoute>} />
+        <Route path="/daily-closures" element={<PrivateRoute><DailyClosures /></PrivateRoute>} />
         </Route>
       </Routes>
     </Router>

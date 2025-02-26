@@ -21,31 +21,24 @@ const CreateSalary = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedSalary, setSelectedSalary] = useState(null);
   const [newAmount, setNewAmount] = useState("");
-  
-  
-  
 
   const navigate = useNavigate();
 
-
   useEffect(() => {
-    // Cargar los usuarios desde la API
     api.get('/users/getForSalary')
       .then((response) => {
         setUsers(response.data);
       })
       .catch((err) => console.error("Error al cargar los usuarios", err));
 
-    // Cargar los salarios activos desde la API
     api.get('/salaries')
       .then((response) => {
-        setSalaries(response.data); // Establecer los salarios en el estado
+        setSalaries(response.data);
       })
       .catch((err) => console.error("Error al cargar los salarios", err));
   }, []);
 
   useEffect(() => {
-    // Filtrar los usuarios cuando el texto de búsqueda cambie
     if (search) {
       setFilteredUsers(
         users.filter(user =>
@@ -61,15 +54,12 @@ const CreateSalary = () => {
     e.preventDefault();
     setMessage(null);
     setError(null);
-    console.log(user.id);
-    console.log(amount);
     api.post(`/salaries?userId=${user.id}&amount=${amount}`)
       .then(() => {
         setMessage(`Salario creado correctamente para el empleado ID: ${user.id}`);
         setUser("");
         setAmount("");
-        setSearch("");  // Limpiar el campo de búsqueda después de enviar
-        // Refrescar la lista de salarios después de crear uno nuevo
+        setSearch("");
         api.get('/salaries')
           .then((response) => {
             setSalaries(response.data);
@@ -83,9 +73,9 @@ const CreateSalary = () => {
   };
 
   const handleUserSelect = (user, fullName) => {
-    setUser(user);  // Establecer el ID del empleado
-    setSearch(fullName); // Establecer el nombre completo en el campo de búsqueda
-    setFilteredUsers([]); // Limpiar la lista de usuarios filtrados para que desaparezca
+    setUser(user);
+    setSearch(fullName);
+    setFilteredUsers([]);
   };
 
   const handleDelete = (id) => {
@@ -105,7 +95,6 @@ const CreateSalary = () => {
       .put(`/salaries/${selectedSalary.id}/updateAmount`, newAmount)
       .then((response) => {
         setShowEditModal(false);
-        console.log(salaries);
         api.get('/salaries')
         .then((response) => {
           setSalaries(response.data);
