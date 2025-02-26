@@ -2,10 +2,9 @@ import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import jwtDecode from "jwt-decode";
 import api from "../Api";
-import { logout } from "./Logout";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import { FaUser, FaSignOutAlt, FaSearch, FaPlus, FaClipboardList } from "react-icons/fa";
+import { FaSearch, FaPlus, FaClipboardList } from "react-icons/fa";
 
 const TrainerDashboard = () => {
     const navigate = useNavigate();
@@ -49,24 +48,6 @@ const TrainerDashboard = () => {
 
     return (
         <div className="container-fluid">
-            <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow">
-            <div className="container d-flex justify-content-between">
-                <a className="navbar-brand fw-bold" href="/">
-                        <img src="./puraesencia.png" alt="Logo" width="40" height="40" className="me-2" />
-                        Trainer Panel
-                    </a>                    <div className="dropdown">
-                        <button className="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
-                            <FaUser />
-                        </button>
-                        <ul className="dropdown-menu dropdown-menu-end">
-                            <li><button className="dropdown-item" onClick={() => navigate("/create-routine/0")}>Crear Nueva Rutina</button></li>
-                            <li><button className="dropdown-item" onClick={() => navigate("/create-exercise")}>Crear Ejercicio</button></li>
-                            <li><button className="dropdown-item" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button></li>
-                            <li><button className="dropdown-item text-danger" onClick={() => logout(navigate)}><FaSignOutAlt /> Cerrar Sesión</button></li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
 
             {[{ title: "Mis Alumnos", data: filteredStudents, setData: setFilteredStudents, allData: students },
               { title: "Lista de Alumnos", data: filteredAllStudents, setData: setFilteredAllStudents, allData: allStudents }]

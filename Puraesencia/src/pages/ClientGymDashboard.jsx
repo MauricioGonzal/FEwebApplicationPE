@@ -2,10 +2,7 @@ import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import jwtDecode from 'jwt-decode';
 import api from '../Api';
-import { logout } from "./Logout";
-import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import { FaUser } from "react-icons/fa";
 
 const ClientGymDashboard = () => {
     const daysOfWeek = [
@@ -13,7 +10,6 @@ const ClientGymDashboard = () => {
         { index: 4, name: "Jueves" }, { index: 5, name: "Viernes" }, { index: 6, name: "Sábado" }, { index: 7, name: "Domingo" }
     ];
 
-    const navigate = useNavigate();
     const [routine, setRoutine] = useState(null);
     const [loading, setLoading] = useState(true);
     const [exercises, setExercises] = useState([]);
@@ -102,25 +98,6 @@ const ClientGymDashboard = () => {
 
     return (
         <div className="container-fluid">
-            <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow">
-                <div className="container d-flex justify-content-between">
-                    <a className="navbar-brand fw-bold" href="/">
-                        <img src="./puraesencia.png" alt="Logo" width="40" height="40" className="me-2" />
-                    </a>
-                    <div className="dropdown">
-                        <button className="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
-                            <FaUser />
-                        </button>
-                        <ul className="dropdown-menu">
-                            <button className="btn btn-secondary" onClick={() => navigate('/perfil')}>Perfil</button>
-                            <button className="dropdown-item" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button>
-                            <button className="dropdown-item" onClick={() => navigate("/workout-sessions")}>Mi progreso</button>
-                            <button className="btn btn-danger ms-auto" onClick={() => logout(navigate)}>Cerrar Sesión</button>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-
             <div className="container mt-4">
                 <div className="row">
                     {daysOfWeek.map((day) => (

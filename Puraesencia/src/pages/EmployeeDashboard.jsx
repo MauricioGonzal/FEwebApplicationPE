@@ -1,8 +1,6 @@
 import api from "../Api";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { logout } from "./Logout";
-import { FaUser, FaCashRegister } from "react-icons/fa";
+import { FaCashRegister } from "react-icons/fa";
 import Select from "react-select";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button } from 'react-bootstrap';
@@ -24,7 +22,6 @@ const EmployeeDashboard = () => {
     const [memberships, setMemberships] = useState([]);
     const [selectedMembership, setSelectedMembership] = useState([]);
 
-    const navigate = useNavigate();
     const [selectedUser, setSelectedUser] = useState(null);
     const [selectedTransactionCategory, setSelectedTransactionCategory] = useState('');
     const [errorMessage, setErrorMessage] = useState("");
@@ -145,31 +142,7 @@ const EmployeeDashboard = () => {
 
     return (
         <div className="bg-light min-vh-100">
-            {/* Navbar */}
-            <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow">
-            <div className="container d-flex justify-content-between">
-                <a className="navbar-brand fw-bold" href="/">
-                        <img src="./puraesencia.png" alt="Logo" width="40" height="40" className="me-2" />
-                        Panel
-                    </a>                    
-                    <div className="dropdown">
-                        <button className="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
-                            <FaUser />
-                        </button>
-                        <ul className="dropdown-menu">
-                            <li><button className="dropdown-item" onClick={() => navigate('/overdue-payments')}>Ver Cuotas Vencidas</button></li>
-                            <li><button className="dropdown-item" onClick={() => navigate('/create-user')}>Crear Usuario</button></li>
-                            <li><button className="dropdown-item" onClick={() => navigate("/price-list")}>Lista de precios</button></li>
-                            <li><button className="dropdown-item" onClick={() => navigate("/user-table")}>Lista de usuarios</button></li>
-                            <li><button className="dropdown-item" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button></li>
-                            <li><button className="dropdown-item" onClick={() => logout(navigate)}>Cerrar Sesion</button></li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-
             <UsersTabs/>
-
             <div className="container mt-4">
     {/* Sección de Finanzas */}
     <h2 className="text-center fw-bold mt-5 mb-3 text-dark">Caja</h2>
