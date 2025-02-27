@@ -29,7 +29,10 @@ import UserGymAttendance from './pages/UserGymTable';
 import UserTable from "./components/UserTable";
 import CreateSalary from "./pages/SalaryForm";
 import DailyClosures from "./pages/DailyClosures";
+import MonthlyCLosures from './pages/MonthlyClosures';
+
 import RoleBasedLayout from './components/RoleBasedLayout';
+import FixedExpensesPage from './pages/FixedExpensesPage';
 
 function App() {
   return (
@@ -67,6 +70,9 @@ function App() {
           <Route path="/changepass" element={<PrivateRoute><ChangePasswordForm /></PrivateRoute>} />
           <Route path="/client-gym-dashboard" element={<PrivateRoute><ClientGymDashboard /></PrivateRoute>} />
           <Route path="/workout-sessions" element={<PrivateRoute><WorkoutHistory /></PrivateRoute>} />
+          <Route path="/fixed-expenses" element={<PrivateRoute><FixedExpensesPage /></PrivateRoute>} />
+          <Route path="/monthly-closures" element={<PrivateRoute><MonthlyCLosures /></PrivateRoute>} />
+
           </Route>
 
         <Route path="/login" element={<Login />} />

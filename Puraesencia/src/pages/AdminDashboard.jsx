@@ -122,7 +122,14 @@ const AdminDashboard = () => {
                 setTransactions([]); // Opcional: limpiar transacciones después del cierre
                 setTotalCaja(0);
             })
-            .catch((error) => console.error("Error al cerrar caja", error));
+            .catch((error) => {
+                if (error.response && error.response.data) {
+                    setErrorMessage(error.response.data.error || "Error desconocido");
+                  } else {
+                    setErrorMessage("Error al realizar la solicitud");
+                  }
+                  setShowErrorModal(true);  // Mostrar modal con el error
+        });
     };
 
     const handleCierreMesCaja = () => {
