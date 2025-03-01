@@ -9,39 +9,46 @@ const CreateMonthlyClosure = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalData, setModalData] = useState([]);
+  const [modalColumns, setModalColumns] = useState([]);
+  const [modalFields, setModalFields] = useState([]);
 
   const handleCalcular = () => {
     api.get(`/cash-closure/calculate?startDate=${startDate}&endDate=${endDate}`)
-      .then(response => setTotals(response.data))
+      .then(response => {console.log(response.data);setTotals(response.data)})
       .catch(error => console.error("Error al calcular totales", error));
   };
 
   const handleVerDetalles = (category) => {
-    let endpoint = "";
+    console.log(category);
+    setModalTitle(category);
+    var data = [];
     switch (category) {
       case "Gastos Fijos":
-        endpoint = "/fixed-expenses/active";
+        setModalColumns(["Descripcion", "Monto Mensual"]);
+        data = totals.fixedExpenses;
+        setModalFields(["name", "monthlyAmount"]);
         break;
       case "Total Ingresos":
-        endpoint = "/income/details";
+        setModalColumns(["Categoria", "Usuario", "Membresia", "Monto"]);
+        data = totals.ingresos;
+        setModalFields(["transactionCategory.name", "user.fullName", "membership.name", "amount"]);
         break;
       case "Total Egresos":
-        endpoint = "/expenses/details";
+        setModalColumns(["Descripcion", "Monto"]);
+        data = totals.egresos;
+        setModalFields(["comment", "amount"]);
         break;
       case "Total Salarios":
-        endpoint = "/salaries/details";
+        setModalColumns(["Empleado", "Monto"]);
+        data = totals.salarios;
+        setModalFields(["user.fullName","amount"]);
         break;
       default:
         return;
     }
 
-    api.get(endpoint)
-      .then(response => {
-        setModalTitle(category);
-        setModalData(response.data);
-        setShowModal(true);
-      })
-      .catch(error => console.error(`Error al obtener detalles de ${category}`, error));
+    setModalData(data);
+    setShowModal(true);
   };
 
   const handleCrearCierre = () => {
@@ -129,15 +136,18 @@ const CreateMonthlyClosure = () => {
           <Table striped bordered hover>
             <thead>
               <tr>
-                <th>Descripción</th>
-                <th>Monto</th>
+                {modalColumns.map((item,index) => (
+                    <td>{item}</td>
+                ))}
               </tr>
             </thead>
             <tbody>
               {modalData.map((item, index) => (
                 <tr key={index}>
-                  <td>{item.description}</td>
-                  <td>{item.amount.toFixed(2)}</td>
+                    {modalFields.map((field, index) => {
+                              const value = field.split('.').reduce((obj, key) => obj?.[key], item);
+                              return <td>{value}</td>;
+                    })}
                 </tr>
               ))}
             </tbody>
