@@ -33,6 +33,7 @@ import MonthlyCLosures from './pages/MonthlyClosures';
 
 import RoleBasedLayout from './components/RoleBasedLayout';
 import FixedExpensesPage from './pages/FixedExpensesPage';
+import CreateMonthlyClosure from './pages/CreateMonthlyCashClosure';
 
 function App() {
   return (
@@ -72,6 +73,7 @@ function App() {
           <Route path="/workout-sessions" element={<PrivateRoute><WorkoutHistory /></PrivateRoute>} />
           <Route path="/fixed-expenses" element={<PrivateRoute><FixedExpensesPage /></PrivateRoute>} />
           <Route path="/monthly-closures" element={<PrivateRoute><MonthlyCLosures /></PrivateRoute>} />
+          <Route path="/create-monthly-closure" element={<PrivateRoute><CreateMonthlyClosure /></PrivateRoute>} />
 
           </Route>
 

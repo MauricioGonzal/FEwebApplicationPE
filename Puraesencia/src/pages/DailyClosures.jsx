@@ -24,7 +24,6 @@ const CierresDiarios = () => {
   };
 
   const handleVerDetalles = (cierre) => {
-    console.log(cierre);
     setDetalle(cierre);
     setShowModal(true);
   };

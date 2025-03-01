@@ -25,6 +25,7 @@ const AdminNav = () => {
                             <li><button className="dropdown-item" onClick={() => navigate("/salary")}>Sueldos</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/monthly-closures")}>Cierre Mensual</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/daily-closures")}>Cierres</button></li>
+                            <li><button className="dropdown-item" onClick={() => navigate("/create-monthly-closure")}>Crear Cierre Mensual</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/fixed-expenses")}>Gastos Fijos</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button></li>
                             <li><button className="dropdown-item" onClick={() => logout(navigate)}>Cerrar Sesion</button></li>

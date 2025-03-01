@@ -3,9 +3,10 @@ import { Container, Form, Button, Table, Modal, Card, Row, Col } from "react-boo
 import api from "../Api";
 import { useNavigate } from "react-router-dom";
 
-const MonthlyCLosures = () => {
+const MonthlyClosures = () => {
   const [cierres, setCierres] = useState([]);
-  const [fecha, setFecha] = useState("");
+  const [month, setMonth] = useState("");
+  const [year, setYear] = useState("");
   const [detalle, setDetalle] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
@@ -18,8 +19,13 @@ const MonthlyCLosures = () => {
   }, []);
 
   const handleBuscar = () => {
-    api.get(`/cierres?fecha=${fecha}`)
-      .then(response => setCierres(response.data))
+    if (!month || !year) {
+      alert("Por favor, selecciona un mes y un año.");
+      return;
+    }
+
+    api.get(`/cash-closure/getByMonthAndYear?month=${month}&year=${year}`)
+      .then(response => {console.log(response);setCierres(response.data)})
       .catch(error => console.error("Error al filtrar los cierres", error));
   };
 
@@ -32,19 +38,46 @@ const MonthlyCLosures = () => {
     <Container className="mt-5">
       <h2 className="mb-4 text-center text-primary">Cierres Mensuales</h2>
 
-      {/* Formulario de búsqueda con un diseño más integrado */}
+      {/* Formulario de búsqueda */}
       <Card className="shadow-sm p-4 mb-4">
         <Row className="align-items-center">
-          <Col md={8} sm={12} className="mb-3 mb-md-0">
-            <Form.Group className="d-flex">
-              <Form.Label className="me-2">Buscar por Mes</Form.Label>
+          <Col md={4} sm={12} className="mb-3 mb-md-0">
+            <Form.Group>
+              <Form.Label>Mes</Form.Label>
               <Form.Control
-                type="input"
-                value={fecha}
-                onChange={(e) => setFecha(e.target.value)}
+                as="select"
+                value={month}
+                onChange={(e) => setMonth(e.target.value)}
+              >
+                <option value="">Selecciona un mes</option>
+                <option value="1">Enero</option>
+                <option value="2">Febrero</option>
+                <option value="3">Marzo</option>
+                <option value="4">Abril</option>
+                <option value="5">Mayo</option>
+                <option value="6">Junio</option>
+                <option value="7">Julio</option>
+                <option value="8">Agosto</option>
+                <option value="9">Septiembre</option>
+                <option value="10">Octubre</option>
+                <option value="11">Noviembre</option>
+                <option value="12">Diciembre</option>
+              </Form.Control>
+            </Form.Group>
+          </Col>
+
+          <Col md={4} sm={12} className="mb-3 mb-md-0">
+            <Form.Group>
+              <Form.Label>Año</Form.Label>
+              <Form.Control
+                type="number"
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                placeholder="Ejemplo: 2024"
               />
             </Form.Group>
           </Col>
+
           <Col md={4} sm={12} className="d-flex justify-content-start justify-content-md-end">
             <Button className="w-100 w-md-auto" onClick={handleBuscar}>
               Buscar
@@ -74,8 +107,8 @@ const MonthlyCLosures = () => {
           <tbody>
             {cierres.map((cierre) => (
               <tr key={cierre.id}>
-                <td>{new Date(cierre.startDate).toLocaleDateString('es-ES')}</td>
-                <td>{new Date(cierre.endDate).toLocaleDateString('es-ES')}</td>
+                <td>{new Date(cierre.startDate + "T00:00:00").toLocaleDateString("es-ES")}</td>
+                <td>{new Date(cierre.endDate + "T00:00:00").toLocaleDateString("es-ES")}</td>
                 <td>{cierre.discrepancy.toFixed(2)}</td>
                 <td>
                   <Button variant="info" onClick={() => handleVerDetalles(cierre)}>
@@ -117,4 +150,4 @@ const MonthlyCLosures = () => {
   );
 };
 
-export default MonthlyCLosures;
+export default MonthlyClosures;
