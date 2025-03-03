@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaTimes } from "react-icons/fa";
 import api from "../Api";
+import { toast } from 'react-toastify';
 
 
 
@@ -31,8 +32,10 @@ const UserTable = () => {
             api.delete(`/users/${userId}`)
                 .then(() => {
                     setUsers(users.filter(user => user.id !== userId));
-                    alert("Usuario eliminado con éxito");
-                })
+                    toast.success("Usuario eliminado correctamente", {
+                        position: "top-right", // Ahora directamente como string
+                      });                
+                    })
                 .catch((error) => console.error("Error al eliminar usuario", error));
         }
     };

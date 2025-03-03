@@ -4,7 +4,7 @@ import { FaCashRegister, FaBox } from "react-icons/fa";
 import Select from "react-select";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button } from 'react-bootstrap';
-import 'react-toastify/dist/ReactToastify.css';// Para los estilos de las notificaciones
+import 'react-toastify/dist/ReactToastify.css';
 import TransactionsTable from "../components/TransactionsTable";
 import UsersTabs from "../components/UserTabs";
 
@@ -106,17 +106,19 @@ const AdminDashboard = () => {
     };
 
     const calcularTotalCaja = (transactions) => {
-        const today = new Date().toISOString().split('T')[0]; // Obtiene la fecha de hoy (YYYY-MM-DD)
+        const today = new Date().toLocaleDateString("fr-CA"); // Obtiene la fecha local en formato YYYY-MM-DD
+        console.log(today);
         const total = transactions
             .filter(t => t.date.startsWith(today))
             .reduce((sum, t) => sum + parseFloat(t.amount), 0);
         setTotalCaja(total);
     };
+    
 
     const handleCierreCaja = () => {
         const cierre = { date: new Date().toISOString(), total: totalCaja };
 
-        api.post('/transactions/dailyClosing', cierre)
+        api.post('/cash-closure/dailyClosing', cierre)
             .then(() => {
                 alert(`Cierre de caja realizado con éxito. Total: $${totalCaja}`);
                 setTransactions([]); // Opcional: limpiar transacciones después del cierre
@@ -131,20 +133,6 @@ const AdminDashboard = () => {
                   setShowErrorModal(true);  // Mostrar modal con el error
         });
     };
-
-    const handleCierreMesCaja = () => {
-        const cierre = { date: new Date().toISOString(), total: totalCaja };
-
-        api.post('/transactions/dailyClosing', cierre)
-            .then(() => {
-                alert(`Cierre de caja realizado con éxito. Total: $${totalCaja}`);
-                setTransactions([]); // Opcional: limpiar transacciones después del cierre
-                setTotalCaja(0);
-            })
-            .catch((error) => console.error("Error al cerrar caja", error));
-    };
-
-
 
     const userClassesOptions = users.filter(user => user.role === "CLIENT_CLASSES" || user.role === "CLIENT_BOTH").map(user => ({
         value: user, // Guarda el objeto entero en `value`
@@ -183,10 +171,7 @@ const AdminDashboard = () => {
 
     return (
         <div className="bg-light min-vh-100">
-            {/* Navbar */}
-
             <UsersTabs/>
-
             <div className="container mt-4">
     {/* Sección de Finanzas */}
     <h2 className="text-center fw-bold mt-5 mb-3 text-dark">Caja</h2>
@@ -255,7 +240,7 @@ const AdminDashboard = () => {
             </div>
         )}
 
-        {(selectedTransactionCategory?.value?.name === "Musculacion") && (
+        {(selectedTransactionCategory?.value?.name === "Musculación") && (
             <div className="row mt-3">
                 <div className="col-md-6">
                     <Select

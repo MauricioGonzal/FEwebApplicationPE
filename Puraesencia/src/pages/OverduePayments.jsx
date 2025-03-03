@@ -53,7 +53,7 @@ const OverduePayments = () => {
                 <tbody>
                     {filteredPayments.length > 0 ? filteredPayments.map((payment, index) => (
                         <tr key={index}>
-                            <td>{payment.paymentDate}</td>
+                            <td>{new Date(payment.paymentDate + "T00:00:00").toLocaleDateString("es-ES")}</td>
                             <td>{payment.user.fullName}</td>
                         </tr>
                     )) : (

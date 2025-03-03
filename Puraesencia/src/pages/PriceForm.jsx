@@ -153,7 +153,7 @@ const PriceForm = ({ onAddPrice }) => {
               </div>
             )}
 
-            {selectedCategory.value?.name === "Musculacion" && (
+            {selectedCategory.value?.name === "Musculación" && (
               <div className="mb-3">
                 <Select
                   options={membershipGimOptions}

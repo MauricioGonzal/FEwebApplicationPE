@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import api from '../Api'; 
+import { toast } from 'react-toastify';
+
 
 const CreateExercise = () => {
     const navigate = useNavigate();
@@ -28,7 +30,9 @@ const CreateExercise = () => {
         url: exercise.url 
     }) // Cambia la URL según tu API
     .then((response) => {
-        alert("Ejercicio creado correctamente");
+      toast.success("Transaccion creada correctamente", {
+        position: "top-right", // Ahora directamente como string
+      });
         navigate('/');
     })
     .catch((error) => console.error("Error al cargar los datos:", error));    

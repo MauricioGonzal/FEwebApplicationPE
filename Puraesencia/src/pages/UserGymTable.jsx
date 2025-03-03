@@ -163,7 +163,8 @@ const UserGymAttendance = () => {
                 <Modal.Header closeButton>
                 <Modal.Title>Actualizar Fecha de Vencimiento</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>            <label>Fecha de vencimiento:</label>
+                <Modal.Body>            
+                    <label>Fecha de vencimiento:</label>
                             <input 
                                 type="date" 
                                 value={dueDate} 
@@ -202,11 +203,6 @@ const UserGymAttendance = () => {
                         <p className="text-center text-muted">No hay asistencias registradas este mes.</p>
                     )}
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowModal(false)}>
-                        Cerrar
-                    </Button>
-                </Modal.Footer>
             </Modal>
         </div>
     );

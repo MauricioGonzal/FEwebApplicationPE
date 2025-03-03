@@ -41,6 +41,7 @@ const UserClassAttendance = () => {
     const getMonthlyAttendance = (user) => {
         api.get(`/attendance/current-month`)
             .then((response) => {
+                console.log(response.data);
                 setAttendances(response.data);
                 setSelectedUser(user);
                 setShowModal(true);
@@ -80,18 +81,11 @@ const UserClassAttendance = () => {
                             {filteredUsers.map((user) => {
                                 var reachedLimit = false;
                                 if(attendances[user.id] !== undefined){
-                                    const totalAttendance = Object.values(attendances[user.id]).reduce((sum, val) => sum + val, 0);
-                                    const maxAttendance = user.membership?.maxClasses || 0;
+                                    const totalAttendance = Object.values(attendances[user.id].attendance).reduce((sum, val) => sum + val, 0);
+                                    const maxAttendance = attendances[user.id].max_classes;
                                     reachedLimit = totalAttendance >= maxAttendance;
-
-                                    console.log(user.membership);
-                                console.log(attendances[user.id]);
-                                console.log(totalAttendance);
-                                console.log(maxAttendance);
-                                console.log(reachedLimit);
                                 }
-                                
-                                
+
                                 
                                 return (
                                     <tr key={user.id}>
@@ -144,7 +138,9 @@ const UserClassAttendance = () => {
                             <tbody>
                             {Object.entries(attendances).map(([userId, userAttendances], index) => {
                                 if (parseInt(userId) === selectedUser?.id) {  // Verificamos si el id coincide
-                                    return Object.entries(userAttendances).map(([date, count]) => (
+                                    console.log(userAttendances);
+
+                                    return Object.entries(userAttendances.attendance).map(([date, count]) => (
                                         <tr key={date}>  {/* Usamos "date" como key para cada fila */}
                                             <td>{date}</td>
                                             <td>{count}</td>

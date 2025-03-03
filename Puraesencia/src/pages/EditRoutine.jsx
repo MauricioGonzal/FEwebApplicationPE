@@ -4,6 +4,8 @@ import { Modal, Button, Form, ListGroup } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import jwtDecode from 'jwt-decode';
 import api from '../Api';
+import { toast } from 'react-toastify';
+
 
 export default function EditGymRoutineForm() {
   const daysOfWeek = [
@@ -121,12 +123,16 @@ export default function EditGymRoutineForm() {
             routineId: response.data.id
           })
             .then(() => {
-              alert("Rutina editada correctamente");
+              toast.success("Rutina editada correctamente", {
+                position: "top-right", // Ahora directamente como string
+              });
               navigate('/');
             })
             .catch(error => console.error("Error al asignar rutina:", error));
         } else {
-          alert("Rutina editada correctamente");
+          toast.success("Rutina editada correctamente", {
+            position: "top-right", // Ahora directamente como string
+          });
           navigate('/');
         }
       })

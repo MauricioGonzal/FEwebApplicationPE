@@ -119,7 +119,9 @@ export default function GymRoutineForm() {
             })
             .catch(error => console.error("Error al crear rutina:", error));
         } else {
-          alert("Rutina creada correctamente");
+          toast.success("Rutina creada correctamente", {
+            position: "top-right", // Ahora directamente como string
+          });
           navigate('/');
         }
       })

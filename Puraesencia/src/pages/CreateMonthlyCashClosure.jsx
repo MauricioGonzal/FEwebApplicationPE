@@ -1,19 +1,25 @@
 import { useState } from "react";
 import { Container, Form, Button, Table, Card, Row, Col, Modal } from "react-bootstrap";
 import api from "../Api";
+import { toast } from 'react-toastify';
+
 
 const CreateMonthlyClosure = () => {
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
   const [totals, setTotals] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalData, setModalData] = useState([]);
   const [modalColumns, setModalColumns] = useState([]);
   const [modalFields, setModalFields] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState("");
+
+  const months = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+  ];
+
 
   const handleCalcular = () => {
-    api.get(`/cash-closure/calculate?startDate=${startDate}&endDate=${endDate}`)
+    api.get(`/cash-closure/calculate/monthly?month=${selectedMonth}`)
       .then(response => {console.log(response.data);setTotals(response.data)})
       .catch(error => console.error("Error al calcular totales", error));
   };
@@ -51,10 +57,18 @@ const CreateMonthlyClosure = () => {
     setShowModal(true);
   };
 
-  const handleCrearCierre = () => {
-    api.post("/cash-closure/create", { startDate, endDate })
-      .then(response => alert("Cierre mensual creado exitosamente"))
+const handleCrearCierre = () => {
+      api.post(`/cash-closure/monthlyClosing?month=${selectedMonth}`)
+      .then(response =>{
+        toast.success("Cierre Mensual creado correctamente", {
+          position: "top-right", // Ahora directamente como string
+        });
+        setTotals(null);
+        setSelectedMonth("");
+        setShowModal(false);
+      })
       .catch(error => console.error("Error al crear el cierre mensual", error));
+      
   };
 
   return (
@@ -65,22 +79,13 @@ const CreateMonthlyClosure = () => {
         <Row>
           <Col md={5} sm={12}>
             <Form.Group>
-              <Form.Label>Desde</Form.Label>
-              <Form.Control
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-            </Form.Group>
-          </Col>
-          <Col md={5} sm={12}>
-            <Form.Group>
-              <Form.Label>Hasta</Form.Label>
-              <Form.Control
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
+              <Form.Label>Seleccionar Mes</Form.Label>
+              <Form.Select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
+                <option value="">Seleccione un mes</option>
+                {months.map((month, index) => (
+                  <option key={index} value={index + 1}>{month}</option>
+                ))}
+              </Form.Select>
             </Form.Group>
           </Col>
           <Col md={2} sm={12} className="d-flex align-items-end">

@@ -1,6 +1,6 @@
 const TransactionsTable = ({ transactions }) => {
     // Filtrar transacciones por categoría
-    const cuotas = transactions.filter(t => t.transactionCategory.name === "Musculacion");
+    const cuotas = transactions.filter(t => t.transactionCategory.name === "Musculación" || t.transactionCategory.name === "Clases");
     const bebidas = transactions.filter(t => t.transactionCategory.name === "Producto");
     const egresos = transactions.filter(t => t.transactionCategory.name === "Egreso");
 
