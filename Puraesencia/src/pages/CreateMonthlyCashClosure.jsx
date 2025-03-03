@@ -36,6 +36,7 @@ const CreateMonthlyClosure = () => {
         break;
       case "Total Ingresos":
         setModalColumns(["Categoria", "Usuario", "Membresia", "Monto"]);
+        console.log(totals.ingresos);
         data = totals.ingresos;
         setModalFields(["transactionCategory.name", "user.fullName", "membership.name", "amount"]);
         break;

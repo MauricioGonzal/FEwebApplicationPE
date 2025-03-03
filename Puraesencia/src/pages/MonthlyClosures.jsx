@@ -84,6 +84,7 @@ const MonthlyClosures = () => {
             </Button>
           </Col>
         </Row>
+
         <Button 
           variant="outline-primary" 
           className="btn-sm mt-3 w-100 w-md-auto" 
@@ -91,6 +92,7 @@ const MonthlyClosures = () => {
         >
           Volver al Dashboard
         </Button>
+        
       </Card>
 
       {/* Tabla de cierres */}
@@ -120,6 +122,13 @@ const MonthlyClosures = () => {
           </tbody>
         </Table>
       </Card>
+      <Button 
+  variant="success" 
+  className="btn-sm mt-3 w-100 w-md-auto" 
+  onClick={() => navigate('/create-monthly-closure')}
+>
+  Crear Cierre Mensual
+</Button>
 
       {/* Modal de detalles */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>

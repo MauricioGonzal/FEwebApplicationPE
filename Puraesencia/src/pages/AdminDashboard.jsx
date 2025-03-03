@@ -107,7 +107,6 @@ const AdminDashboard = () => {
 
     const calcularTotalCaja = (transactions) => {
         const today = new Date().toLocaleDateString("fr-CA"); // Obtiene la fecha local en formato YYYY-MM-DD
-        console.log(today);
         const total = transactions
             .filter(t => t.date.startsWith(today))
             .reduce((sum, t) => sum + parseFloat(t.amount), 0);

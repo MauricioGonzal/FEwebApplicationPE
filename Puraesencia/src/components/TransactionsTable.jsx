@@ -16,6 +16,7 @@ const TransactionsTable = ({ transactions }) => {
                                 <th>Monto</th>
                                 <th>Medio de pago</th>
                                 <th>Usuario</th>
+                                <th>Membresía</th>
                                 <th>Comentario</th>
                                 <th>Fecha</th>
                             </tr>
@@ -25,7 +26,8 @@ const TransactionsTable = ({ transactions }) => {
                                 <tr key={index}>
                                     <td>${transaction.amount}</td>
                                     <td>{transaction.paymentMethod.name}</td>
-                                    <td>{transaction?.user?.fullName || ""}</td>
+                                    <td>{transaction?.payment?.user?.fullName || ""}</td>
+                                    <td>{transaction?.payment?.membership?.name || ""}</td>
                                     <td>{transaction.comment}</td>
                                     <td>{new Date(transaction.date).toLocaleString()}</td>
                                 </tr>
