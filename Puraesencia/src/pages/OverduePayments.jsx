@@ -17,7 +17,6 @@ const OverduePayments = () => {
                 setPayments(response.data.sort((a, b) => new Date(a.dueDate).getDate() - new Date(b.dueDate).getDate()));
                 setFilteredPayments(response.data);
                 setLoading(false);
-                console.log(response.data);
             })
             .catch(error => console.error("Error al cargar las cuotas vencidas:", error));
     }, []);

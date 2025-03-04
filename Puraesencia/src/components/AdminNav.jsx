@@ -17,15 +17,15 @@ const AdminNav = () => {
                         <button className="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
                             <FaUser />
                         </button>
-                        <ul className="dropdown-menu">
-                            <li><button className="dropdown-item" onClick={() => navigate('/overdue-payments')}>Ver Cuotas Vencidas</button></li>
+                        <ul className="dropdown-menu dropdown-menu-end">
+                            <li><button className="dropdown-item" onClick={() => navigate('/overdue-payments')}>Cuotas Vencidas</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate('/create-user')}>Crear Usuario</button></li>
-                            <li><button className="dropdown-item" onClick={() => navigate("/price-list")}>Lista de precios</button></li>
-                            <li><button className="dropdown-item" onClick={() => navigate("/user-table")}>Lista de usuarios</button></li>
+                            <li><button className="dropdown-item" onClick={() => navigate("/price-list")}>Precios</button></li>
+                            <li><button className="dropdown-item" onClick={() => navigate("/user-table")}>Usuarios</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/salary")}>Sueldos</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/monthly-closures")}>Cierres Mensuales</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/daily-closures")}>Cierres Diarios</button></li>
-                            <li><button className="dropdown-item" onClick={() => navigate("/fixed-expenses")}>Gastos Fijos</button></li>
+                            <li><button className="dropdown-item" onClick={() => navigate("/fixed-expenses")}>Gastos</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button></li>
                             <li><button className="dropdown-item" onClick={() => logout(navigate)}>Cerrar Sesion</button></li>
                         </ul>

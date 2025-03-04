@@ -16,10 +16,24 @@ const ClientGymDashboard = () => {
     const [sessionData, setSessionData] = useState({});
     const [expandedDays, setExpandedDays] = useState({});
     const [expandedExercises, setExpandedExercises] = useState({});
-  
+    const [hasPendingPayment, setHasPendingPayment] = useState(false);
+
     useEffect(() => {
-      const token = localStorage.getItem('token');
-      const decoded = jwtDecode(token);
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const decoded = jwtDecode(token);
+        
+        // Verificar estado de pago
+        api.get(`/payments/overduePayments/${decoded.id}`)
+            .then(response => {
+                if (response.data.length > 0) {
+                    setHasPendingPayment(true);
+                }
+            })
+            .catch(error => console.error("Error al verificar pagos:", error));
+
+        // Cargar rutina
         api.get(`/users/${decoded.id}/routine`)
             .then(response => {
                 setRoutine(response.data);
@@ -57,39 +71,37 @@ const ClientGymDashboard = () => {
     };
 
     const handleInputClick = (e) => {
-        e.stopPropagation(); // Detiene la propagación del clic
+        e.stopPropagation();
     };
 
     const saveWorkoutSession = () => {
-      const token = localStorage.getItem('token');
-      const decoded = jwtDecode(token);
-      
-      const logs = Object.entries(sessionData).map(([exerciseId, data]) => {
-          return {
-              exerciseId: parseInt(exerciseId),
-              repetitions: parseInt(data.reps),
-              weight: parseFloat(data.weight),
-              notes: data.notes || ""
-          };
-      }).filter(log => log.repetitions && log.weight);
-      
-      if (logs.length === 0) {
-          alert("Debes ingresar al menos un ejercicio con peso y repeticiones.");
-          return;
-      }
-      
-      const workoutSession = {
-          userId: decoded.id,
-          date: new Date().toISOString(),
-          logs: logs
-      };
-      
-      api.post("/workout-sessions", workoutSession)
-          .then(() => {
-              alert("Sesión guardada correctamente");
-              setSessionData({});
-          })
-          .catch(error => console.error("Error al guardar la sesión", error));
+        const token = localStorage.getItem('token');
+        const decoded = jwtDecode(token);
+        
+        const logs = Object.entries(sessionData).map(([exerciseId, data]) => ({
+            exerciseId: parseInt(exerciseId),
+            repetitions: parseInt(data.reps),
+            weight: parseFloat(data.weight),
+            notes: data.notes || ""
+        })).filter(log => log.repetitions && log.weight);
+        
+        if (logs.length === 0) {
+            alert("Debes ingresar al menos un ejercicio con peso y repeticiones.");
+            return;
+        }
+        
+        const workoutSession = {
+            userId: decoded.id,
+            date: new Date().toISOString(),
+            logs: logs
+        };
+        
+        api.post("/workout-sessions", workoutSession)
+            .then(() => {
+                alert("Sesión guardada correctamente");
+                setSessionData({});
+            })
+            .catch(error => console.error("Error al guardar la sesión", error));
     };
 
     if (loading) {
@@ -98,12 +110,18 @@ const ClientGymDashboard = () => {
 
     return (
         <div className="container-fluid">
+            {hasPendingPayment && (
+                <div className="alert alert-warning text-center" role="alert">
+                    ⚠️ Tienes una cuota vencida. Por favor, regulariza tu pago.
+                </div>
+            )}
+
             <div className="container mt-4">
                 <div className="row">
                     {daysOfWeek.map((day) => (
                         <div key={day.index} className="col-md-6 mb-3">
                             <div className="card p-3 shadow-sm">
-                                <h5 className="card-title" onClick={() => toggleDay(day.index)} style={{ cursor: "pointer" }}>{day.name}</h5>
+                                <h5 className="card-title p-2 rounded" onClick={() => toggleDay(day.index)} style={{cursor: "pointer", fontFamily: 'Roboto', backgroundColor: day.index % 2 === 0 ? "#0a0a08" : "#626260", color: "#fff" }}>{day.name}</h5>
                                 {expandedDays[day.index] && routine.exercisesByDay[day.index]?.map((ex, idx) => (
                                     <div key={idx} className="mb-3 p-2 border rounded">
                                         {ex.exerciseIds.map((exerciseId) => {
@@ -118,21 +136,21 @@ const ClientGymDashboard = () => {
                                                                 className="form-control mb-2"
                                                                 placeholder="Peso (kg)"
                                                                 onChange={(e) => handleInputChange(exerciseId, "weight", e.target.value)}
-                                                                onClick={handleInputClick} // Detiene la propagación
+                                                                onClick={handleInputClick}
                                                             />
                                                             <input
                                                                 type="number"
                                                                 className="form-control mb-2"
                                                                 placeholder="Repeticiones"
                                                                 onChange={(e) => handleInputChange(exerciseId, "reps", e.target.value)}
-                                                                onClick={handleInputClick} // Detiene la propagación
+                                                                onClick={handleInputClick}
                                                             />
                                                             <textarea
                                                                 className="form-control mb-2"
                                                                 placeholder="Comentario"
                                                                 rows="2"
                                                                 onChange={(e) => handleInputChange(exerciseId, "notes", e.target.value)}
-                                                                onClick={handleInputClick} // Detiene la propagación
+                                                                onClick={handleInputClick}
                                                             />
                                                             <button className="btn btn-success" onClick={saveWorkoutSession}>Guardar Sesión</button>
                                                         </div>

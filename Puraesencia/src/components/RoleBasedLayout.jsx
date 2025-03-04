@@ -16,7 +16,6 @@ const RoleBasedLayout = () => {
     }
 
     const decoded = jwtDecode(token);
-    console.log('Decoded token:', decoded);
     const role = decoded.role;
 
   const getNavbar = () => {

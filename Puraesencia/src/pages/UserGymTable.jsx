@@ -52,7 +52,6 @@ const UserGymAttendance = () => {
                 });
                 api.get('/attendance/today')
                 .then((response) => {
-                    console.log(response.data);
                     setAttendancesToday(response.data);
                 })
                 .catch((error) => console.error("Error al obtener transacciones", error));

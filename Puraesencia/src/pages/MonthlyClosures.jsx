@@ -25,7 +25,7 @@ const MonthlyClosures = () => {
     }
 
     api.get(`/cash-closure/getByMonthAndYear?month=${month}&year=${year}`)
-      .then(response => {console.log(response);setCierres(response.data)})
+      .then(response => {setCierres(response.data)})
       .catch(error => console.error("Error al filtrar los cierres", error));
   };
 

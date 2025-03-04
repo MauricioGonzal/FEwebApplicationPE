@@ -14,7 +14,7 @@ const UserClassAttendance = () => {
 
     useEffect(() => {
         api.get("/users/getAllByRole/clients")
-            .then((response) => setUsers(response.data))
+            .then((response) => {setUsers(response.data)})
             .catch((error) => console.error("Error al obtener usuarios", error));
     }, []);
 
@@ -28,7 +28,7 @@ const UserClassAttendance = () => {
 
     const handleMarkAttendance = (userId) => {
         api.post("/attendance", { userId, attendanceTypeId: 2 })
-            .then(() => {
+            .then((response) => {
                 toast.success("Asistencia registrada con éxito", {
                     position: "top-right",
                 });
@@ -138,8 +138,6 @@ const UserClassAttendance = () => {
                             <tbody>
                             {Object.entries(attendances).map(([userId, userAttendances], index) => {
                                 if (parseInt(userId) === selectedUser?.id) {  // Verificamos si el id coincide
-                                    console.log(userAttendances);
-
                                     return Object.entries(userAttendances.attendance).map(([date, count]) => (
                                         <tr key={date}>  {/* Usamos "date" como key para cada fila */}
                                             <td>{date}</td>

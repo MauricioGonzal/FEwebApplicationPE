@@ -38,7 +38,6 @@ const EmployeeDashboard = () => {
 
         api.get('/transactions/today')
             .then((response) => {
-                console.log(response.data);
                 setTransactions(response.data);
             })
             .catch((error) => console.error("Error al obtener transacciones", error));
@@ -66,7 +65,6 @@ const EmployeeDashboard = () => {
 
             api.get('/membership')
             .then((response) =>{ 
-                console.log(response.data);
                 setMemberships(response.data);
             }
             )

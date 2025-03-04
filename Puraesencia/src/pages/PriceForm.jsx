@@ -114,7 +114,7 @@ const PriceForm = ({ onAddPrice }) => {
               <Select
                 options={transactionCategoryOptions}
                 value={selectedCategory}
-                onChange={(selectedOption) => {console.log(selectedOption);setSelectedCategory(selectedOption)}}
+                onChange={(selectedOption) => {setSelectedCategory(selectedOption)}}
                 placeholder="Seleccionar categoria..."
                 isSearchable
               />

@@ -22,7 +22,6 @@ const TrainerDashboard = () => {
                 setStudents(response.data);
                 setFilteredStudents(response.data);
                 setLoading(false);
-                console.log(decoded);
             })
             .catch((error) => console.error("Error al cargar los datos:", error));
     }, []);

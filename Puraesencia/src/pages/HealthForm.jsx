@@ -24,7 +24,6 @@ const HealthForm = () => {
 
     api.get(`/users/getById/${userId}`)
       .then(response => {
-        console.log("Usuario obtenido:", response.data);
         setUser(response.data);
       })
       .catch(error => {

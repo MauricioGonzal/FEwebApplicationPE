@@ -14,7 +14,6 @@ const RoleBasedRedirect = () => {
 
         try {
             const decoded = jwtDecode(token);
-            console.log('Decoded token:', decoded);
             const role = decoded.role; // Ajusta según tu estructura de roles
 
             // Redirige según el rol

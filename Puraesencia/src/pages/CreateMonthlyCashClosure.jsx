@@ -20,12 +20,11 @@ const CreateMonthlyClosure = () => {
 
   const handleCalcular = () => {
     api.get(`/cash-closure/calculate/monthly?month=${selectedMonth}`)
-      .then(response => {console.log(response.data);setTotals(response.data)})
+      .then(response => setTotals(response.data))
       .catch(error => console.error("Error al calcular totales", error));
   };
 
   const handleVerDetalles = (category) => {
-    console.log(category);
     setModalTitle(category);
     var data = [];
     switch (category) {
@@ -36,7 +35,6 @@ const CreateMonthlyClosure = () => {
         break;
       case "Total Ingresos":
         setModalColumns(["Categoria", "Usuario", "Membresia", "Monto"]);
-        console.log(totals.ingresos);
         data = totals.ingresos;
         setModalFields(["transactionCategory.name", "user.fullName", "membership.name", "amount"]);
         break;
