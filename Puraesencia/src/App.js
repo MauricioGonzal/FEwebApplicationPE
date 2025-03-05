@@ -34,6 +34,7 @@ import MonthlyCLosures from './pages/MonthlyClosures';
 import RoleBasedLayout from './components/RoleBasedLayout';
 import FixedExpensesPage from './pages/FixedExpensesPage';
 import CreateMonthlyClosure from './pages/CreateMonthlyCashClosure';
+import StockManagement from './pages/StockManagement';
 
 function App() {
   return (
@@ -74,6 +75,7 @@ function App() {
           <Route path="/fixed-expenses" element={<PrivateRoute><FixedExpensesPage /></PrivateRoute>} />
           <Route path="/monthly-closures" element={<PrivateRoute><MonthlyCLosures /></PrivateRoute>} />
           <Route path="/create-monthly-closure" element={<PrivateRoute><CreateMonthlyClosure /></PrivateRoute>} />
+          <Route path="/stock-management" element={<PrivateRoute><StockManagement /></PrivateRoute>} />
 
           </Route>
 
