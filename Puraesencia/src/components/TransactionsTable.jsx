@@ -1,4 +1,4 @@
-import { FaDollarSign, FaRegCalendarAlt, FaUser, FaClipboard } from "react-icons/fa";
+import { FaDollarSign, FaRegCalendarAlt, FaUser, FaClipboard, FaShoppingCart } from "react-icons/fa";
 
 const TransactionsTable = ({ transactions }) => {
     // Filtrar transacciones por categoría
@@ -7,11 +7,11 @@ const TransactionsTable = ({ transactions }) => {
     const egresos = transactions.filter(t => t.transactionCategory.name === "Egreso");
 
     // Formatear moneda
-    const formatCurrency = (amount) => 
+    const formatCurrency = (amount) =>
         new Intl.NumberFormat("es-ES", { style: "currency", currency: "ARS" }).format(amount);
 
-    // Función para renderizar una tabla con las transacciones filtradas
-    const renderTable = (title, data, badgeColor) => (
+    // Función para renderizar una tabla con columnas y datos personalizados
+    const renderTable = (title, data, badgeColor, columns) => (
         <div className="mb-4 p-4">
             <h5 className="d-flex align-items-center">
                 <span className={`badge bg-${badgeColor} p-2 me-2`}>{title}</span>
@@ -21,23 +21,17 @@ const TransactionsTable = ({ transactions }) => {
                     <table className="table table-hover table-bordered shadow-sm rounded">
                         <thead className="table-dark text-center">
                             <tr>
-                                <th><FaDollarSign /> Monto</th>
-                                <th>💳 Medio de pago</th>
-                                <th><FaUser /> Usuario</th>
-                                <th>🏋️ Membresía</th>
-                                <th><FaClipboard /> Comentario</th>
-                                <th><FaRegCalendarAlt /> Fecha</th>
+                                {columns.map((col, index) => (
+                                    <th key={index}>{col.icon} {col.label}</th>
+                                ))}
                             </tr>
                         </thead>
                         <tbody className="text-center">
                             {data.map((transaction, index) => (
                                 <tr key={index} className="table-light">
-                                    <td className="fw-bold">{formatCurrency(transaction.amount)}</td>
-                                    <td>{transaction.paymentMethod.name}</td>
-                                    <td>{transaction?.payment?.user?.fullName || "—"}</td>
-                                    <td>{transaction?.payment?.membership?.name || "—"}</td>
-                                    <td>{transaction.comment || "Sin comentarios"}</td>
-                                    <td>{new Date(transaction.date).toLocaleString()}</td>
+                                    {columns.map((col, colIndex) => (
+                                        <td key={colIndex}>{col.render(transaction)}</td>
+                                    ))}
                                 </tr>
                             ))}
                         </tbody>
@@ -51,9 +45,27 @@ const TransactionsTable = ({ transactions }) => {
 
     return (
         <>
-            {renderTable("Cuotas", cuotas, "primary")}
-            {renderTable("Bebidas", bebidas, "success")}
-            {renderTable("Egresos", egresos, "danger")}
+            {renderTable("Cuotas", cuotas, "primary", [
+                { label: "Monto", icon: <FaDollarSign />, render: (t) => formatCurrency(t.amount) },
+                { label: "Medio de pago", icon: "💳", render: (t) => t.paymentMethod.name },
+                { label: "Usuario", icon: <FaUser />, render: (t) => t?.payment?.user?.fullName || "—" },
+                { label: "Membresía", icon: "🏋️", render: (t) => t?.payment?.membership?.name || "—" },
+                { label: "Fecha", icon: <FaRegCalendarAlt />, render: (t) => new Date(t.date).toLocaleString() },
+            ])}
+
+            {renderTable("Bebidas", bebidas, "success", [
+                { label: "Producto", icon: <FaShoppingCart />, render: (t) => t.sale?.product.name || "—" },
+                { label: "Cantidad", icon: "🔢", render: (t) => t.sale?.quantity || "—" },
+                { label: "Total", icon: <FaDollarSign />, render: (t) => formatCurrency(t.amount) },
+                { label: "Fecha", icon: <FaRegCalendarAlt />, render: (t) => new Date(t.date).toLocaleString() },
+            ])}
+
+            {renderTable("Egresos", egresos, "danger", [
+                { label: "Descripción", icon: <FaClipboard />, render: (t) => t.comment || "Sin comentarios" },
+                { label: "Monto", icon: <FaDollarSign />, render: (t) => formatCurrency(t.amount) },
+                { label: "Método de pago", icon: "💳", render: (t) => t.paymentMethod.name },
+                { label: "Fecha", icon: <FaRegCalendarAlt />, render: (t) => new Date(t.date).toLocaleString() },
+            ])}
         </>
     );
 };

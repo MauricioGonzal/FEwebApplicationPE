@@ -19,8 +19,10 @@ const AdminDashboard = () => {
     const [memberships, setMemberships] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
     const [comment, setComment] = useState("");
+    const [quantity, setQuantity] = useState("");
     const [amount, setAmount] = useState(0);
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const [refresh, setRefresh] = useState(false);
 
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [selectedPaymentType, setSelectedPaymentType] = useState(null);
@@ -36,13 +38,7 @@ const AdminDashboard = () => {
             )
             .catch((error) => console.error("Error al obtener usuarios", error));
 
-        api.get('/transactions/today')
-            .then((response) => {
-                console.log(response.data);
-                setTransactions(response.data);
-                calcularTotalCaja(response.data);
-            })
-            .catch((error) => console.error("Error al obtener transacciones", error));
+
 
         api.get('/payment-methods')
             .then((response) =>{ 
@@ -70,6 +66,15 @@ const AdminDashboard = () => {
             .catch((error) => console.error("Error al obtener categorias de transacciones", error));
     }, []);
 
+    useEffect(() => {
+        api.get('/transactions/today')
+            .then((response) => {
+                setTransactions(response.data);
+                calcularTotalCaja(response.data);
+            })
+            .catch((error) => console.error("Error al obtener transacciones", error));
+      }, [refresh]);
+
     const handleAddTransaction = () => {
         const newTransaction = { 
             user: selectedUser?.value,
@@ -78,7 +83,9 @@ const AdminDashboard = () => {
             amount: amount, 
             date: new Date().toISOString(),
             comment: comment,
-            membership: selectedMembership.value
+            membership: selectedMembership.value,
+            product: selectedProduct?.value,
+            quantity: quantity
         };
 
         api.post('/transactions', newTransaction)
@@ -92,6 +99,7 @@ const AdminDashboard = () => {
                 toast.success("Transaccion creada correctamente", {
                     position: "top-right", // Ahora directamente como string
                   });
+                  setRefresh(prev => !prev); // Cambia refresh para disparar el useEffect
             })
             .catch((error) => {
                 if (error.response && error.response.data) {
@@ -244,6 +252,15 @@ const AdminDashboard = () => {
                     placeholder="Seleccionar producto..."
                     isSearchable
                     className="mb-3"
+                />
+            </div>
+            <div className="col-md-6">
+                <input
+                    type="number"
+                    className="form-control shadow-sm"
+                    placeholder="Ingrese cantidad..."
+                    value={quantity}
+                    onChange={(e) => setQuantity(e.target.value)}
                 />
             </div>
         </div>
