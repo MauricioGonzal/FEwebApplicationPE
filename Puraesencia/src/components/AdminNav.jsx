@@ -27,6 +27,7 @@ const AdminNav = () => {
                             <li><button className="dropdown-item" onClick={() => navigate("/daily-closures")}>Cierres Diarios</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/fixed-expenses")}>Gastos</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/stock-management")}>Inventario</button></li>
+                            <li><button className="dropdown-item" onClick={() => navigate("/classes-schedule")}>Grilla de clases</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button></li>
                             <li><button className="dropdown-item" onClick={() => logout(navigate)}>Cerrar Sesion</button></li>
                         </ul>

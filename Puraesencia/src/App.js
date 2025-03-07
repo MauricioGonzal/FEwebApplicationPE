@@ -35,6 +35,8 @@ import RoleBasedLayout from './components/RoleBasedLayout';
 import FixedExpensesPage from './pages/FixedExpensesPage';
 import CreateMonthlyClosure from './pages/CreateMonthlyCashClosure';
 import StockManagement from './pages/StockManagement';
+import ClientClassesDashboard from './pages/ClientClassesDashboard'
+import AdminScheduleGrid from './pages/AdminScheduleGrid'
 
 function App() {
   return (
@@ -71,11 +73,14 @@ function App() {
           <Route path="/create-routine" element={<CreateRoutine />} />
           <Route path="/changepass" element={<PrivateRoute><ChangePasswordForm /></PrivateRoute>} />
           <Route path="/client-gym-dashboard" element={<PrivateRoute><ClientGymDashboard /></PrivateRoute>} />
+          <Route path="/client-classes-dashboard" element={<PrivateRoute><ClientClassesDashboard /></PrivateRoute>} />
           <Route path="/workout-sessions" element={<PrivateRoute><WorkoutHistory /></PrivateRoute>} />
           <Route path="/fixed-expenses" element={<PrivateRoute><FixedExpensesPage /></PrivateRoute>} />
           <Route path="/monthly-closures" element={<PrivateRoute><MonthlyCLosures /></PrivateRoute>} />
           <Route path="/create-monthly-closure" element={<PrivateRoute><CreateMonthlyClosure /></PrivateRoute>} />
           <Route path="/stock-management" element={<PrivateRoute><StockManagement /></PrivateRoute>} />
+          <Route path="/classes-schedule" element={<PrivateRoute><AdminScheduleGrid /></PrivateRoute>} />
+
 
           </Route>
 

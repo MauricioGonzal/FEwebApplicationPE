@@ -22,6 +22,9 @@ const RoleBasedRedirect = () => {
             } else if (role === 'CLIENT_GYM') {
                 navigate('/client-gym-dashboard');
             }
+            else if (role === 'CLIENT_CLASSES') {
+                navigate('/client-classes-dashboard');
+            }
             else if(role === 'TRAINER'){
                 navigate('/trainer-dashboard')
             }
