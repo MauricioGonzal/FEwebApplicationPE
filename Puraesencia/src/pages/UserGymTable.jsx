@@ -90,7 +90,7 @@ const UserGymAttendance = () => {
                     toast.success("Fecha de vencimiento actualizada con éxito", {
                         position: "top-right", // Ahora directamente como string
                     });
-                    setShowModal(false);
+                    setShowModalDueDate(false);
                 })
                 .catch((error) => console.error("Error al actualizar la fecha de vencimiento", error));
         }

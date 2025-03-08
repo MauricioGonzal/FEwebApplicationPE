@@ -41,7 +41,6 @@ const UserClassAttendance = () => {
     const getMonthlyAttendance = (user) => {
         api.get(`/attendance/current-month`)
             .then((response) => {
-                console.log(response.data);
                 setAttendances(response.data);
                 setSelectedUser(user);
                 setShowModal(true);
@@ -86,7 +85,6 @@ const UserClassAttendance = () => {
                                     reachedLimit = totalAttendance >= maxAttendance;
                                 }
 
-                                
                                 return (
                                     <tr key={user.id}>
                                         <td>{user.id}</td>
@@ -139,8 +137,8 @@ const UserClassAttendance = () => {
                             {Object.entries(attendances).map(([userId, userAttendances], index) => {
                                 if (parseInt(userId) === selectedUser?.id) {  // Verificamos si el id coincide
                                     return Object.entries(userAttendances.attendance).map(([date, count]) => (
-                                        <tr key={date}>  {/* Usamos "date" como key para cada fila */}
-                                            <td>{date}</td>
+                                        <tr key={date}>
+                                            <td>{new Date(`${date}T00:00:00`).toLocaleDateString('es-ES')}</td>
                                             <td>{count}</td>
                                         </tr>
                                     ));

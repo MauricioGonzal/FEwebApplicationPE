@@ -96,6 +96,10 @@ const AdminDashboard = () => {
                 setShowErrorModal(false);  // Cerrar modal en caso de éxito            
                 setComment("");
                 setAmount(0);
+                setSelectedTransactionCategory('');
+                setSelectedPaymentType(null);
+                setSelectedProduct(null);
+                setSelectedMembership([]);
                 toast.success("Transaccion creada correctamente", {
                     position: "top-right", // Ahora directamente como string
                   });
