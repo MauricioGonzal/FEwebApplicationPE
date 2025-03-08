@@ -36,6 +36,7 @@ const ClientGymDashboard = () => {
         // Cargar rutina
         api.get(`/users/${decoded.id}/routine`)
             .then(response => {
+                console.log(response.data);
                 setRoutine(response.data);
                 setLoading(false);
             })
@@ -108,6 +109,17 @@ const ClientGymDashboard = () => {
         return <div className="text-center mt-5"><h4>Cargando rutina...</h4></div>;
     }
 
+    if (routine === "") {
+        return (
+            <div className="container d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+                <div className="text-center p-4 border rounded shadow-lg" style={{ backgroundColor: "#f8f9fa" }}>
+                    <h4 className="text-danger fw-bold">🚨 No tienes una rutina asignada</h4>
+                    <p className="text-muted">Por favor, contacta a tu entrenador para obtener una.</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="container-fluid">
             {hasPendingPayment && (
@@ -122,7 +134,7 @@ const ClientGymDashboard = () => {
                         <div key={day.index} className="col-md-6 mb-3">
                             <div className="card p-3 shadow-sm">
                                 <h5 className="card-title p-2 rounded" onClick={() => toggleDay(day.index)} style={{cursor: "pointer", fontFamily: 'Roboto', backgroundColor: day.index % 2 === 0 ? "#0a0a08" : "#626260", color: "#fff" }}>{day.name}</h5>
-                                {expandedDays[day.index] && routine.exercisesByDay[day.index]?.map((ex, idx) => (
+                                {expandedDays[day.index] && routine.exercisesByDay?.[day.index]?.map((ex, idx) => (
                                     <div key={idx} className="mb-3 p-2 border rounded">
                                         {ex.exerciseIds.map((exerciseId) => {
                                             const exerciseDetails = exercises.find((exercise) => exercise.id === exerciseId);

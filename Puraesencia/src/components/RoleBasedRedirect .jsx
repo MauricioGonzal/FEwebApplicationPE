@@ -30,6 +30,9 @@ const RoleBasedRedirect = () => {
             }
             else if(role === 'RECEPTIONIST'){
                 navigate('/employee-dashboard')
+            }
+            else if(role === 'CLIENT_BOTH'){
+                navigate('/client-both-dashboard')
             } else {
                 navigate('/login'); // Redirige a login si el rol no es reconocido
             }

@@ -37,6 +37,7 @@ import CreateMonthlyClosure from './pages/CreateMonthlyCashClosure';
 import StockManagement from './pages/StockManagement';
 import ClientClassesDashboard from './pages/ClientClassesDashboard'
 import AdminScheduleGrid from './pages/AdminScheduleGrid'
+import ClientBothDashboard from './pages/ClientBothDashboard';
 
 function App() {
   return (
@@ -80,6 +81,7 @@ function App() {
           <Route path="/create-monthly-closure" element={<PrivateRoute><CreateMonthlyClosure /></PrivateRoute>} />
           <Route path="/stock-management" element={<PrivateRoute><StockManagement /></PrivateRoute>} />
           <Route path="/classes-schedule" element={<PrivateRoute><AdminScheduleGrid /></PrivateRoute>} />
+          <Route path="/client-both-dashboard" element={<PrivateRoute><ClientBothDashboard /></PrivateRoute>} />
 
 
           </Route>

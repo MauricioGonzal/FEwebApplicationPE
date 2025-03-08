@@ -4,31 +4,49 @@ import jwtDecode from 'jwt-decode';
 import api from '../Api';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
-const schedule = {
-    Monday: [
-      { time: "08:00 - 09:00", className: "Yoga" },
-      { time: "10:00 - 11:00", className: "CrossFit" },
-    ],
-    Tuesday: [
-      { time: "09:00 - 10:00", className: "Pilates" },
-      { time: "18:00 - 19:00", className: "Boxing" },
-    ],
-    Wednesday: [
-      { time: "07:00 - 08:00", className: "HIIT" },
-      { time: "17:00 - 18:00", className: "Spinning" },
-    ],
-    // Agregar más días y clases según sea necesario
-  };
-
-  const remainingClasses = 5; // Simulación de clases restantes del usuario
+const daysOfWeek = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"];
 
 const ClientClassesDashboard = () => {
+  const [schedule, setSchedule] = useState([]);
+  const [leftAttendances, setLeftAttendances] = useState("");
+
+  useEffect(() => {
+    const fetchSchedule = () => {
+      api.get('/schedules/1/sessions')
+      .then((response) => { 
+          const formattedSchedule = daysOfWeek.reduce((acc, day) => {
+              acc[day] = response.data.filter(session => session.dayOfWeek === day);
+              return acc;
+          }, {});
+          setSchedule(formattedSchedule);
+      })
+      .catch((error) => console.error("Error fetching schedule:", error));
+    };
+  
+    fetchSchedule();
+  }, []); // ✅ No más advertencias
+
+
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+  
+    const decoded = jwtDecode(token);
+
+    api.get('/attendance/' + decoded.id + '/leftattendances')
+    .then((response) =>{ 
+      setLeftAttendances(response.data);
+    })
+    .catch((error) => console.error("Error fetching left attendances:", error));
+  }, []);
+  
     
     return (
         <div className="container mt-4">
-          <h2 className="text-center mb-4">Weekly Class Schedule</h2>
+          <h2 className="text-center mb-4">Grilla semanal de clases</h2>
           <div className="alert alert-info text-center" role="alert">
-            You have <strong>{remainingClasses}</strong> classes remaining to take.
+            You have <strong>{leftAttendances}</strong> classes remaining to take.
           </div>
           <div className="row">
             {Object.entries(schedule).map(([day, classes]) => (
@@ -38,9 +56,9 @@ const ClientClassesDashboard = () => {
                     {day}
                   </div>
                   <ul className="list-group list-group-flush">
-                    {classes.map((cls, index) => (
+                     {schedule[day]?.map((session, index) => (
                       <li key={index} className="list-group-item">
-                        <strong>{cls.time}</strong>: {cls.className}
+                        <strong>{session.startTime} - {session.endTime}</strong>: {session?.classType.name}
                       </li>
                     ))}
                   </ul>

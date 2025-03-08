@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import AdminNav from "./AdminNav";
 import ReceptionistNav from "./ReceptionistNav";
 import ClientClassesNav from "./ClientClassesNav";
+import ClientBothNav from "./ClientBothNav";
 import TrainerNav from "./TrainerNav";
 import ClientGymNav from "./ClientGymNav";
 import { useNavigate } from 'react-router-dom';
@@ -31,6 +32,8 @@ const RoleBasedLayout = () => {
         return <ClientGymNav />;
       case "CLIENT_CLASSES":
           return <ClientClassesNav />;
+      case "CLIENT_BOTH":
+          return <ClientBothNav />;
       default:
         return null; // O un navbar genérico si lo necesitas
     }
