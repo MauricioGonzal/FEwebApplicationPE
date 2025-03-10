@@ -21,4 +21,16 @@ api.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.log(error);
+      if (error.response && error.response.status === 401) {
+          localStorage.removeItem("token"); // Elimina el token inválido
+          window.location.href = "/login"; // Redirige al login
+      }
+      return Promise.reject(error);
+  }
+);
+
 export default api;

@@ -46,7 +46,7 @@ const ClientClassesDashboard = () => {
         <div className="container mt-4">
           <h2 className="text-center mb-4">Grilla semanal de clases</h2>
           <div className="alert alert-info text-center" role="alert">
-            You have <strong>{leftAttendances}</strong> classes remaining to take.
+            Te quedan <strong>{leftAttendances}</strong> clases por tomar.
           </div>
           <div className="row">
             {Object.entries(schedule).map(([day, classes]) => (
