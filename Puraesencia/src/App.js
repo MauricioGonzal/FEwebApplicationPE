@@ -38,6 +38,7 @@ import StockManagement from './pages/StockManagement';
 import ClientClassesDashboard from './pages/ClientClassesDashboard'
 import AdminScheduleGrid from './pages/AdminScheduleGrid'
 import ClientBothDashboard from './pages/ClientBothDashboard';
+import ProductPage from './pages/ProductsPage';
 
 function App() {
   return (
@@ -82,8 +83,7 @@ function App() {
           <Route path="/stock-management" element={<PrivateRoute><StockManagement /></PrivateRoute>} />
           <Route path="/classes-schedule" element={<PrivateRoute><AdminScheduleGrid /></PrivateRoute>} />
           <Route path="/client-both-dashboard" element={<PrivateRoute><ClientBothDashboard /></PrivateRoute>} />
-
-
+          <Route path="/products" element={<PrivateRoute><ProductPage /></PrivateRoute>} />
           </Route>
 
         <Route path="/login" element={<Login />} />

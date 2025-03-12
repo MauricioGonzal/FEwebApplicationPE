@@ -20,6 +20,7 @@ const AdminNav = () => {
                         <ul className="dropdown-menu dropdown-menu-end">
                             <li><button className="dropdown-item" onClick={() => navigate('/overdue-payments')}>Cuotas Vencidas</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate('/create-user')}>Crear Usuario</button></li>
+                            <li><button className="dropdown-item" onClick={() => navigate('/products')}>Productos</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/price-list")}>Precios</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/user-table")}>Usuarios</button></li>
                             <li><button className="dropdown-item" onClick={() => navigate("/salary")}>Sueldos</button></li>
