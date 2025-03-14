@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../Api";
 import Select from "react-select";
+import { Modal, Button } from 'react-bootstrap';
 
 
 const daysOfWeek = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"];
@@ -12,7 +13,8 @@ const AdminScheduleGrid = () => {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [classTypes, setClassTypes] = useState([]);
-
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showErrorModal, setShowErrorModal] = useState(false);
   const [selectedClassType, setSelectedClassType] = useState(null);
 
   useEffect(() => {
@@ -54,7 +56,12 @@ const AdminScheduleGrid = () => {
             setModalVisible(false);
         })
         .catch((error) => {
-            console.error("Error adding class session:", error);
+          if (error.response && error.response.data) {
+            setErrorMessage(error.response.data.error || "Error desconocido");
+          } else {
+            setErrorMessage("Error al realizar la solicitud");
+          }
+          setShowErrorModal(true);  // Mostrar modal con el error
     });
   };
 
@@ -152,6 +159,17 @@ const AdminScheduleGrid = () => {
           </div>
         </div>
       )}
+          <Modal show={showErrorModal} onHide={() => setShowErrorModal(false)}>
+              <Modal.Header closeButton>
+              <Modal.Title>Error</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>{errorMessage}</Modal.Body>
+              <Modal.Footer>
+              <Button variant="secondary" onClick={() => setShowErrorModal(false)}>
+                  Cerrar
+              </Button>
+              </Modal.Footer>
+          </Modal>
     </div>
   );
 };

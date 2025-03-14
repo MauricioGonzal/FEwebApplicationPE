@@ -4,6 +4,7 @@ import { Eye, EyeOff } from "lucide-react";
 import jwtDecode from "jwt-decode";
 import api from "../Api";
 import { useNavigate } from "react-router-dom";
+import ErrorModal from "../components/ErrorModal";
 
 export default function ChangePasswordForm() {
   const [form, setForm] = useState({
@@ -14,6 +15,8 @@ export default function ChangePasswordForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -38,7 +41,14 @@ export default function ChangePasswordForm() {
       .then(() => {
         navigate('/');
       })
-      .catch(error => console.error("Error al crear rutina:", error));
+      .catch(error =>{
+        if (error.response && error.response.data) {
+          setErrorMessage(error.response.data.message || "Error desconocido");
+        } else {
+          setErrorMessage("Error al realizar la solicitud");
+        }
+        setShowErrorModal(true);  // Mostrar modal con el error
+      })
   };
 
   return (
@@ -90,6 +100,8 @@ export default function ChangePasswordForm() {
         
         <Button variant="primary" type="submit" className="w-100 fw-bold">🔄 Actualizar Contraseña</Button>
       </Form>
+      {/* Modal emergente de error */}
+      <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
     </Container>
   );
 }
