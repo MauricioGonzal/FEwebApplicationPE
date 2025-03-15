@@ -4,14 +4,16 @@ import { useNavigate } from "react-router-dom";
 import { Card, Row, Col, Button, Form } from "react-bootstrap";
 import { FaUserPlus, FaTimes } from "react-icons/fa";
 import { toast } from 'react-toastify';
-
-
+import ErrorModal from "../components/ErrorModal";
 
 const CreateUserForm = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('client_gym');
+
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -23,11 +25,22 @@ const CreateUserForm = () => {
         toast.success("Usuario creado correctamente", {
           position: "top-right", // Ahora directamente como string
         });
-        navigate('/');
+        setFullName('');
+        setEmail('');
+        setPassword('');
+        setRole('client_gym');
       })
       .catch((error) => {
-        console.error("Error al crear usuario", error);
-        alert("Hubo un error al crear el usuario.");
+        if (error.response && error.response.data) {
+          setErrorMessage(error.response.data.message || "Error desconocido");
+        } else {
+          setErrorMessage("Error al realizar la solicitud");
+        }
+        setShowErrorModal(true);
+        setFullName('');
+        setEmail('');
+        setPassword('');
+        setRole('client_gym');
       });
   };
   
@@ -87,6 +100,7 @@ const CreateUserForm = () => {
           </div>
         </Form>
       </Card>
+      <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
     </div>
   );
 };

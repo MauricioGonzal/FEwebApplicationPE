@@ -23,20 +23,22 @@ const CreateExercise = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Aquí puedes enviar los datos del ejercicio a una API o a un backend
     api.post('/exercises/create', {
         name: exercise.name,
         description: exercise.description,
         url: exercise.url 
-    }) // Cambia la URL según tu API
+    })
     .then((response) => {
-      toast.success("Transaccion creada correctamente", {
+      toast.success("Ejercicio creado correctamente", {
         position: "top-right", // Ahora directamente como string
       });
-        navigate('/');
+      setExercise({
+        name: '',
+        description: '',
+        url: ''
+      })
     })
     .catch((error) => console.error("Error al cargar los datos:", error));    
-    // Limpiar los campos del formulario después de enviar
   };
 
   return (

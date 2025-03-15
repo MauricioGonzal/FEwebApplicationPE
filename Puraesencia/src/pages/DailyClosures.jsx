@@ -109,7 +109,7 @@ const CierresDiarios = () => {
           <tbody>
             {cierres.map((cierre) => (
               <tr key={cierre.id}>
-                <td>{new Date(cierre.startDate).toLocaleDateString('es-ES')}</td>
+                <td>{new Date(`${cierre.startDate}T00:00:00`).toLocaleDateString('es-ES')}</td>
                 <td>{cierre.discrepancy.toFixed(2)}</td>
                 <td>
                   <Button variant="info" onClick={() => handleVerDetalles(cierre)} className="me-2">

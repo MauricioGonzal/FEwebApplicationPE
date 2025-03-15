@@ -9,13 +9,14 @@ import { FaUser, FaSignOutAlt} from "react-icons/fa";
 const TrainerNav = () => {
     const navigate = useNavigate();
 
-  return (
+    return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow">
-    <div className="container d-flex justify-content-between">
-        <a className="navbar-brand fw-bold" href="/">
+        <div className="container d-flex justify-content-between">
+            <a className="navbar-brand fw-bold" href="/">
                 <img src="./puraesencia.png" alt="Logo" width="40" height="40" className="me-2" />
                 Trainer Panel
-            </a>                    <div className="dropdown">
+            </a>                    
+            <div className="dropdown">
                 <button className="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
                     <FaUser />
                 </button>
@@ -28,7 +29,7 @@ const TrainerNav = () => {
             </div>
         </div>
     </nav>
-  );
+    );
 };
 
 export default TrainerNav;

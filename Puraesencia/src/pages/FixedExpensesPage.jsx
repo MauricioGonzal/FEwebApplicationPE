@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from "../Api";
 import { toast } from 'react-toastify';
+import ErrorModal from "../components/ErrorModal";
 
 const FixedExpensesPage = () => {
   const [expenses, setExpenses] = useState([]);
@@ -9,8 +10,11 @@ const FixedExpensesPage = () => {
     name: '',
     monthlyAmount: '',
     startDate: '',
-    remainingInstallments: '',
+    totalInstallments: '',
   });
+
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const fetchExpenses = () => {
     api
@@ -50,7 +54,14 @@ const FixedExpensesPage = () => {
           resetForm();
           toast.success("Gasto creado correctamente", { position: "top-right" });
         })
-        .catch((error) => console.error('Error creando gasto', error));
+        .catch((error) => {
+          if (error.response && error.response.data) {
+            setErrorMessage(error.response.data.message || "Error desconocido");
+          } else {
+            setErrorMessage("Error al realizar la solicitud");
+          }
+          setShowErrorModal(true);
+        });
     }
   };
 
@@ -79,7 +90,7 @@ const FixedExpensesPage = () => {
       name: '',
       monthlyAmount: '',
       startDate: '',
-      remainingInstallments: '',
+      totalInstallments: '',
     });
   };
 
@@ -132,8 +143,8 @@ const FixedExpensesPage = () => {
               <label className="form-label">Pagos Restantes</label>
               <input
                 type="number"
-                name="remainingInstallments"
-                value={formData.remainingInstallments}
+                name="totalInstallments"
+                value={formData.totalInstallments}
                 onChange={handleChange}
                 className="form-control"
               />
@@ -170,7 +181,7 @@ const FixedExpensesPage = () => {
                 <td>{expense.name}</td>
                 <td>{expense.monthlyAmount}</td>
                 <td>{expense.startDate}</td>
-                <td>{expense.remainingInstallments}</td>
+                <td>{expense.totalInstallments}</td>
                 <td>{expense.isActive ? 'Sí' : 'No'}</td>
                 <td>
                   <button className="btn btn-warning btn-sm me-2" onClick={() => handleEdit(expense)}>
@@ -185,6 +196,7 @@ const FixedExpensesPage = () => {
           </tbody>
         </table>
       </div>
+      <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
     </div>
   );
 };

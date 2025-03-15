@@ -6,7 +6,6 @@ import jwtDecode from 'jwt-decode';
 import api from '../Api';
 import { toast } from 'react-toastify';
 
-
 export default function EditGymRoutineForm() {
   const daysOfWeek = [
     { index: 1, name: "Lunes" }, { index: 2, name: "Martes" }, { index: 3, name: "Miércoles" },

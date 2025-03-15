@@ -28,7 +28,7 @@ const AdminDashboard = () => {
     const [selectedPaymentType, setSelectedPaymentType] = useState(null);
     const [selectedMembership, setSelectedMembership] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
-    const [selectedTransactionCategory, setSelectedTransactionCategory] = useState('');
+    const [selectedTransactionCategory, setSelectedTransactionCategory] = useState(null);
 
 
     useEffect(() => {
@@ -76,8 +76,8 @@ const AdminDashboard = () => {
     const handleAddTransaction = () => {
         const newTransaction = { 
             user: selectedUser?.value,
-            transactionCategory: selectedTransactionCategory.value,
-            paymentMethod: selectedPaymentType.value,
+            transactionCategory: selectedTransactionCategory?.value,
+            paymentMethod: selectedPaymentType?.value,
             amount: amount, 
             date: new Date().toISOString(),
             comment: comment,
@@ -91,7 +91,7 @@ const AdminDashboard = () => {
                 setShowErrorModal(false);  // Cerrar modal en caso de éxito            
                 setComment("");
                 setAmount(0);
-                setSelectedTransactionCategory('');
+                setSelectedTransactionCategory(null);
                 setSelectedPaymentType(null);
                 setSelectedProduct(null);
                 setSelectedMembership([]);
@@ -108,6 +108,13 @@ const AdminDashboard = () => {
                     setErrorMessage("Error al realizar la solicitud");
                   }
                   setShowErrorModal(true);  // Mostrar modal con el error
+                  setComment("");
+                  setAmount(0);
+                  setSelectedTransactionCategory(null);
+                  setSelectedPaymentType(null);
+                  setSelectedProduct(null);
+                  setSelectedMembership([]);
+                  setQuantity("");
             });
     };
 
@@ -311,6 +318,7 @@ const AdminDashboard = () => {
                             <button
                                 className="btn btn-success shadow-lg px-4 py-2 rounded-pill text-white fs-5"
                                 onClick={handleAddTransaction}
+                                disabled={selectedTransactionCategory == null || selectedPaymentType == null}
                             >
                                 <FaCashRegister className="me-2" /> Agregar
                             </button>

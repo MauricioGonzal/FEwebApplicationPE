@@ -4,6 +4,7 @@ import api from "../Api";
 import { toast } from "react-toastify";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
+import ErrorModal from "../components/ErrorModal";
 
 const UserClassAttendance = () => {
     const [search, setSearch] = useState("");
@@ -11,6 +12,11 @@ const UserClassAttendance = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
     const [attendances, setAttendances] = useState([]);
+
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+
+    const [refresh, setRefresh] = useState(false);
 
     useEffect(() => {
         api.get("/users/getAllByRole/clients")
@@ -24,7 +30,7 @@ const UserClassAttendance = () => {
                 setAttendances(response.data);
             })
             .catch((error) => console.error("Error al obtener asistencias", error));
-    }, []);
+    }, [refresh]);
 
     const handleMarkAttendance = (userId) => {
         api.post("/attendance", { userId, attendanceTypeId: 2 })
@@ -32,20 +38,21 @@ const UserClassAttendance = () => {
                 toast.success("Asistencia registrada con éxito", {
                     position: "top-right",
                 });
-                // Refrescar la lista de asistencias después de registrar
-                getMonthlyAttendance(users.find(user => user.id === userId));
+                setRefresh(prev => !prev);
             })
-            .catch((error) => console.error("Error al registrar la asistencia:", error));
+            .catch((error) =>{
+                if (error.response && error.response.data) {
+                    setErrorMessage(error.response.data.message || "Error desconocido");
+                  } else {
+                    setErrorMessage("Error al realizar la solicitud");
+                  }
+                  setShowErrorModal(true);
+            });
     };
 
     const getMonthlyAttendance = (user) => {
-        api.get(`/attendance/current-month`)
-            .then((response) => {
-                setAttendances(response.data);
-                setSelectedUser(user);
-                setShowModal(true);
-            })
-            .catch((error) => console.error("Error al obtener asistencias", error));
+        setSelectedUser(user);
+        setShowModal(true);
     };
 
     const filteredUsers = users.filter(
@@ -157,6 +164,7 @@ const UserClassAttendance = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
+            <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
         </div>
     );
 };
