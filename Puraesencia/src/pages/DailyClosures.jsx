@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Container, Form, Button, Table, Modal, Card, Row, Col } from "react-bootstrap";
 import api from "../Api";
 import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
+import ErrorModal from "../components/ErrorModal";
 
 const CierresDiarios = () => {
   const [cierres, setCierres] = useState([]);
@@ -9,13 +11,20 @@ const CierresDiarios = () => {
   const [detalle, setDetalle] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [refresh, setRefresh] = useState(false);
+
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [cierreAEliminar, setCierreAEliminar] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     api.get('/cash-closure/daily')
       .then(response => setCierres(response.data))
       .catch(error => console.error("Error al cargar los cierres", error));
-  }, []);
+  }, [refresh]);
 
   const handleBuscar = () => {
     api.get(`/cash-closure/getByDate?date=${fecha}`)
@@ -28,11 +37,38 @@ const CierresDiarios = () => {
     setShowModal(true);
   };
 
+  const handleDeleteConfirm = () => {
+    if (cierreAEliminar) {
+      api.delete(`/cash-closure/${cierreAEliminar.id}`)
+        .then(() => {
+          toast.success("Cierre eliminado exitosamente", { position: "top-right" });
+          setRefresh(prev => !prev);
+        })
+        .catch(error => {
+          if (error.response && error.response.data) {
+            setErrorMessage(error.response.data.message || "Error desconocido");
+          } else {
+            setErrorMessage("Error al realizar la solicitud");
+          }
+          setShowErrorModal(true);
+        })
+        .finally(() => {
+          setShowConfirmModal(false);
+          setCierreAEliminar(null);
+        });
+    }
+  };
+
+  const handleDelete = (cierre) => {
+    setCierreAEliminar(cierre);
+    setShowConfirmModal(true);
+  };
+
   return (
     <Container className="mt-5">
       <h2 className="mb-4 text-center text-primary">Cierres Diarios</h2>
 
-      {/* Formulario de búsqueda con un diseño más integrado */}
+      {/* Formulario de búsqueda */}
       <Card className="shadow-sm p-4 mb-4">
         <Row className="align-items-center">
           <Col md={8} sm={12} className="mb-3 mb-md-0">
@@ -76,8 +112,11 @@ const CierresDiarios = () => {
                 <td>{new Date(cierre.startDate).toLocaleDateString('es-ES')}</td>
                 <td>{cierre.discrepancy.toFixed(2)}</td>
                 <td>
-                  <Button variant="info" onClick={() => handleVerDetalles(cierre)}>
+                  <Button variant="info" onClick={() => handleVerDetalles(cierre)} className="me-2">
                     Ver Detalles
+                  </Button>
+                  <Button variant="danger" onClick={() => handleDelete(cierre)}>
+                    Eliminar
                   </Button>
                 </td>
               </tr>
@@ -105,6 +144,26 @@ const CierresDiarios = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Modal de confirmación de eliminación */}
+      <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar Eliminación</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          ¿Estás seguro de que quieres eliminar este cierre diario? Esta acción no se puede deshacer.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
+            Cancelar
+          </Button>
+          <Button variant="danger" onClick={handleDeleteConfirm}>
+            Eliminar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
     </Container>
   );
 };

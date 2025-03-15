@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { Container, Form, Button, Table, Modal, Card, Row, Col, Alert } from "react-bootstrap";
 import api from "../Api";
 
+import { toast } from 'react-toastify';
+import ErrorModal from "../components/ErrorModal";
+
 const MonthlyClosures = () => {
   const [cierres, setCierres] = useState([]);
   const [month, setMonth] = useState("");
@@ -10,11 +13,18 @@ const MonthlyClosures = () => {
   const [showModal, setShowModal] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
 
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [refresh, setRefresh] = useState(false);
+
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [cierreAEliminar, setCierreAEliminar] = useState(null);
+
   useEffect(() => {
     api.get('/cash-closure/monthly')
       .then(response => setCierres(response.data))
       .catch(error => console.error("Error al cargar los cierres", error));
-  }, []);
+  }, [refresh]);
 
   const handleBuscar = () => {
     if (!month || !year) {
@@ -42,6 +52,33 @@ const MonthlyClosures = () => {
     console.log(cierre);
     setDetalle(cierre);
     setShowModal(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (cierreAEliminar) {
+      api.delete(`/cash-closure/${cierreAEliminar.id}`)
+        .then(() => {
+          toast.success("Cierre eliminado exitosamente", { position: "top-right" });
+          setRefresh(prev => !prev);
+        })
+        .catch(error => {
+          if (error.response && error.response.data) {
+            setErrorMessage(error.response.data.message || "Error desconocido");
+          } else {
+            setErrorMessage("Error al realizar la solicitud");
+          }
+          setShowErrorModal(true);
+        })
+        .finally(() => {
+          setShowConfirmModal(false);
+          setCierreAEliminar(null);
+        });
+    }
+  };
+
+  const handleDelete = (cierre) => {
+    setCierreAEliminar(cierre);
+    setShowConfirmModal(true);
   };
 
   return (
@@ -110,6 +147,9 @@ const MonthlyClosures = () => {
                   <Button variant="info" onClick={() => handleVerDetalles(cierre)}>
                     Ver Detalles
                   </Button>
+                  <Button variant="danger" onClick={() => handleDelete(cierre)}>
+                    Eliminar
+                  </Button>
                 </td>
               </tr>
             ))}
@@ -140,6 +180,26 @@ const MonthlyClosures = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Modal de confirmación de eliminación */}
+      <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar Eliminación</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          ¿Estás seguro de que quieres eliminar este cierre mensual? Esta acción no se puede deshacer.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
+            Cancelar
+          </Button>
+          <Button variant="danger" onClick={handleDeleteConfirm}>
+            Eliminar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
     </Container>
   );
 };

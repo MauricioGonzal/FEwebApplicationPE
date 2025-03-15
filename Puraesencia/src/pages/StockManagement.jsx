@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import api from "../Api";
 import Select from "react-select";
-import { Modal, Button } from 'react-bootstrap';
-
+import { Modal, Button } from "react-bootstrap";
 
 const StockManagement = () => {
   const [products, setProducts] = useState([]);
@@ -11,46 +10,37 @@ const StockManagement = () => {
   const [stock, setStock] = useState("");
   const [stockList, setStockList] = useState([]);
   const [refresh, setRefresh] = useState(false);
-  const [editingStock, setEditingStock] = useState(null); // Para identificar qué stock estamos editando
-  const [newStock, setNewStock] = useState(""); // El valor que se editará
+  const [editingStock, setEditingStock] = useState(null);
+  const [newStock, setNewStock] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [showErrorModal, setShowErrorModal] = useState(false);
-
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [stockToDelete, setStockToDelete] = useState(null);
 
   useEffect(() => {
-    api.get('/products')
-    .then((response) =>{ 
-        setProducts(response.data);
-    })
-    .catch((error) => console.error("Error al obtener productos", error));
+    api.get("/products")
+      .then((response) => setProducts(response.data))
+      .catch((error) => console.error("Error al obtener productos", error));
   }, []);
 
   useEffect(() => {
-    api.get('/products-stock')
-    .then((response) =>{ 
-        setStockList(response.data);
-    })
-    .catch((error) => console.error("Error al obtener products-stock", error));
+    api.get("/products-stock")
+      .then((response) => setStockList(response.data))
+      .catch((error) => console.error("Error al obtener products-stock", error));
   }, [refresh]);
 
   const handleAddStock = () => {
     if (!selectedProduct || !stock) return;
 
-    console.log(selectedProduct.value);
-    console.log(stock);
-    api.post('/products-stock/create', {product: selectedProduct.value, stock})
-    .then(() => {
+    api.post("/products-stock/create", { product: selectedProduct.value, stock })
+      .then(() => {
         alert("Stock creado con éxito");
-        setRefresh(prev => !prev); // Cambia refresh para disparar el useEffect
-    })
-    .catch((error) => {
-        if (error.response && error.response.data) {
-            setErrorMessage(error.response.data.error || "Error desconocido");
-          } else {
-            setErrorMessage("Error al realizar la solicitud");
-          }
-          setShowErrorModal(true);  // Mostrar modal con el error
-    });
+        setRefresh((prev) => !prev);
+      })
+      .catch((error) => {
+        setErrorMessage(error.response?.data?.error || "Error al realizar la solicitud");
+        setShowErrorModal(true);
+      });
 
     setSelectedProduct("");
     setStock("");
@@ -58,34 +48,42 @@ const StockManagement = () => {
 
   const handleEdit = (item) => {
     setEditingStock(item.id);
-    setNewStock(item.stock); // Prepara el valor actual para ser editado
+    setNewStock(item.stock);
   };
 
   const handleSaveEdit = (id) => {
     if (newStock === "") return;
-console.log(newStock);
-    api.put(`/products-stock/update/${id}`, newStock )
-    .then(() => {
-      alert("Stock actualizado con éxito");
-      setRefresh(prev => !prev); // Actualiza la lista de stocks
-      setEditingStock(null); // Cierra el modo de edición
-    })
-    .catch((error) => console.error("Error al actualizar stock", error));
+
+    api.put(`/products-stock/update/${id}`, { stock: newStock })
+      .then(() => {
+        alert("Stock actualizado con éxito");
+        setRefresh((prev) => !prev);
+        setEditingStock(null);
+      })
+      .catch((error) => console.error("Error al actualizar stock", error));
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar este stock?")) {
-      api.delete(`/products-stock/${id}`)
+  const confirmDeleteStock = (id) => {
+    setStockToDelete(id);
+    setShowConfirmModal(true);
+  };
+
+  const handleDelete = () => {
+    if (!stockToDelete) return;
+
+    api.delete(`/products-stock/${stockToDelete}`)
       .then(() => {
         alert("Stock eliminado con éxito");
-        setRefresh(prev => !prev); // Actualiza la lista de stocks
+        setRefresh((prev) => !prev);
       })
       .catch((error) => console.error("Error al eliminar stock", error));
-    }
+
+    setShowConfirmModal(false);
+    setStockToDelete(null);
   };
 
-  const productOptions = products.map(product => ({
-    value: product, 
+  const productOptions = products.map((product) => ({
+    value: product,
     label: product.name
   }));
 
@@ -115,7 +113,9 @@ console.log(newStock);
               onChange={(e) => setStock(e.target.value)}
             />
           </div>
-          <button className="btn btn-primary w-100" onClick={handleAddStock}>Agregar Stock</button>
+          <button className="btn btn-primary w-100" onClick={handleAddStock}>
+            Agregar Stock
+          </button>
         </div>
       </div>
 
@@ -148,28 +148,54 @@ console.log(newStock);
                   </td>
                   <td>
                     {editingStock === item.id ? (
-                      <button className="btn btn-success" onClick={() => handleSaveEdit(item.id)}>Guardar</button>
+                      <button className="btn btn-success" onClick={() => handleSaveEdit(item.id)}>
+                        Guardar
+                      </button>
                     ) : (
-                      <button className="btn btn-warning me-2" onClick={() => handleEdit(item)}>Editar</button>
+                      <button className="btn btn-warning me-2" onClick={() => handleEdit(item)}>
+                        Editar
+                      </button>
                     )}
-                    <button className="btn btn-danger" onClick={() => handleDelete(item.id)}>Eliminar</button>
+                    <button className="btn btn-danger" onClick={() => confirmDeleteStock(item.id)}>
+                      Eliminar
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-                          {/* Modal emergente para mostrar el error */}
-                          <Modal show={showErrorModal} onHide={() => setShowErrorModal(false)}>
-                    <Modal.Header closeButton>
-                    <Modal.Title>Error</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>{errorMessage}</Modal.Body>
-                    <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowErrorModal(false)}>
-                        Cerrar
-                    </Button>
-                    </Modal.Footer>
-                </Modal>
+
+          {/* Modal de error */}
+          <Modal show={showErrorModal} onHide={() => setShowErrorModal(false)}>
+            <Modal.Header closeButton>
+              <Modal.Title>Error</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>{errorMessage}</Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setShowErrorModal(false)}>
+                Cerrar
+              </Button>
+            </Modal.Footer>
+          </Modal>
+
+          {/* Modal de confirmación para eliminar */}
+          <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
+            <Modal.Header closeButton>
+              <Modal.Title>Confirmar Eliminación</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              ¿Estás seguro de que quieres eliminar este stock?
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
+                Cancelar
+              </Button>
+              <Button variant="danger" onClick={handleDelete}>
+                Eliminar
+              </Button>
+            </Modal.Footer>
+          </Modal>
+
         </div>
       </div>
     </div>
