@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Container, Form, Button, Table, Card, Row, Col, Modal } from "react-bootstrap";
 import api from "../Api";
 import { toast } from 'react-toastify';
-
+import ErrorModal from "../components/ErrorModal";
 
 const CreateMonthlyClosure = () => {
   const [totals, setTotals] = useState(null);
@@ -12,6 +12,9 @@ const CreateMonthlyClosure = () => {
   const [modalColumns, setModalColumns] = useState([]);
   const [modalFields, setModalFields] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState("");
+
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const months = [
     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
@@ -66,7 +69,14 @@ const handleCrearCierre = () => {
         setSelectedMonth("");
         setShowModal(false);
       })
-      .catch(error => console.error("Error al crear el cierre mensual", error));
+      .catch((error) => {
+        if (error.response && error.response.data) {
+            setErrorMessage(error.response.data.message || "Error desconocido");
+          } else {
+            setErrorMessage("Error al realizar la solicitud");
+          }
+          setShowErrorModal(true);  // Mostrar modal con el error
+    });
       
   };
 
@@ -163,6 +173,7 @@ const handleCrearCierre = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+      <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
     </Container>
   );
 };

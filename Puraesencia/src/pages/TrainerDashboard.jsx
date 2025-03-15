@@ -27,7 +27,7 @@ const TrainerDashboard = () => {
     }, []);
 
     useEffect(() => {
-        api.get("/users/getAllByRole/clients")
+        api.get("/users/getAllGymUsers")
             .then((response) => {
                 setAllStudents(response.data);
                 setFilteredAllStudents(response.data);

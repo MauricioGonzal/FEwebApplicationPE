@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { Container, Form, Button, Table, Modal, Card, Row, Col } from "react-bootstrap";
+import { Container, Form, Button, Table, Modal, Card, Row, Col, Alert } from "react-bootstrap";
 import api from "../Api";
-import { useNavigate } from "react-router-dom";
 
 const MonthlyClosures = () => {
   const [cierres, setCierres] = useState([]);
@@ -9,8 +8,7 @@ const MonthlyClosures = () => {
   const [year, setYear] = useState("");
   const [detalle, setDetalle] = useState(null);
   const [showModal, setShowModal] = useState(false);
-
-  const navigate = useNavigate();
+  const [alertMessage, setAlertMessage] = useState("");
 
   useEffect(() => {
     api.get('/cash-closure/monthly')
@@ -25,11 +23,23 @@ const MonthlyClosures = () => {
     }
 
     api.get(`/cash-closure/getByMonthAndYear?month=${month}&year=${year}`)
-      .then(response => {setCierres(response.data)})
-      .catch(error => console.error("Error al filtrar los cierres", error));
+      .then(response => {
+        if (response.data.length === 0) {
+          setAlertMessage("No se encontró cierre mensual para la fecha ingresada.");
+          setCierres([]);
+        } else {
+          setAlertMessage("");
+          setCierres(response.data);
+        }
+      })
+      .catch(error => {
+        console.error("Error al filtrar los cierres", error);
+        setAlertMessage("Hubo un error al buscar los cierres.");
+      });
   };
 
   const handleVerDetalles = (cierre) => {
+    console.log(cierre);
     setDetalle(cierre);
     setShowModal(true);
   };
@@ -37,6 +47,8 @@ const MonthlyClosures = () => {
   return (
     <Container className="mt-5">
       <h2 className="mb-4 text-center text-primary">Cierres Mensuales</h2>
+
+      {alertMessage && <Alert variant="warning">{alertMessage}</Alert>}
 
       {/* Formulario de búsqueda */}
       <Card className="shadow-sm p-4 mb-4">
@@ -50,18 +62,9 @@ const MonthlyClosures = () => {
                 onChange={(e) => setMonth(e.target.value)}
               >
                 <option value="">Selecciona un mes</option>
-                <option value="1">Enero</option>
-                <option value="2">Febrero</option>
-                <option value="3">Marzo</option>
-                <option value="4">Abril</option>
-                <option value="5">Mayo</option>
-                <option value="6">Junio</option>
-                <option value="7">Julio</option>
-                <option value="8">Agosto</option>
-                <option value="9">Septiembre</option>
-                <option value="10">Octubre</option>
-                <option value="11">Noviembre</option>
-                <option value="12">Diciembre</option>
+                {[...Array(12)].map((_, i) => (
+                  <option key={i + 1} value={i + 1}>{new Date(0, i).toLocaleString('es-ES', { month: 'long' })}</option>
+                ))}
               </Form.Control>
             </Form.Group>
           </Col>
@@ -84,15 +87,6 @@ const MonthlyClosures = () => {
             </Button>
           </Col>
         </Row>
-
-        <Button 
-          variant="outline-primary" 
-          className="btn-sm mt-3 w-100 w-md-auto" 
-          onClick={() => navigate('/')}
-        >
-          Volver al Dashboard
-        </Button>
-        
       </Card>
 
       {/* Tabla de cierres */}
@@ -122,13 +116,6 @@ const MonthlyClosures = () => {
           </tbody>
         </Table>
       </Card>
-      <Button 
-  variant="success" 
-  className="btn-sm mt-3 w-100 w-md-auto" 
-  onClick={() => navigate('/create-monthly-closure')}
->
-  Crear Cierre Mensual
-</Button>
 
       {/* Modal de detalles */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
@@ -138,13 +125,11 @@ const MonthlyClosures = () => {
         <Modal.Body>
           {detalle && (
             <div>
-              <p><strong>Fecha:</strong> {new Date(detalle.fecha).toLocaleDateString('es-ES')}</p>
-              <p><strong>Total:</strong> {detalle.total.toFixed(2)}</p>
+              <p><strong>Total:</strong> {detalle.discrepancy.toFixed(2)}</p>
               <p><strong>Detalles:</strong></p>
               <ul>
-                {detalle.items.map((item, index) => (
-                  <li key={index}>{item.descripcion}: {item.monto.toFixed(2)}</li>
-                ))}
+                <li key="sales">Ingresos: {detalle.totalSales.toFixed(2)}</li>
+                <li key="payments">Egresos: {detalle.totalPayments.toFixed(2)}</li>
               </ul>
             </div>
           )}

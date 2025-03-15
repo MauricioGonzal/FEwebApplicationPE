@@ -3,6 +3,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import jwtDecode from 'jwt-decode';
 import api from '../Api';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import ErrorModal from "../components/ErrorModal";
+import { Client } from '@stomp/stompjs';  // Importar Client de STOMP
+import SockJS from 'sockjs-client';  // Importar SockJS para manejar la conexión WebSocket
 
 const ClientGymDashboard = () => {
     const daysOfWeek = [
@@ -17,6 +20,46 @@ const ClientGymDashboard = () => {
     const [expandedDays, setExpandedDays] = useState({});
     const [expandedExercises, setExpandedExercises] = useState({});
     const [hasPendingPayment, setHasPendingPayment] = useState(false);
+
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+
+    const [refresh, setRefresh] = useState(false);
+    
+
+      useEffect(() => {
+        // Conectar al WebSocket y suscribirse al topic para las actualizaciones
+        const token = localStorage.getItem('token');
+        if (!token) return;
+    
+        const decoded = jwtDecode(token);
+        const userId = decoded.id;
+    
+        const client = new Client({
+          brokerURL: 'ws://localhost:8080/ws', // Dirección de WebSocket
+          connectHeaders: {},
+          debug: function (str) {
+            console.log(str);
+          },
+          onConnect: () => {
+            // Suscribirse al topic para este usuario
+            client.subscribe(`/topic/assign-routine/${userId}`, () => {
+              setRefresh(prev => !prev); // Cambia refresh para disparar el useEffect
+            });
+          },
+          onStompError: (frame) => {
+            console.error(frame);
+          },
+          webSocketFactory: () => new SockJS('http://localhost:8080/ws'), // Conexión WebSocket con SockJS
+        });
+    
+        client.activate(); // Activar la conexión
+    
+        return () => {
+          client.deactivate(); // Limpiar la conexión cuando el componente se desmonte
+        };
+      }, []);
+    
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -33,15 +76,22 @@ const ClientGymDashboard = () => {
             })
             .catch(error => console.error("Error al verificar pagos:", error));
 
+
+    }, []);
+
+    useEffect(()=>{
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const decoded = jwtDecode(token);
         // Cargar rutina
         api.get(`/users/${decoded.id}/routine`)
             .then(response => {
-                console.log(response.data);
                 setRoutine(response.data);
                 setLoading(false);
             })
             .catch(error => console.error("Error al cargar la rutina:", error));
-    }, []);
+    }, [refresh]);
 
     useEffect(() => {
         api.get("/exercises")
@@ -102,7 +152,14 @@ const ClientGymDashboard = () => {
                 alert("Sesión guardada correctamente");
                 setSessionData({});
             })
-            .catch(error => console.error("Error al guardar la sesión", error));
+            .catch(error =>{
+                if (error.response && error.response.data) {
+                    setErrorMessage(error.response.data.message || "Error desconocido");
+                  } else {
+                    setErrorMessage("Error al realizar la solicitud");
+                  }
+                  setShowErrorModal(true);  // Mostrar modal con el error
+            })
     };
 
     if (loading) {
@@ -177,6 +234,7 @@ const ClientGymDashboard = () => {
                     ))}
                 </div>
             </div>
+            <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
         </div>
     );
 };
