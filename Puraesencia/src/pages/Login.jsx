@@ -24,7 +24,7 @@ const Login = ({ setToken }) => {
       navigate("/");
     } catch (error) {
       console.error("Error de autenticación:", error);
-      setError("Usuario o contraseña incorrectos."); // Actualizar mensaje de error
+      setError(error.response.data.message); // Actualizar mensaje de error
     }
   };
 
