@@ -70,6 +70,7 @@ const ClientGymDashboard = () => {
         // Verificar estado de pago
         api.get(`/payments/overduePayments/${decoded.id}`)
             .then(response => {
+                console.log(response.data);
                 if (response.data.length > 0) {
                     setHasPendingPayment(true);
                 }
@@ -166,7 +167,7 @@ const ClientGymDashboard = () => {
         return <div className="text-center mt-5"><h4>Cargando rutina...</h4></div>;
     }
 
-    if (routine === "") {
+    /*if (routine === "") {
         return (
             <div className="container d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
                 <div className="text-center p-4 border rounded shadow-lg" style={{ backgroundColor: "#f8f9fa" }}>
@@ -175,7 +176,7 @@ const ClientGymDashboard = () => {
                 </div>
             </div>
         );
-    }
+    }*/
 
     return (
         <div className="container-fluid">
@@ -184,6 +185,14 @@ const ClientGymDashboard = () => {
                     ⚠️ Tienes una cuota vencida. Por favor, regulariza tu pago.
                 </div>
             )}
+            {routine === "" &&
+                <div className="container d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+                    <div className="text-center p-4 border rounded shadow-lg" style={{ backgroundColor: "#f8f9fa" }}>
+                        <h4 className="text-danger fw-bold">🚨 No tienes una rutina asignada</h4>
+                        <p className="text-muted">Por favor, contacta a tu entrenador para obtener una.</p>
+                    </div>
+                </div>
+            }
 
             <div className="container mt-4">
                 <div className="row">

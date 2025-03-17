@@ -46,10 +46,8 @@ const CreateUserForm = () => {
   
 
   return (
-    <div className="container mt-5">
-      <Card className="shadow-lg p-4">
-        <h2 className="text-center mb-4 text-primary">Crear Usuario</h2>
-        
+    <div className="container mt-5 mb-5">
+      <Card className="shadow-lg p-4">        
         {/* Barra de progreso */}
         <Form onSubmit={handleSubmit}>
           <Row className="mb-4">
@@ -89,11 +87,7 @@ const CreateUserForm = () => {
             </Col>
           </Row>
           <hr />
-          <div className="d-flex justify-content-between mt-4">
-            <Button variant="outline-danger" onClick={() => navigate('/')} className="d-flex align-items-center">
-              <FaTimes className="me-2" /> Cancelar
-            </Button>
-
+          <div className="d-flex justify-content-center mt-4">
             <Button type="submit" variant="primary" className="d-flex align-items-center">
               <FaUserPlus className="me-2" /> Crear Usuario
             </Button>

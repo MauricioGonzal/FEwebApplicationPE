@@ -16,7 +16,7 @@ const PriceList = () => {
   // Cargar precios desde el backend
   useEffect(() => {
     api
-      .get("/pricelists")
+      .get("/pricelists/payments")
       .then((response) => {
         setPrices(response.data);
       })

@@ -42,7 +42,12 @@ const UserGymAttendance = () => {
         .then((response) => {
             if (response.data) { // Asegura que funcione con true, "true" o cualquier truthy
                 setSelectedUserForDueDate(userId); // Guardar el usuario para actualizar la cuota
-                setDueDate(new Date().toISOString().split("T")[0]); // Fecha de hoy
+                const today = new Date();
+                const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+                .toISOString()
+                .split("T")[0];
+
+                setDueDate(localDate);
                 setShowModalDueDate(true); // Mostrar el modal
             }
         api.post("/attendance", { userId, attendanceTypeId: 1 })

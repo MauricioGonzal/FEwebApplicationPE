@@ -17,7 +17,7 @@ const PriceForm = ({ onAddPrice }) => {
 
   useEffect(() => {
     api
-      .get("/transaction-categories")
+      .get("/transaction-categories/payments")
       .then((response) => {
         setCategories(response.data);
       })

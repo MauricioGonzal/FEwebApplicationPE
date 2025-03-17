@@ -5,6 +5,7 @@ import api from "../Api";
 import { toast } from "react-toastify";
 import { Modal, Button, Form} from "react-bootstrap";
 import ErrorModal from "../components/ErrorModal";
+import CreateUserForm from "../pages/CreateUserForm";
 
 const UserTable = () => {
   const [search, setSearch] = useState("");
@@ -73,6 +74,8 @@ const UserTable = () => {
   return (
     <div className="container mt-4">
       <h2 className="text-center mb-4">Gestión de Usuarios</h2>
+      <CreateUserForm/>
+
       <div className="input-group mb-3">
         <input type="text" className="form-control" placeholder="Buscar usuario..." value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
