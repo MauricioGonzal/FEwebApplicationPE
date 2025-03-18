@@ -1,10 +1,10 @@
 import api from "../Api";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Card, Row, Col, Button, Form } from "react-bootstrap";
-import { FaUserPlus, FaTimes } from "react-icons/fa";
+import { FaUserPlus} from "react-icons/fa";
 import { toast } from 'react-toastify';
 import ErrorModal from "../components/ErrorModal";
+import { useNavigate } from 'react-router-dom';
 
 const CreateUserForm = () => {
   const [fullName, setFullName] = useState('');
@@ -42,6 +42,10 @@ const CreateUserForm = () => {
         setPassword('');
         setRole('client_gym');
       });
+  };
+
+  const handleGoBack = () => {
+    navigate('/');  // Redirige a la pantalla principal
   };
   
 
@@ -87,7 +91,10 @@ const CreateUserForm = () => {
             </Col>
           </Row>
           <hr />
-          <div className="d-flex justify-content-center mt-4">
+          <div className="d-flex justify-content-between mt-4">
+            <Button className="btn btn-secondary mt-3" onClick={handleGoBack}>
+              Volver a la pantalla principal
+            </Button>
             <Button type="submit" variant="primary" className="d-flex align-items-center">
               <FaUserPlus className="me-2" /> Crear Usuario
             </Button>

@@ -3,18 +3,18 @@ import { Container, Form, Button, Table, Row, Col, Card, Modal } from "react-boo
 import api from "../Api";
 import Select from "react-select";
 import { toast } from 'react-toastify';
+import ErrorModal from "../components/ErrorModal";
+import { useNavigate } from "react-router-dom";
 
 const ProductPage = () => {
   const [productName, setProductName] = useState("");
   const [stock, setStock] = useState("");
   const [price, setPrice] = useState("");
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [paymentTypes, setPaymentTypes] = useState([]);
 
   const [selectedPrice, setSelectedPrice] = useState(null);
   const [selectedStock, setSelectedStock] = useState(null);
-
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [showEditStockModal, setShowEditStockModal] = useState(false);
@@ -22,22 +22,20 @@ const ProductPage = () => {
   const [newAmount, setNewAmount] = useState("");
   const [newStock, setNewStock] = useState("");
 
-  const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedPaymentType, setSelectedPaymentType] = useState([]);
 
   const [refresh, setRefresh] = useState(false);
+
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [search, setSearch] = useState("");
+
+
+  const navigate = useNavigate();
+
   
 
   useEffect(() => {
-    api
-      .get("/transaction-categories")
-      .then((response) => {
-        setCategories(response.data);
-      })
-      .catch((error) => {
-        console.error("Error al obtener las categorias", error);
-      });
-
     api
       .get("/payment-methods")
       .then((response) => {
@@ -66,7 +64,6 @@ const ProductPage = () => {
       stock: stock,
       amount: price, 
       paymentMethod: selectedPaymentType.value,
-      transactionCategory: selectedCategory.value,
   };
 
   api.post('/products/create-product-stock-price', newProductRequest)
@@ -77,6 +74,12 @@ const ProductPage = () => {
         setRefresh(prev => !prev); // Cambia refresh para disparar el useEffect
       })
       .catch((error) => {
+        if (error.response && error.response.data) {
+          setErrorMessage(error.response.data.message || "Error desconocido");
+        } else {
+          setErrorMessage("Error al realizar la solicitud");
+        }
+        setShowErrorModal(true);  // Mostrar modal con el error
   });
   };
 
@@ -126,10 +129,14 @@ const ProductPage = () => {
     setProducts(updatedProducts);
   };
 
-  const transactionCategoryOptions = categories.map(category => ({
-    value: category,
-    label: category.name
-}));
+  const handleGoBack = () => {
+    navigate('/');  // Redirige a la pantalla principal
+  };
+
+  const filteredProducts = products.filter(
+    (product) =>
+      product.product.name.toLowerCase().includes(search.toLowerCase())
+  );
 
 const paymentTypesOptions = paymentTypes.map(paymentType => ({
     value: paymentType,
@@ -138,16 +145,11 @@ const paymentTypesOptions = paymentTypes.map(paymentType => ({
 
   return (
     <Container className="mt-4">
-      <Card className="p-4 shadow-sm">
-        <h4 className="text-primary">Alta de Productos</h4>
+      <h2 className="text-center mb-4">Gestión de Productos</h2>
+
+      <Card className="p-4 shadow-sm mb-5">
         <Form>
           <Row className="mb-3">
-            <Col md={6}>
-              <Form.Group>
-                <Form.Label>Categoría</Form.Label>
-                <Select options={transactionCategoryOptions} value={selectedCategory} onChange={setSelectedCategory} placeholder="Seleccionar categoría..." isSearchable />
-              </Form.Group>
-            </Col>
             <Col md={6}>
               <Form.Group>
                 <Form.Label>Medio de Pago</Form.Label>
@@ -175,10 +177,17 @@ const paymentTypesOptions = paymentTypes.map(paymentType => ({
               </Form.Group>
             </Col>
           </Row>
-          <Button variant="primary" className="w-100 mt-2" onClick={handleAddProduct}>Crear Producto</Button>
+          <div className="d-flex justify-content-between">
+          <Button className="btn btn-secondary mt-3" onClick={handleGoBack}>
+              Volver a la pantalla principal
+            </Button>
+          <Button variant="primary" className="mt-3" onClick={handleAddProduct}>Crear Producto</Button>
+          </div>
         </Form>
       </Card>
-      <h3 className="mt-4">Lista de Productos</h3>
+      <div className="input-group mb-3">
+        <input type="text" className="form-control" placeholder="Buscar producto..." value={search} onChange={(e) => setSearch(e.target.value)} />
+      </div>
       <Table striped bordered hover>
         <thead>
           <tr>
@@ -190,7 +199,7 @@ const paymentTypesOptions = paymentTypes.map(paymentType => ({
           </tr>
         </thead>
         <tbody>
-          {products.map((product, index) => (
+          {filteredProducts.map((product, index) => (
             <tr key={index}>
               <td>{product.product.name}</td>
               <td>{product.productStock.stock}</td>
@@ -267,6 +276,7 @@ const paymentTypesOptions = paymentTypes.map(paymentType => ({
           </Button>
         </Modal.Footer>
       </Modal>
+      <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
     </Container>
 
     

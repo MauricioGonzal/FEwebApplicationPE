@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';  // Importamos el hook useNavigate
 import api from "../Api";
 import Select from "react-select";
+import { Container, Form, Button, Card } from "react-bootstrap";
 
 const PriceForm = ({ onAddPrice }) => {
   const [categories, setCategories] = useState([]);
@@ -103,92 +104,106 @@ const PriceForm = ({ onAddPrice }) => {
   }));
 
   return (
-    <div className="container mt-4">
-      <div className="card shadow-sm">
-        <div className="card-header text-center">
-        </div>
-        <div className="card-body">
-          <form onSubmit={handleSubmit}>
-            {/* Campos de formulario */}
-            <div className="mb-3">
+    <Container className="mt-4 mb-5">
+      <Card className="shadow-lg border-0 rounded-4">
+
+        <Card.Body>
+          <Form onSubmit={handleSubmit}>
+            {/* Categoría de transacción */}
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-semibold">Categoría</Form.Label>
               <Select
                 options={transactionCategoryOptions}
                 value={selectedCategory}
-                onChange={(selectedOption) => {setSelectedCategory(selectedOption)}}
-                placeholder="Seleccionar categoria..."
+                onChange={setSelectedCategory}
+                placeholder="Seleccionar categoría..."
                 isSearchable
+                className="border rounded"
               />
-            </div>
+            </Form.Group>
 
-            <div className="mb-3">
+            {/* Medio de pago */}
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-semibold">Medio de Pago</Form.Label>
               <Select
                 options={paymentTypesOptions}
                 value={selectedPaymentType}
-                onChange={(selectedOption) => {setSelectedPaymentType(selectedOption)}}
+                onChange={setSelectedPaymentType}
                 placeholder="Seleccionar medio de pago..."
                 isSearchable
+                className="border rounded"
               />
-            </div>
+            </Form.Group>
 
-            <div className="mb-3">
-              <label className="form-label">Monto</label>
-              <input
+            {/* Monto */}
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-semibold">Monto</Form.Label>
+              <Form.Control
                 type="number"
-                className="form-control"
                 placeholder="Ingrese el monto..."
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
+                className="rounded-3"
               />
-            </div>
+            </Form.Group>
 
-            {selectedCategory.value?.name === "Producto" && (
-              <div className="mb-3">
+            {/* Producto */}
+            {selectedCategory?.value?.name === "Producto" && (
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-semibold">Producto</Form.Label>
                 <Select
                   options={productOptions}
                   value={selectedProduct}
-                  onChange={(selectedOption) => {setSelectedProduct(selectedOption)}}
+                  onChange={setSelectedProduct}
                   placeholder="Seleccionar producto..."
                   isSearchable
+                  className="border rounded"
                 />
-              </div>
+              </Form.Group>
             )}
 
-            {selectedCategory.value?.name === "Musculación" && (
-              <div className="mb-3">
+            {/* Membresía - Musculación */}
+            {selectedCategory?.value?.name === "Musculación" && (
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-semibold">Cantidad de días</Form.Label>
                 <Select
                   options={membershipGimOptions}
                   value={selectedMembership}
-                  onChange={(selectedOption) => {setSelectedMembership(selectedOption)}}
-                  placeholder="Seleccionar cantidad de dias..."
+                  onChange={setSelectedMembership}
+                  placeholder="Seleccionar cantidad de días..."
                   isSearchable
+                  className="border rounded"
                 />
-              </div>
+              </Form.Group>
             )}
-              
-            {selectedCategory.value?.name === "Clases" && (
-              <div className="mb-3">
+
+            {/* Membresía - Clases */}
+            {selectedCategory?.value?.name === "Clases" && (
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-semibold">Cantidad de Clases</Form.Label>
                 <Select
                   options={membershipClassesOptions}
                   value={selectedMembership}
-                  onChange={(selectedOption) => {setSelectedMembership(selectedOption)}}
+                  onChange={setSelectedMembership}
                   placeholder="Seleccionar cantidad de clases..."
                   isSearchable
+                  className="border rounded"
                 />
-              </div>
+              </Form.Group>
             )}
 
-            <button type="submit" className="btn btn-primary w-100">
-              Agregar Precio
-            </button>
-          </form>
-
-          {/* Botón para volver a la pantalla principal */}
-          <button className="btn btn-secondary mt-3 w-100" onClick={handleGoBack}>
-            Volver a la pantalla principal
-          </button>
-        </div>
-      </div>
-    </div>
+            <div className='d-flex justify-content-between mt-4'>
+              <Button variant="outline-secondary" className="mt-3 py-2" onClick={handleGoBack}>
+                Volver a la pantalla principal
+              </Button>
+              <Button type="submit" variant="primary" className="mt-3 py-2">
+                Agregar Precio
+              </Button>
+            </div>
+          </Form>
+        </Card.Body>
+      </Card>
+    </Container>
   );
 };
 

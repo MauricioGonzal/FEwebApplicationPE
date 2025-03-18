@@ -34,7 +34,7 @@ const PriceList = () => {
         toast.success("Precio creado correctamente", { position: "top-right" });
       })
       .catch((error) => {
-        setErrorMessage(error.response?.data?.error || "Error al realizar la solicitud");
+        setErrorMessage(error.response.data.message || "Error al realizar la solicitud");
         setShowErrorModal(true);
       });
   };
@@ -67,7 +67,7 @@ const PriceList = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="mb-4 text-center" style={{ fontFamily: 'Roboto' }}>Lista de Precios</h2>
+      <h2 className="text-center mb-4">Gestión de Membresias</h2>
 
       {/* Agregar nuevo precio */}
       <div className="mb-4">
@@ -80,6 +80,7 @@ const PriceList = () => {
           <thead className="thead-light">
             <tr>
               <th>Categoría</th>
+              <th>Membresia</th>
               <th>Método de Pago</th>
               <th>Monto</th>
               <th>Acciones</th>
@@ -90,6 +91,7 @@ const PriceList = () => {
               prices.map((price) => (
                 <tr key={price.id}>
                   <td>{price.product ? price.product.name : price.transactionCategory.name}</td>
+                  <td>{price.membership.name}</td>
                   <td>{price.paymentMethod.name}</td>
                   <td>{price.amount} $</td>
                   <td>
