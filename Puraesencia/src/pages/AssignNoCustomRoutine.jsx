@@ -15,6 +15,7 @@ const StudentRow = () => {
     useEffect(() => {
         api.get("/routines/nocustom")
             .then((response) => {
+                console.log(response.data);
                 setRoutines(response.data);
             })
             .catch((error) => console.error("Error al cargar los datos:", error));

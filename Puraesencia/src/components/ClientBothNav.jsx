@@ -17,9 +17,6 @@ const ClientBothNav = () => {
                     </button>
                     <ul className="dropdown-menu dropdown-menu-end">
                         <li>
-                            <button className="dropdown-item w-100" onClick={() => navigate('/perfil')}>Perfil</button>
-                        </li>
-                        <li>
                             <button className="dropdown-item w-100" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button>
                         </li>
                         <li>

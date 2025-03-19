@@ -17,7 +17,7 @@ const ClientClassesNav = () => {
                     </button>
                     <ul className="dropdown-menu dropdown-menu-end">
                         <li>
-                            <button className="dropdown-item w-100" onClick={() => navigate('/perfil')}>Perfil</button>
+                            <button className="dropdown-item w-100" onClick={() => navigate("/")}>Mis asistencias</button>
                         </li>
                         <li>
                             <button className="dropdown-item w-100" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button>

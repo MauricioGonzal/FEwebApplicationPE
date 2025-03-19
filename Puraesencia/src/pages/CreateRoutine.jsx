@@ -28,6 +28,8 @@ export default function GymRoutineForm() {
     setSelectedDay(day);
     setShowModal(true);
     setSelectedExercises([]);
+    setExercise({ name: "", series: "", repetitions: "", rest: "" });
+    setSearch("");
   };
 
   useEffect(() => {
@@ -95,11 +97,11 @@ export default function GymRoutineForm() {
       return acc;
     }, {});
     routineFormatted.exercises = exercisesFormatted;
-    routineFormatted.isCustom = customAux;
 
     if (isCustom === "1") {
       customAux = true;
     }
+    routineFormatted.isCustom = customAux;
 
     api.post('/routines', routineFormatted)
       .then((response) => {

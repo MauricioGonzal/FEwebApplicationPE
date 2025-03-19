@@ -27,6 +27,8 @@ export default function EditGymRoutineForm() {
     setSelectedDay(day);
     setShowModal(true);
     setSelectedExercises([]);
+    setExercise({ name: "", series: "", repetitions: "", rest: "" });
+    setSearch("");
   };
 
   useEffect(() => {

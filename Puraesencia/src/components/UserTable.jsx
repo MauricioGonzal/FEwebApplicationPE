@@ -20,7 +20,7 @@ const UserTable = () => {
   const [editUserData, setEditUserData] = useState({ fullName: "", email: "", role: "" });
 
   useEffect(() => {
-    api.get("/users/getAllByRole/clients")
+    api.get("/users")
       .then((response) => setUsers(response.data))
       .catch((error) => console.error("Error al obtener usuarios", error));
   }, [refresh]);
@@ -74,7 +74,7 @@ const UserTable = () => {
   return (
     <div className="container mt-4">
       <h2 className="text-center mb-4">Gestión de Usuarios</h2>
-      <CreateUserForm/>
+      <CreateUserForm setRefresh = {setRefresh} />
 
       <div className="input-group mb-3">
         <input type="text" className="form-control" placeholder="Buscar usuario..." value={search} onChange={(e) => setSearch(e.target.value)} />

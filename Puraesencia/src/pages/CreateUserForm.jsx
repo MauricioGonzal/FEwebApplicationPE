@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import ErrorModal from "../components/ErrorModal";
 import { useNavigate } from 'react-router-dom';
 
-const CreateUserForm = () => {
+const CreateUserForm = ({setRefresh}) => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,6 +29,7 @@ const CreateUserForm = () => {
         setEmail('');
         setPassword('');
         setRole('client_gym');
+        setRefresh((prev) => !prev);
       })
       .catch((error) => {
         if (error.response && error.response.data) {
