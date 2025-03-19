@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "../Api";
 import Select from "react-select";
 import { Modal, Button } from 'react-bootstrap';
-
+import { toast } from 'react-toastify';
 
 const daysOfWeek = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"];
 
@@ -52,7 +52,9 @@ const AdminScheduleGrid = () => {
     api.post('/schedules/1/sessions', session)
         .then((response) => {
             fetchSchedule();
-
+            toast.success("Sesión creada correctamente", {
+                position: "top-right", // Ahora directamente como string
+              });
             setModalVisible(false);
         })
         .catch((error) => {
@@ -96,7 +98,7 @@ const AdminScheduleGrid = () => {
                       <td>
                         <ul>
                           {schedule[day]?.map((session, index) => (
-                            <li key={index}>{`${session.startTime} - ${session.endTime}: ${session?.classType.name}`}</li>
+                            <li key={index}>{`${session.startTime} - ${session.endTime}: ${session?.classType.name}. ${session.classType.teacher.fullName}`}</li>
                           ))}
                         </ul>
                       </td>
@@ -152,7 +154,6 @@ const AdminScheduleGrid = () => {
                 </div>
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setModalVisible(false)}>Cerrar</button>
                 <button type="button" className="btn btn-primary" onClick={addClassSession}>Agregar Clase</button>
               </div>
             </div>

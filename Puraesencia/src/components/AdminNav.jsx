@@ -20,7 +20,7 @@ const AdminNav = () => {
                         <li><button className="dropdown-item" onClick={() => navigate("/user-table")}>Usuarios</button></li>
                         <li><button className="dropdown-item" onClick={() => navigate('/products')}>Productos</button></li>
                         <li><button className="dropdown-item" onClick={() => navigate("/price-list")}>Membresías</button></li>
-                        <li><button className="dropdown-item" onClick={() => navigate("/classes-schedule")}>Grilla de clases</button></li>
+                        <li><button className="dropdown-item" onClick={() => navigate("/classes")}>Clases</button></li>
                         <li><button className="dropdown-item" onClick={() => navigate('/overdue-payments')}>Cuotas Vencidas</button></li>
                         <li><button className="dropdown-item" onClick={() => navigate("/daily-closures")}>Cierres Diarios</button></li>
                         <li><button className="dropdown-item" onClick={() => navigate("/monthly-closures")}>Cierres Mensuales</button></li>

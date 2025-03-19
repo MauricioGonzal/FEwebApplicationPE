@@ -85,6 +85,7 @@ const CreateUserForm = ({setRefresh}) => {
                   <option value="client_classes">Miembro Clases</option>
                   <option value="client_both">Miembro Ambas</option>
                   <option value="trainer">Entrenador</option>
+                  <option value="teacher">Profesor</option>
                   <option value="receptionist">Asistente Administrativo</option>
                   <option value="admin">Administrador</option>
                 </Form.Select>
