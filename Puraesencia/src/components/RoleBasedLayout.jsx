@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import AdminNav from "./AdminNav";
-import ReceptionistNav from "./ReceptionistNav";
+import EmployeeNav from "./EmployeeNav";
 import ClientClassesNav from "./ClientClassesNav";
 import ClientBothNav from "./ClientBothNav";
 import TrainerNav from "./TrainerNav";
@@ -25,7 +25,7 @@ const RoleBasedLayout = () => {
       case "ADMIN":
         return <AdminNav />;
       case "RECEPTIONIST":
-        return <ReceptionistNav />;
+        return <EmployeeNav />;
       case "TRAINER":
         return <TrainerNav />;
       case "CLIENT_GYM":
