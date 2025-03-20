@@ -94,7 +94,7 @@ const ClientClassesDashboard = () => {
               <ul className="list-group list-group-flush">
                 {schedule[day]?.map((session, index) => (
                   <li key={index} className="list-group-item">
-                    <strong>{session.startTime} - {session.endTime}</strong>: {session?.classType.name}
+                    <strong>{session.startTime} - {session.endTime}</strong>: {session?.classType.name} . {session.classType.teacher.fullName}
                   </li>
                 ))}
               </ul>
