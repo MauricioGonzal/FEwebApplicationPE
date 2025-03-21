@@ -153,8 +153,8 @@ const UserTable = () => {
         </Modal.Footer>
       </Modal>
 
-            {/* MODAL DE CONFIRMACIÓN */}
-            <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        {/* MODAL DE CONFIRMACIÓN */}
+        <Modal show={showModal} onHide={() => setShowModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Confirmar Eliminación</Modal.Title>
         </Modal.Header>

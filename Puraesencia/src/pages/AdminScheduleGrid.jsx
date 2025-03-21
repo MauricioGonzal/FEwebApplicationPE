@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import jwtDecode from 'jwt-decode';
 import api from '../Api';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { toast } from 'react-toastify';
 import { Modal, Button, Form } from "react-bootstrap";
 import Select from "react-select";
+import ConfirmationDeleteModal from "../components/ConfirmationDeleteModal";
+import ErrorModal from "../components/ErrorModal";
+
 
 const daysOfWeek = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"];
 
@@ -20,13 +22,14 @@ const AdminClassesDashboard = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [selectedClassType, setSelectedClassType] = useState(null);
-  const [classesToEdit, setClassesToEdit] = useState(null);
   const [instructors, setInstructors] = useState([]);
   const [selectedInstructor, setSelectedInstructor] = useState(null);
   const [refresh, setRefresh] = useState(false);
   const [selectedSession, setSelectedSession] = useState(null);
   const [newStartTime, setNewStartTime] = useState("");
   const [newEndTime, setNewEndTime] = useState("");
+
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
   const fetchSchedule = () => {
     api.get('/schedules/1/sessions')
@@ -77,6 +80,8 @@ const AdminClassesDashboard = () => {
                 position: "top-right", // Ahora directamente como string
               });
             setModalVisible(false);
+            setSelectedClassType(null);
+            setSelectedClassType(null);
         })
         .catch((error) => {
           if (error.response && error.response.data) {
@@ -88,7 +93,7 @@ const AdminClassesDashboard = () => {
     });
   };
 
-  const handleShowModal = (day) => {
+  const handleShowEditModal = (day) => {
     setEditModalVisible(true);
     setSelectedDay(day);
   };
@@ -106,13 +111,22 @@ const AdminClassesDashboard = () => {
     setEditModalVisible(true);
 };
 
-  const handleDeleteClass = (sessionId) => {
-    api.delete(`/class-session/${sessionId}`)
+  const handleDeleteClass = () => {
+    api.delete(`/class-session/${selectedSession.id}`)
       .then(() => {
         setRefresh(prev => !prev); // Refresca el estado después de eliminar
-        toast.success("Clase eliminada exitosamente");
+        toast.success("Sesion eliminada exitosamente");
+        setShowConfirmationModal(false);
       })
-      .catch((error) => console.error("Error deleting class:", error));
+      .catch((error) => {
+        if (error.response && error.response.data) {
+          setErrorMessage(error.response.data.message || "Error desconocido");
+        } else {
+          setErrorMessage("Error al realizar la solicitud");
+        }
+        setShowErrorModal(true);
+        setShowConfirmationModal(false);
+      });
   };
 
   const updateClassSession = () => {
@@ -121,8 +135,10 @@ const AdminClassesDashboard = () => {
       startTime: newStartTime,
       endTime: newEndTime,
       classType: selectedClassType.value,
-
+      teacher: selectedInstructor.value
     };
+
+    
 
     api.put(`/class-session/${selectedSession.id}`, updatedSession)
       .then(() => {
@@ -135,6 +151,20 @@ const AdminClassesDashboard = () => {
         setErrorMessage("No se pudo actualizar la clase");
         setShowErrorModal(true);
       });
+  };
+
+  const handleShowConfirmationModal = (session) => {
+    setSelectedSession(session);
+    setShowConfirmationModal(true);
+  };
+
+  const handleShowModal = (day) => {
+    setSelectedClassType(null);
+    setSelectedInstructor(null);
+    setStartTime("");
+    setEndTime("")
+    setModalVisible(true);
+    setSelectedDay(day);
   };
 
   const classTypeOptions = classTypes.map(classType => ({
@@ -158,7 +188,7 @@ const AdminClassesDashboard = () => {
                 {day}
                 <button
                   className="btn btn-success btn-sm float-end"
-                  onClick={() => { setSelectedDay(day); setModalVisible(true); }}
+                  onClick={() => handleShowModal(day)}
                 >
                   Agregar Clase
                 </button>
@@ -176,7 +206,7 @@ const AdminClassesDashboard = () => {
                       </button>
                       <button
                         className="btn btn-danger btn-sm"
-                        onClick={() => handleDeleteClass(session.id)}
+                        onClick={() => handleShowConfirmationModal(session)}
                       >
                         Eliminar
                       </button>
@@ -284,18 +314,8 @@ const AdminClassesDashboard = () => {
         </Modal>
       )}
 
-      {/* Error Modal */}
-      <Modal show={showErrorModal} onHide={() => setShowErrorModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Error</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{errorMessage}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowErrorModal(false)}>
-            Cerrar
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ConfirmationDeleteModal showModal={showConfirmationModal} setShowModal={setShowConfirmationModal} message={`Seguro que quieres eliminar la sesion ?`} handleDelete= {handleDeleteClass}   /> 
+      <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
     </div>
   );
 };
