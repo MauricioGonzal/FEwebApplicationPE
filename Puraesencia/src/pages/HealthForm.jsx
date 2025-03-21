@@ -87,7 +87,7 @@ const HealthForm = () => {
             <Form.Control as="textarea" name="allergies" value={formData.allergies} onChange={handleChange} rows={2} />
           </Form.Group>
           <div className="d-flex justify-content-between">
-            <Button variant="outline-danger" onClick={() => navigate('/')}>Cancelar</Button>
+            <Button variant="outline-danger" onClick={() => navigate("/user-table")}>Cancelar</Button>
             <Button variant="primary" type="submit">Guardar</Button>
           </div>
         </Form>

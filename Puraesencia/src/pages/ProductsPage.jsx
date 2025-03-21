@@ -5,6 +5,7 @@ import Select from "react-select";
 import { toast } from 'react-toastify';
 import ErrorModal from "../components/ErrorModal";
 import { useNavigate } from "react-router-dom";
+import ConfirmationDeleteModal from "../components/ConfirmationDeleteModal";
 
 const ProductPage = () => {
   const [productName, setProductName] = useState("");
@@ -29,6 +30,8 @@ const ProductPage = () => {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [item, setItem] = useState(null);
 
 
   const navigate = useNavigate();
@@ -124,13 +127,32 @@ const ProductPage = () => {
     
   }
 
-  const handleDeleteProduct = (index) => {
-    const updatedProducts = products.filter((_, i) => i !== index);
-    setProducts(updatedProducts);
+  const handleDeleteProduct = () => {
+    console.log(item);
+    api.post(`/products/delete-product-stock-price`, item)
+    .then(() => {
+      setRefresh(prev => !prev); // Refresca el estado después de eliminar
+      toast.success("Producto eliminado exitosamente");
+      setShowModal(false);
+    })
+    .catch((error) => {
+      if (error.response && error.response.data) {
+        setErrorMessage(error.response.data.message || "Error desconocido");
+      } else {
+        setErrorMessage("Error al realizar la solicitud");
+      }
+      setShowErrorModal(true);
+      setShowModal(false);
+    });
   };
 
   const handleGoBack = () => {
     navigate('/');  // Redirige a la pantalla principal
+  };
+
+  const handleShowModal = (item) => {
+    setItem(item);
+    setShowModal(true);
   };
 
   const filteredProducts = products.filter(
@@ -212,7 +234,7 @@ const paymentTypesOptions = paymentTypes.map(paymentType => ({
                 <Button variant="success" size="sm" onClick={() => handleAddStock(product.productStock)} className="me-2">
                   Agregar Stock
                 </Button>
-                <Button variant="danger" size="sm" onClick={() => handleDeleteProduct(index)}>
+                <Button variant="danger" size="sm" onClick={() => handleShowModal(product)}>
                   Eliminar
                 </Button>
               </td>
@@ -249,8 +271,8 @@ const paymentTypesOptions = paymentTypes.map(paymentType => ({
         </Modal.Footer>
       </Modal>
 
-            {/* Modal de Edición */}
-            <Modal show={showEditStockModal} onHide={() => setShowEditStockModal(false)}>
+      {/* Modal de Edición */}
+      <Modal show={showEditStockModal} onHide={() => setShowEditStockModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Editar Stock</Modal.Title>
         </Modal.Header>
@@ -276,6 +298,7 @@ const paymentTypesOptions = paymentTypes.map(paymentType => ({
           </Button>
         </Modal.Footer>
       </Modal>
+      <ConfirmationDeleteModal showModal={showModal} setShowModal={setShowModal} message={`Seguro que quieres eliminar el producto ${item?.product.name}`} handleDelete= {handleDeleteProduct}   /> 
       <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
     </Container>
 
