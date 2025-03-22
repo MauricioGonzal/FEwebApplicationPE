@@ -179,7 +179,6 @@ const AdminClassesDashboard = () => {
 
   return (
     <div className="container mt-4">
-      <h2 className="text-center mb-4">Grilla semanal de clases - Administrador</h2>
       <div className="row">
         {Object.entries(schedule).map(([day, classes]) => (
           <div key={day} className="col-md-4 mb-3">

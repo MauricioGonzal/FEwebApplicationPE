@@ -40,6 +40,8 @@ import AdminScheduleGrid from './pages/AdminScheduleGrid'
 import ClientBothDashboard from './pages/ClientBothDashboard';
 import ProductPage from './pages/ProductsPage';
 import ClassesTabs from './components/ClassesTabs';
+import CashClosureTabs from './components/CashClosureTabs';
+import AssistsClasses from './components/AssistsClasses';
 
 function App() {
   return (
@@ -86,6 +88,9 @@ function App() {
           <Route path="/client-both-dashboard" element={<PrivateRoute><ClientBothDashboard /></PrivateRoute>} />
           <Route path="/products" element={<PrivateRoute><ProductPage /></PrivateRoute>} />
           <Route path="/classes" element={<PrivateRoute><ClassesTabs /></PrivateRoute>} />
+          <Route path="/monthly-cash-closures" element={<PrivateRoute><CashClosureTabs /></PrivateRoute>} />
+          <Route path="/assists" element={<PrivateRoute><AssistsClasses /></PrivateRoute>} />
+
           </Route>
 
         <Route path="/login" element={<Login />} />

@@ -82,13 +82,10 @@ const handleCrearCierre = () => {
 
   return (
     <Container className="mt-5">
-      <h2 className="mb-4 text-center text-primary">Cierre Mensual</h2>
-
       <Card className="shadow-sm p-4 mb-4">
         <Row>
           <Col md={5} sm={12}>
             <Form.Group>
-              <Form.Label>Seleccionar Mes</Form.Label>
               <Form.Select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}>
                 <option value="">Seleccione un mes</option>
                 {months.map((month, index) => (

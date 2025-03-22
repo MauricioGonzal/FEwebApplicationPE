@@ -38,6 +38,7 @@ useEffect(() => {
             position: "top-right", // Ahora directamente como string
           });
         setRefresh(prev => !prev);
+        setName("");
     })
     .catch((error) =>{
         if (error.response && error.response.data) {

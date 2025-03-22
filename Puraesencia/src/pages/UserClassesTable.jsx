@@ -13,6 +13,10 @@ const UserClassAttendance = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [attendances, setAttendances] = useState([]);
 
+    const [classes, setClasses] = useState([]);
+    const [classSearch, setClassSearch] = useState("");
+    const [showClassModal, setShowClassModal] = useState(false);
+
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
@@ -32,7 +36,7 @@ const UserClassAttendance = () => {
             .catch((error) => console.error("Error al obtener asistencias", error));
     }, [refresh]);
 
-    const handleMarkAttendance = (userId) => {
+    /*const handleMarkAttendance = (userId) => {
         api.post("/attendance", { userId, attendanceTypeId: 2 })
             .then((response) => {
                 toast.success("Asistencia registrada con éxito", {
@@ -48,7 +52,33 @@ const UserClassAttendance = () => {
                   }
                   setShowErrorModal(true);
             });
+    };*/
+
+    const handleOpenClassModal = (user) => {
+        setSelectedUser(user);
+        setShowClassModal(true);
     };
+
+    useEffect(() => {
+        api.get("/classTypes")
+            .then((response) => setClasses(response.data))
+            .catch((error) => console.error("Error al obtener clases", error));
+    }, []);
+
+    const handleSelectClass = (classTypeId) => {
+        api.post("/attendance", { userId: selectedUser.id, classTypeId: classTypeId, attendanceTypeId: 2 })
+            .then(() => {
+                toast.success("Asistencia registrada con éxito", { position: "top-right" });
+                setRefresh(prev => !prev);
+                setShowClassModal(false);
+            })
+            .catch((error) => {
+                setErrorMessage(error.response?.data?.message || "Error al registrar asistencia");
+                setShowErrorModal(true);
+            });
+    };
+
+    const filteredClasses = classes.filter(c => c.name.toLowerCase().includes(classSearch.toLowerCase()));
 
     const getMonthlyAttendance = (user) => {
         setSelectedUser(user);
@@ -101,7 +131,7 @@ const UserClassAttendance = () => {
                                             {!reachedLimit ? (
                                                 <button
                                                     className="btn btn-primary btn-sm me-2"
-                                                    onClick={() => handleMarkAttendance(user.id)}
+                                                    onClick={() => handleOpenClassModal(user)}
                                                 >
                                                     <FaCheck className="me-1" /> Marcar Presente
                                                 </button>
@@ -162,6 +192,28 @@ const UserClassAttendance = () => {
                     <Button variant="secondary" onClick={() => setShowModal(false)}>
                         Cerrar
                     </Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showClassModal} onHide={() => setShowClassModal(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Seleccionar Clase</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <input type="text" className="form-control mb-3" placeholder="Buscar clase..." value={classSearch} onChange={(e) => setClassSearch(e.target.value)} />
+                    {filteredClasses.length > 0 ? (
+                        <ul className="list-group">
+                            {filteredClasses.map((c) => (
+                                <li key={c.id} className="list-group-item list-group-item-action" onClick={() => handleSelectClass(c.id)}>
+                                    {c.name}
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-center text-muted">No se encontraron clases.</p>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowClassModal(false)}>Cerrar</Button>
                 </Modal.Footer>
             </Modal>
             <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />

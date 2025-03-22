@@ -83,8 +83,6 @@ const MonthlyClosures = () => {
 
   return (
     <Container className="mt-5">
-      <h2 className="mb-4 text-center text-primary">Cierres Mensuales</h2>
-
       {alertMessage && <Alert variant="warning">{alertMessage}</Alert>}
 
       {/* Formulario de búsqueda */}

@@ -133,6 +133,7 @@ const ClientGymDashboard = () => {
         const logs = Object.entries(sessionData).map(([exerciseId, data]) => ({
             exerciseId: parseInt(exerciseId),
             repetitions: parseInt(data.reps),
+            series: parseInt(data.series),
             weight: parseFloat(data.weight),
             notes: data.notes || ""
         })).filter(log => log.repetitions && log.weight);
@@ -214,6 +215,13 @@ const ClientGymDashboard = () => {
                                                                 className="form-control mb-2"
                                                                 placeholder="Peso (kg)"
                                                                 onChange={(e) => handleInputChange(exerciseId, "weight", e.target.value)}
+                                                                onClick={handleInputClick}
+                                                            />
+                                                            <input
+                                                                type="number"
+                                                                className="form-control mb-2"
+                                                                placeholder="Series"
+                                                                onChange={(e) => handleInputChange(exerciseId, "series", e.target.value)}
                                                                 onClick={handleInputClick}
                                                             />
                                                             <input

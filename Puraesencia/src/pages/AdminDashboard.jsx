@@ -129,7 +129,7 @@ const AdminDashboard = () => {
 
     const handleCierreCaja = () => {
         const cierre = { date: new Date().toISOString(), total: totalCaja };
-
+        
         api.post('/cash-closure/dailyClosing', cierre)
             .then(() => {
                 toast.success(`Cierre de caja realizado con éxito. Total: $${totalCaja}`, {

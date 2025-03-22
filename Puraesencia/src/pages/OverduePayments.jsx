@@ -62,7 +62,7 @@ const OverduePayments = () => {
                     )}
                 </tbody>
             </table>
-            <button className="btn btn-secondary mt-3" onClick={() => navigate("/")}>Cancelar</button>
+            <button className="btn btn-secondary mt-3" onClick={() => navigate("/")}>Volver</button>
         </div>
     );
 };

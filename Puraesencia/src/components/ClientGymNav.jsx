@@ -17,10 +17,10 @@ const ClientGymNav = () => {
                     </button>
                     <ul className="dropdown-menu dropdown-menu-end">
                         <li>
-                            <button className="dropdown-item w-100" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button>
+                            <button className="dropdown-item w-100" onClick={() => navigate("/workout-sessions")}>Mi progreso</button>
                         </li>
                         <li>
-                            <button className="dropdown-item w-100" onClick={() => navigate("/workout-sessions")}>Mi progreso</button>
+                            <button className="dropdown-item w-100" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button>
                         </li>
                         <li>
                             <button className="dropdown-item w-100 text-danger" onClick={() => logout(navigate)}>Cerrar Sesión</button>
