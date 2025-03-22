@@ -7,7 +7,6 @@ import api from '../Api';
 export default function WorkoutHistory() {
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
-  const [workoutLogs, setWorkoutLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -23,7 +22,8 @@ export default function WorkoutHistory() {
 
     api.get(`/workout-sessions/${userId}`)
       .then((response) => {
-        if(response.data.length > 0){
+        console.log(response.data);
+        if (response.data.length > 0) {
           setSessions(response.data);
         }
         setLoading(false);
@@ -34,24 +34,20 @@ export default function WorkoutHistory() {
       });
   }, []);
 
-  const loadWorkoutLogs = (sessionIds) => {
-    Promise.all(sessionIds.map(sessionId => api.get(`/workout-logs/${sessionId}`)))
-      .then((responses) => {
-        setWorkoutLogs(responses.flatMap(res => res.data));
-        setSelectedSession(sessionIds);
-      })
-      .catch((error) => console.error("Error cargando logs:", error));
-  };
-
   // Agrupar sesiones por fecha
   const groupedSessions = sessions.reduce((acc, session) => {
-    const date = new Date(session.date).toLocaleDateString();
+    const date = new Date(session.workoutSession.date).toLocaleDateString();
     if (!acc[date]) {
       acc[date] = [];
     }
     acc[date].push(session);
     return acc;
   }, {});
+
+  const loadWorkoutLogs = (sessionIds) => {
+    // No es necesario cargar los logs por separado, ya vienen incluidos en la respuesta
+    setSelectedSession(sessionIds);
+  };
 
   if (loading) {
     return <div className="text-center mt-5"><h4>Cargando sesiones...</h4></div>;
@@ -68,8 +64,8 @@ export default function WorkoutHistory() {
                 <ListGroup.Item
                   key={date}
                   action
-                  onClick={() => loadWorkoutLogs(sessions.map(s => s.id))}
-                  className={selectedSession?.some(id => sessions.map(s => s.id).includes(id)) ? "active" : ""}
+                  onClick={() => loadWorkoutLogs(sessions.map(s => s.workoutSession.id))}
+                  className={selectedSession?.some(id => sessions.map(s => s.workoutSession.id).includes(id)) ? "active" : ""}
                 >
                   🏋️‍♂️ Sesiones del {date}
                 </ListGroup.Item>
@@ -89,13 +85,22 @@ export default function WorkoutHistory() {
 
               <h3>💪 Ejercicios de la Sesión</h3>
               <ListGroup>
-                {workoutLogs.map((log) => (
-                  <ListGroup.Item key={log.id}>
-                    <strong>{log.exercise.name}</strong>
-                    <p>Repeticiones: {log.repetitions} | Peso: {log.weight} kg</p>
-                    <p className="text-muted">{log.notes}</p>
-                  </ListGroup.Item>
-                ))}
+                {selectedSession.map((sessionId) => {
+                  const session = sessions.find(s => s.workoutSession.id === sessionId);
+                  if (!session) return null;
+
+                  return (
+                    <div key={session.workoutSession.id}>
+                      <h5>{session.workoutLog.exercise?.name}</h5>
+                      {session.sets.map((set) => (
+                        <ListGroup.Item key={set.id}>
+                          <strong>Repeticiones: {set.repetitions}</strong> | Peso: {set.weight} kg
+                        </ListGroup.Item>
+                      ))}
+                      <p className="text-muted">{session.workoutLog.notes}</p>
+                    </div>
+                  );
+                })}
               </ListGroup>
             </>
           )}

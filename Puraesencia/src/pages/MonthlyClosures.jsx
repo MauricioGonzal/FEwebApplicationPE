@@ -167,7 +167,7 @@ const MonthlyClosures = () => {
               <p><strong>Detalles:</strong></p>
               <ul>
                 <li key="sales">Ingresos: {detalle.totalSales.toFixed(2)}</li>
-                <li key="payments">Egresos: {detalle.totalPayments.toFixed(2)}</li>
+                <li key="payments">Egresos: {(detalle.totalPayments + detalle.totalFixedExpenses + detalle.totalSalaries).toFixed(2)}</li>
               </ul>
             </div>
           )}

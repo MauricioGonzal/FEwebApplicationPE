@@ -6,6 +6,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import ErrorModal from "../components/ErrorModal";
 import { Client } from '@stomp/stompjs';  // Importar Client de STOMP
 import SockJS from 'sockjs-client';  // Importar SockJS para manejar la conexión WebSocket
+import { toast } from 'react-toastify';
 
 const ClientGymDashboard = () => {
     const daysOfWeek = [
@@ -23,6 +24,7 @@ const ClientGymDashboard = () => {
 
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const [selectedExercise, setSelectedExercise] = useState({});
 
     const [refresh, setRefresh] = useState(false);
     
@@ -113,6 +115,7 @@ const ClientGymDashboard = () => {
     };
 
     const handleInputChange = (exerciseId, field, value) => {
+        setSelectedExercise(exerciseId);
         setSessionData(prevState => ({
             ...prevState,
             [exerciseId]: {
@@ -126,58 +129,80 @@ const ClientGymDashboard = () => {
         e.stopPropagation();
     };
 
+    const handleSeriesChange = (exerciseId, seriesCount) => {
+        const count = parseInt(seriesCount) || 0;
+        setSessionData(prevState => ({
+            ...prevState,
+            [exerciseId]: {
+                series: count,
+                details: Array.from({ length: count }, () => ({ weight: "", reps: "" }))
+            }
+        }));
+    };
+    
+    const handleSeriesInputChange = (exerciseId, seriesIndex, field, value) => {
+        setSessionData(prevState => ({
+            ...prevState,
+            [exerciseId]: {
+                ...prevState[exerciseId],
+                details: prevState[exerciseId].details.map((series, idx) =>
+                    idx === seriesIndex ? { ...series, [field]: value } : series
+                )
+            }
+        }));
+    };
+    
     const saveWorkoutSession = () => {
         const token = localStorage.getItem('token');
         const decoded = jwtDecode(token);
-        
-        const logs = Object.entries(sessionData).map(([exerciseId, data]) => ({
-            exerciseId: parseInt(exerciseId),
-            repetitions: parseInt(data.reps),
-            series: parseInt(data.series),
-            weight: parseFloat(data.weight),
-            notes: data.notes || ""
-        })).filter(log => log.repetitions && log.weight);
-        
-        if (logs.length === 0) {
+    
+        const sets = Object.entries(sessionData)
+            .flatMap(([exerciseId, data]) =>
+                data.details.map((series, index) => ({
+                    exerciseId: parseInt(exerciseId),
+                    repetitions: parseInt(series.reps),
+                    weight: parseFloat(series.weight),
+                }))
+            )
+            .filter(log => log.repetitions && log.weight);
+
+            console.log(sessionData[selectedExercise]);
+    
+        if (sets.length === 0) {
             alert("Debes ingresar al menos un ejercicio con peso y repeticiones.");
             return;
         }
-        
+    
         const workoutSession = {
             userId: decoded.id,
+            exerciseId: selectedExercise, 
             date: new Date().toISOString(),
-            logs: logs
+            sets: sets,
+            series: sets.length,
+            note: sessionData[selectedExercise].notes
         };
-        
+    
         api.post("/workout-sessions", workoutSession)
             .then(() => {
-                alert("Sesión guardada correctamente");
+                toast.success("Sesión creada correctamente", {
+                    position: "top-right", // Ahora directamente como string
+                  });                
                 setSessionData({});
             })
-            .catch(error =>{
+            .catch(error => {
                 if (error.response && error.response.data) {
                     setErrorMessage(error.response.data.message || "Error desconocido");
-                  } else {
+                } else {
                     setErrorMessage("Error al realizar la solicitud");
-                  }
-                  setShowErrorModal(true);  // Mostrar modal con el error
-            })
+                }
+                setShowErrorModal(true);
+            });
     };
+    
 
     if (loading) {
         return <div className="text-center mt-5"><h4>Cargando rutina...</h4></div>;
     }
-
-    /*if (routine === "") {
-        return (
-            <div className="container d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
-                <div className="text-center p-4 border rounded shadow-lg" style={{ backgroundColor: "#f8f9fa" }}>
-                    <h4 className="text-danger fw-bold">🚨 No tienes una rutina asignada</h4>
-                    <p className="text-muted">Por favor, contacta a tu entrenador para obtener una.</p>
-                </div>
-            </div>
-        );
-    }*/
 
     return (
         <div className="container-fluid">
@@ -213,24 +238,31 @@ const ClientGymDashboard = () => {
                                                             <input
                                                                 type="number"
                                                                 className="form-control mb-2"
-                                                                placeholder="Peso (kg)"
-                                                                onChange={(e) => handleInputChange(exerciseId, "weight", e.target.value)}
+                                                                placeholder="Cantidad de series"
+                                                                onChange={(e) => handleSeriesChange(exerciseId, e.target.value)}
                                                                 onClick={handleInputClick}
                                                             />
-                                                            <input
-                                                                type="number"
-                                                                className="form-control mb-2"
-                                                                placeholder="Series"
-                                                                onChange={(e) => handleInputChange(exerciseId, "series", e.target.value)}
-                                                                onClick={handleInputClick}
-                                                            />
-                                                            <input
-                                                                type="number"
-                                                                className="form-control mb-2"
-                                                                placeholder="Repeticiones"
-                                                                onChange={(e) => handleInputChange(exerciseId, "reps", e.target.value)}
-                                                                onClick={handleInputClick}
-                                                            />
+
+                                                            {sessionData[exerciseId]?.details?.map((_, index) => (
+                                                                <div key={index} className="border p-2 mb-2 rounded">
+                                                                    <h6>Serie {index + 1}</h6>
+                                                                    <input
+                                                                        type="number"
+                                                                        className="form-control mb-2"
+                                                                        placeholder="Peso (kg)"
+                                                                        onChange={(e) => handleSeriesInputChange(exerciseId, index, "weight", e.target.value)}
+                                                                        onClick={handleInputClick}
+                                                                    />
+                                                                    <input
+                                                                        type="number"
+                                                                        className="form-control mb-2"
+                                                                        placeholder="Repeticiones"
+                                                                        onChange={(e) => handleSeriesInputChange(exerciseId, index, "reps", e.target.value)}
+                                                                        onClick={handleInputClick}
+                                                                    />
+                                                                </div>
+                                                            ))}
+
                                                             <textarea
                                                                 className="form-control mb-2"
                                                                 placeholder="Comentario"
