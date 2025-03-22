@@ -3,8 +3,8 @@ import { Container, Form, Button, Alert, Table, ListGroup, Modal } from "react-b
 import api from "../Api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
-
+import ErrorModal from "../components/ErrorModal";
+import ConfirmationDeleteModal from "../components/ConfirmationDeleteModal";
 
 const CreateSalary = () => {
   const [user, setUser] = useState("");
@@ -17,10 +17,14 @@ const CreateSalary = () => {
   const [salaries, setSalaries] = useState([]); // Estado para los salarios
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedSalary, setSelectedSalary] = useState(null);
   const [newAmount, setNewAmount] = useState("");
+
+  const [refresh, setRefresh] = useState(false);
 
   const navigate = useNavigate();
 
@@ -30,13 +34,15 @@ const CreateSalary = () => {
         setUsers(response.data);
       })
       .catch((err) => console.error("Error al cargar los usuarios", err));
+  }, []);
 
+  useEffect(() => {
     api.get('/salaries')
       .then((response) => {
         setSalaries(response.data);
       })
       .catch((err) => console.error("Error al cargar los salarios", err));
-  }, []);
+  }, [refresh])
 
   useEffect(() => {
     if (search) {
@@ -54,38 +60,57 @@ const CreateSalary = () => {
     e.preventDefault();
     setMessage(null);
     setError(null);
-    api.post(`/salaries?userId=${user.id}&amount=${amount}`)
+    api.post(`/salaries?userId=100&amount=${amount}`)
       .then(() => {
-        setMessage(`Salario creado correctamente para el empleado ID: ${user.id}`);
+        toast.success("Salario creado correctamente", { position: "top-right" });
         setUser("");
         setAmount("");
         setSearch("");
-        api.get('/salaries')
-          .then((response) => {
-            setSalaries(response.data);
-          })
-          .catch((err) => console.error("Error al obtener los salarios", err));
+        setRefresh(prev => !prev); // Cambia refresh para disparar el useEffect
       })
       .catch((error) => {
-        setError("Error al crear el salario");
-        console.error("Error al crear el salario", error);
+        setErrorMessage(error.response?.data?.message || "Error al realizar la solicitud");
+        setShowErrorModal(true);
       });
   };
 
   const handleUserSelect = (user, fullName) => {
     setUser(user);
     setSearch(fullName);
-    setFilteredUsers([]);
+  
+    // Asegurarse de limpiar la lista después de un pequeño delay
+    setTimeout(() => {
+      setFilteredUsers([]);
+    }, 0);
   };
 
-  const handleDelete = (id) => {
-    setSalaries(salaries.filter((salary) => salary.id !== id));
+  const handleDeleteSalary = () => {
+    api.delete(`/salaries/${selectedSalary.id}`)
+      .then(() => {
+        setRefresh(prev => !prev); // Refresca el estado después de eliminar
+        toast.success("Salario eliminado exitosamente");
+        setShowModal(false);
+      })
+      .catch((error) => {
+        if (error.response && error.response.data) {
+          setErrorMessage(error.response.data.message || "Error desconocido");
+        } else {
+          setErrorMessage("Error al realizar la solicitud");
+        }
+        setShowErrorModal(true);
+        setShowModal(false);
+      });
   };
 
   const handleEditClick = (salary) => {
     setSelectedSalary(salary);
     setNewAmount(salary.amount);
     setShowEditModal(true);
+  };
+
+  const handleShowModal = (salary) => {
+    setSelectedSalary(salary);
+    setShowModal(true);
   };
 
   const handleSaveEdit = () => {
@@ -95,15 +120,11 @@ const CreateSalary = () => {
       .put(`/salaries/${selectedSalary.id}/updateAmount`, newAmount)
       .then((response) => {
         setShowEditModal(false);
-        api.get('/salaries')
-        .then((response) => {
-          setSalaries(response.data);
-        })
-        .catch((err) => console.error("Error al obtener los salarios", err));
+        setRefresh(prev => !prev); // Cambia refresh para disparar el useEffect
         toast.success("Salario actualizado correctamente", { position: "top-right" });
       })
       .catch((error) => {
-        setErrorMessage(error.response?.data?.error || "Error al realizar la solicitud");
+        setErrorMessage(error.response?.data?.message || "Error al realizar la solicitud");
         setShowErrorModal(true);
       });
   };
@@ -182,7 +203,7 @@ const CreateSalary = () => {
                     <button className="btn btn-primary btn-sm me-2" onClick={() => handleEditClick(salary)}>
                       Editar
                     </button>
-                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(salary.id)}>
+                    <button className="btn btn-danger btn-sm" onClick={() => handleShowModal(salary)}>
                       Eliminar
                     </button>
                 </td>
@@ -223,17 +244,8 @@ const CreateSalary = () => {
       </Modal>
 
             {/* Modal de Error */}
-            <Modal show={showErrorModal} onHide={() => setShowErrorModal(false)}>
-              <Modal.Header closeButton>
-                <Modal.Title>Error</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>{errorMessage}</Modal.Body>
-              <Modal.Footer>
-                <Button variant="secondary" onClick={() => setShowErrorModal(false)}>
-                  Cerrar
-                </Button>
-              </Modal.Footer>
-            </Modal>
+      <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
+      <ConfirmationDeleteModal showModal={showModal} setShowModal={setShowModal} message={`Seguro que quieres eliminar el salario de ${selectedSalary?.user.fullName}`} handleDelete= {handleDeleteSalary}   /> 
     </Container>
     
   );
