@@ -96,7 +96,7 @@ const UserTable = () => {
                 <td>{user.fullName}</td>
                 <td>{user.email}</td>
                 <td>
-                {user.healthRecord === null && (
+                {user.healthRecord === null && (user.role === "CLIENT_GYM" || user.role === "CLIENT_CLASSES" || user.role === "CLIENT_BOTH") && (
                           <button
                             className="btn btn-success btn-sm me-2"
                             onClick={() =>

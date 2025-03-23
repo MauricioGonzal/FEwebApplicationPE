@@ -66,6 +66,7 @@ const FixedExpensesPage = () => {
   };
 
   const handleEdit = (expense) => {
+    console.log(expense);
     setFormData(expense);
   };
 

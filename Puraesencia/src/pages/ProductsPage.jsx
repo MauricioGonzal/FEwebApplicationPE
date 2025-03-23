@@ -203,7 +203,7 @@ const paymentTypesOptions = paymentTypes.map(paymentType => ({
           <Button className="btn btn-secondary mt-3" onClick={handleGoBack}>
               Volver a la pantalla principal
             </Button>
-          <Button variant="primary" className="mt-3" onClick={handleAddProduct}>Crear Producto</Button>
+          <Button variant="primary" className="mt-3" onClick={handleAddProduct} disabled={productName === "" || stock === "" || price === "" || selectedPaymentType.length === 0}>Crear Producto</Button>
           </div>
         </Form>
       </Card>

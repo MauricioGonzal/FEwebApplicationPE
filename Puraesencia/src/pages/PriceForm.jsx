@@ -7,7 +7,6 @@ import { Container, Form, Button, Card } from "react-bootstrap";
 const PriceForm = ({ onAddPrice }) => {
   const [categories, setCategories] = useState([]);
   const [paymentTypes, setPaymentTypes] = useState([]);
-  const [products, setProducts] = useState([]);
   const [memberships, setMemberships] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedPaymentType, setSelectedPaymentType] = useState([]);
@@ -41,15 +40,6 @@ const PriceForm = ({ onAddPrice }) => {
     }
     )
     .catch((error) => console.error("Error al obtener categorias de transacciones", error));
-
-    api
-    .get("/products")
-    .then((response) => {
-      setProducts(response.data);
-    })
-    .catch((error) => {
-      console.error("Error al obtener los productos", error);
-    });
   }, []);
 
   const handleSubmit = (e) => {
@@ -77,11 +67,6 @@ const PriceForm = ({ onAddPrice }) => {
   const handleGoBack = () => {
     navigate('/');  // Redirige a la pantalla principal
   };
-
-  const productOptions = products.map(product => ({
-    value: product, 
-    label: product.name
-  }));
 
   const transactionCategoryOptions = categories.map(category => ({
       value: category,
@@ -147,21 +132,6 @@ const PriceForm = ({ onAddPrice }) => {
               />
             </Form.Group>
 
-            {/* Producto */}
-            {selectedCategory?.value?.name === "Producto" && (
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-semibold">Producto</Form.Label>
-                <Select
-                  options={productOptions}
-                  value={selectedProduct}
-                  onChange={setSelectedProduct}
-                  placeholder="Seleccionar producto..."
-                  isSearchable
-                  className="border rounded"
-                />
-              </Form.Group>
-            )}
-
             {/* Membresía - Musculación */}
             {selectedCategory?.value?.name === "Musculación" && (
               <Form.Group className="mb-3">
@@ -196,7 +166,7 @@ const PriceForm = ({ onAddPrice }) => {
               <Button variant="outline-secondary" className="mt-3 py-2" onClick={handleGoBack}>
                 Volver a la pantalla principal
               </Button>
-              <Button type="submit" variant="primary" className="mt-3 py-2">
+              <Button type="submit" variant="primary" className="mt-3 py-2" disabled={selectedCategory.length === 0 || selectedPaymentType.length === 0 || amount === 0 || amount === "" || selectedMembership.length === 0}>
                 Agregar Precio
               </Button>
             </div>

@@ -52,11 +52,15 @@ const ClientClassesDashboard = () => {
     const fetchSchedule = () => {
       api.get('/schedules/1/sessions')
         .then((response) => {
+          console.log(response.data);
           const formattedSchedule = daysOfWeek.reduce((acc, day) => {
+            console.log(response.data[0])
             acc[day] = response.data.filter(session => session.dayOfWeek === day);
+            
             return acc;
           }, {});
           setSchedule(formattedSchedule);
+console.log(formattedSchedule)
         })
         .catch((error) => console.error("Error fetching schedule:", error));
     };
@@ -94,7 +98,7 @@ const ClientClassesDashboard = () => {
               <ul className="list-group list-group-flush">
                 {schedule[day]?.map((session, index) => (
                   <li key={index} className="list-group-item">
-                    <strong>{session.startTime} - {session.endTime}</strong>: {session?.classType.name} . {session.classType.teacher.fullName}
+                    <strong>{session.startTime} - {session.endTime}</strong>: {session?.classType.name} . {session.teacher.fullName}
                   </li>
                 ))}
               </ul>
