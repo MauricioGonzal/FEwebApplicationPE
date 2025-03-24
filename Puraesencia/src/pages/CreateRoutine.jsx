@@ -14,7 +14,7 @@ export default function GymRoutineForm({isCustomParam, userIdParam}) {
   ];
 
   const [exercisesList, setExercises] = useState([]);
-  const [routine, setRoutine] = useState({ title: "", description: "", isCustom: false, exercises: {} });
+  const [routine, setRoutine] = useState({ name: "", description: "", isCustom: false, exercises: {} });
   const [showModal, setShowModal] = useState(false);
   const [selectedDay, setSelectedDay] = useState("");
   const [selectedExercises, setSelectedExercises] = useState([]);
@@ -161,8 +161,8 @@ export default function GymRoutineForm({isCustomParam, userIdParam}) {
           <Form.Control
             type="text"
             placeholder="Nombre de la rutina"
-            value={routine.title}
-            onChange={(e) => setRoutine({ ...routine, title: e.target.value })}
+            value={routine.name}
+            onChange={(e) => setRoutine({ ...routine, name: e.target.value })}
           />
         </Form.Group>
         <Form.Group className="mb-4">

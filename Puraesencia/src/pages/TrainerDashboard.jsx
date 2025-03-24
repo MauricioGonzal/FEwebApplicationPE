@@ -90,11 +90,11 @@ const TrainerDashboard = () => {
                                             <tr key={student.id}>
                                                 <td>{student.fullName}</td>
                                                 <td>
-                                                    {student.routine && !student.routine.isCustom ? (
+                                                    {student.routine && student.routine.isCustom ? (
                                                         <button className="btn btn-primary btn-sm me-2" onClick={() => navigate(`/edit-routine/${student.routine.id}/${student.id}`)}>
                                                             <FaClipboardList /> Ver Rutina
                                                         </button>
-                                                    ) : student.routine.isCustom ? (
+                                                    ) : student.routine && !student.routine.isCustom ? (
                                                         <button className="btn btn-primary btn-sm me-2" onClick={() => handleView(student.routine)}>
                                                             <FaClipboardList /> Ver Rutina
                                                         </button>

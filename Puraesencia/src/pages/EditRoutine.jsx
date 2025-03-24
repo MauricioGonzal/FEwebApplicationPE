@@ -16,7 +16,7 @@ export default function GymRoutineForm({ isCustomParam, userIdParam }) {
 
 
   const [exercisesList, setExercises] = useState([]);
-  const [routine, setRoutine] = useState({ title: "", description: "", isCustom: false, exercises: [] });
+  const [routine, setRoutine] = useState({ name: "", description: "", isCustom: false, exercises: [] });
   const [showModal, setShowModal] = useState(false);
   const [selectedDay, setSelectedDay] = useState("");
   const [selectedExercises, setSelectedExercises] = useState([]);
@@ -61,7 +61,7 @@ export default function GymRoutineForm({ isCustomParam, userIdParam }) {
           });
 
           setRoutine({
-            title: formatted[0].routine.title,
+            name: formatted[0].routine.name,
             description:formatted[0].routine.description,
             isCustom: formatted[0].routine.isCustom,
             exercises: groupedExercises,
@@ -138,7 +138,7 @@ export default function GymRoutineForm({ isCustomParam, userIdParam }) {
       }
     })
     const routineFormatted = {
-      title: routine.title,
+      name: routine.name,
       description: routine.description,
       exercises: aux2,
       isCustom: isCustom
@@ -148,49 +148,7 @@ export default function GymRoutineForm({ isCustomParam, userIdParam }) {
 
     api.put(`/routines/${routineId}`, routineFormatted)
       .then((response) => {
-        if (userId !== undefined) {
-          const token = localStorage.getItem('token');
-          const decoded = jwtDecode(token);
-          api.put(`/users/assign-routine`, {
-            trainerId: decoded.id,
-            userId: userId,
-            routineId: response.data.id
-          })
-            .then(() => {
-              toast.success("Rutina editada correctamente", {
-                position: "top-right", // Ahora directamente como string
-              });
-              navigate('/');
-            })
-            .catch(error => console.error("Error al asignar rutina:", error));
-        } else {
-          toast.success("Rutina editada correctamente", {
-            position: "top-right", // Ahora directamente como string
-          });
-          navigate('/');
-        }
-      })
-      .catch(error => console.error("Error al editar rutina:", error));
-  };
-
-  
-  const handleSaveRoutineAux = () => {
-    let customAux = false;
-    let routineFormatted = routine;
-    let exercisesFormatted = Object.keys(routine.exercisesByDay).reduce((acc, key) => {
-      acc[key] = routine.exercisesByDay[key].map(({ name, ...rest }) => rest);
-      return acc;
-    }, {});
-    routineFormatted.exercises = exercisesFormatted;
-    routineFormatted.isCustom = customAux;
-
-    if (routine.isCustom === true) {
-      customAux = true;
-    }
-
-    api.put(`/routines/${routineId}`, routineFormatted)
-      .then((response) => {
-        if (userId !== undefined) {
+        if (userId !== undefined && parseInt(userId) !== 0) {
           const token = localStorage.getItem('token');
           const decoded = jwtDecode(token);
           api.put(`/users/assign-routine`, {
@@ -245,8 +203,8 @@ export default function GymRoutineForm({ isCustomParam, userIdParam }) {
           <Form.Control
             type="text"
             placeholder="Nombre de la rutina"
-            value={routine.title}
-            onChange={(e) => setRoutine({ ...routine, title: e.target.value })}
+            value={routine.name}
+            onChange={(e) => setRoutine({ ...routine, name: e.target.value })}
           />
         </Form.Group>
         <Form.Group className="mb-4">

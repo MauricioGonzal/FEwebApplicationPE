@@ -47,6 +47,7 @@ const StudentRow = () => {
         })
             .then(() => {
                 toast.success("Rutina asignada correctamente", { position: "top-right" });
+                
             })
             .catch((error) => {
                 setErrorMessage(error.response?.data?.message || "Error al realizar la solicitud");
@@ -81,15 +82,6 @@ const StudentRow = () => {
                                 </label>
                             </div>
                             <p className="text-muted">{routine.description}</p>
-
-                            <ul>
-                                {routineSets.map((set) => (
-                                    <li key={set.id} className="text-muted">
-                                        Día {set.dayNumber}: {set.series} series de {set.repetitions} reps (Descanso: {set.rest}s)
-                                    </li>
-                                ))}
-                            </ul>
-
                             <button
                                 className="btn btn-info btn-sm mt-2"
                                 onClick={() => viewRoutine(routine)}
