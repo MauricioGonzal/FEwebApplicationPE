@@ -5,6 +5,8 @@ import api from "../Api";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { FaSearch, FaPlus, FaClipboardList } from "react-icons/fa";
+import RoutineModal from "../components/RoutineModal";
+
 
 const TrainerDashboard = () => {
     const navigate = useNavigate();
@@ -13,6 +15,9 @@ const TrainerDashboard = () => {
     const [allStudents, setAllStudents] = useState([]);
     const [filteredAllStudents, setFilteredAllStudents] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedRoutineDetails, setSelectedRoutineDetails] = useState([]);
+    const [showRoutineModal, setShowRoutineModal] = useState(false);
+
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -40,6 +45,17 @@ const TrainerDashboard = () => {
         const query = e.target.value.toLowerCase();
         setFiltered(query ? data.filter(student => student.fullName.toLowerCase().includes(query)) : [...data]);
     };
+
+    const handleView = (routine) => {
+        // Cargar rutina
+        api.get('/routines/routine-set/' + routine.id)
+        .then(response => {
+            setSelectedRoutineDetails(response.data);
+            setShowRoutineModal(true);
+            console.log(response.data);
+        })
+        .catch(error => console.error("Error al cargar la rutina:", error));
+      };
 
     if (loading) {
         return <div className="text-center mt-5"><h4>Cargando datos...</h4></div>;
@@ -74,8 +90,12 @@ const TrainerDashboard = () => {
                                             <tr key={student.id}>
                                                 <td>{student.fullName}</td>
                                                 <td>
-                                                    {student.routine ? (
+                                                    {student.routine && !student.routine.isCustom ? (
                                                         <button className="btn btn-primary btn-sm me-2" onClick={() => navigate(`/edit-routine/${student.routine.id}/${student.id}`)}>
+                                                            <FaClipboardList /> Ver Rutina
+                                                        </button>
+                                                    ) : student.routine.isCustom ? (
+                                                        <button className="btn btn-primary btn-sm me-2" onClick={() => handleView(student.routine)}>
                                                             <FaClipboardList /> Ver Rutina
                                                         </button>
                                                     ) : (
@@ -102,6 +122,7 @@ const TrainerDashboard = () => {
             <footer className="text-center py-3 bg-light mt-4">
                 <small>&copy; 2025 Pura Esencia - Todos los derechos reservados.</small>
             </footer>
+            {showRoutineModal && <RoutineModal routine={selectedRoutineDetails} onClose={() => setShowRoutineModal(false)} />}
         </div>
     );
 };

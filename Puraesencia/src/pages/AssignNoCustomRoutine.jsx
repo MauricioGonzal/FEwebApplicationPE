@@ -4,24 +4,34 @@ import api from "../Api";
 import jwtDecode from "jwt-decode";
 import ErrorModal from "../components/ErrorModal";
 import { toast } from "react-toastify";
-import RoutineModal from "../components/RoutineModal"; // Importamos el modal
+import RoutineModal from "../components/RoutineModal";
 
 const StudentRow = () => {
-    const [routines, setRoutines] = useState([]);
+    const [groupedRoutines, setGroupedRoutines] = useState({});
     const [selectedRoutine, setSelectedRoutine] = useState(null);
     const { id } = useParams();
     const navigate = useNavigate();
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
-
-    // Estado para el modal de rutina
     const [showRoutineModal, setShowRoutineModal] = useState(false);
     const [selectedRoutineDetails, setSelectedRoutineDetails] = useState(null);
 
     useEffect(() => {
         api.get("/routines/nocustom")
             .then((response) => {
-                setRoutines(response.data);
+                const grouped = response.data.reduce((acc, routineSet) => {
+                    const { routine } = routineSet;
+                    if (!acc[routine.id]) {
+                        acc[routine.id] = {
+                            routine,
+                            routineSets: [],
+                        };
+                    }
+                    acc[routine.id].routineSets.push(routineSet);
+                    return acc;
+                }, {});
+                setGroupedRoutines(grouped);
+                console.log(grouped);
             })
             .catch((error) => console.error("Error al cargar los datos:", error));
     }, []);
@@ -39,18 +49,13 @@ const StudentRow = () => {
                 toast.success("Rutina asignada correctamente", { position: "top-right" });
             })
             .catch((error) => {
-                if (error.response && error.response.data) {
-                    setErrorMessage(error.response.data.message || "Error desconocido");
-                } else {
-                    setErrorMessage("Error al realizar la solicitud");
-                }
+                setErrorMessage(error.response?.data?.message || "Error al realizar la solicitud");
                 setShowErrorModal(true);
             });
     };
 
-    // Función para abrir el modal y ver los detalles de la rutina
     const viewRoutine = (routine) => {
-        setSelectedRoutineDetails(routine);
+        setSelectedRoutineDetails(groupedRoutines[routine.id].routineSets);
         setShowRoutineModal(true);
     };
 
@@ -60,24 +65,31 @@ const StudentRow = () => {
                 <h2 className="text-center text-dark mb-4">Seleccionar Rutina</h2>
 
                 <ul className="list-unstyled">
-                    {Object.entries(routines).map(([id, routine]) => (
-                        <div key={`routine-${id}`} className="bg-white shadow-sm rounded p-4 mb-3">
+                    {Object.values(groupedRoutines).map(({ routine, routineSets }) => (
+                        <div key={`routine-${routine.id}`} className="bg-white shadow-sm rounded p-4 mb-3">
                             <div className="form-check">
                                 <input
                                     type="radio"
-                                    id={`routine-${id}`}
+                                    id={`routine-${routine.id}`}
                                     name="routine"
-                                    value={id}
-                                    onChange={() => setSelectedRoutine(id)}
+                                    value={routine.id}
+                                    onChange={() => setSelectedRoutine(routine.id)}
                                     className="form-check-input"
                                 />
-                                <label htmlFor={`routine-${id}`} className="form-check-label h5">
+                                <label htmlFor={`routine-${routine.id}`} className="form-check-label h5">
                                     {routine.name}
                                 </label>
                             </div>
                             <p className="text-muted">{routine.description}</p>
 
-                            {/* Botón para ver la rutina */}
+                            <ul>
+                                {routineSets.map((set) => (
+                                    <li key={set.id} className="text-muted">
+                                        Día {set.dayNumber}: {set.series} series de {set.repetitions} reps (Descanso: {set.rest}s)
+                                    </li>
+                                ))}
+                            </ul>
+
                             <button
                                 className="btn btn-info btn-sm mt-2"
                                 onClick={() => viewRoutine(routine)}
@@ -88,7 +100,6 @@ const StudentRow = () => {
                     ))}
                 </ul>
 
-                {/* Botones de acción */}
                 <div className="mt-4 d-flex justify-content-end">
                     <button
                         onClick={assignRoutine}
@@ -97,26 +108,12 @@ const StudentRow = () => {
                     >
                         Asignar
                     </button>
-                    <button className="btn btn-outline-secondary" onClick={() => navigate("/")}>
-                        Cancelar
-                    </button>
+                    <button className="btn btn-outline-secondary" onClick={() => navigate("/")}>Cancelar</button>
                 </div>
             </div>
 
-            {/* Modal emergente de error */}
-            <ErrorModal
-                showErrorModal={showErrorModal}
-                setShowErrorModal={setShowErrorModal}
-                errorMessage={errorMessage}
-            />
-
-            {/* Modal para ver la rutina */}
-            {showRoutineModal && (
-                <RoutineModal
-                    routine={selectedRoutineDetails}
-                    onClose={() => setShowRoutineModal(false)}
-                />
-            )}
+            <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
+            {showRoutineModal && <RoutineModal routine={selectedRoutineDetails} onClose={() => setShowRoutineModal(false)} />}
         </div>
     );
 };
