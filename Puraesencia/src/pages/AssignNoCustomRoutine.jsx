@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import api from "../Api";
 import jwtDecode from "jwt-decode";
 import ErrorModal from "../components/ErrorModal";
+import { toast } from "react-toastify";
+import RoutineModal from "../components/RoutineModal"; // Importamos el modal
 
 const StudentRow = () => {
     const [routines, setRoutines] = useState([]);
@@ -12,10 +14,13 @@ const StudentRow = () => {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
+    // Estado para el modal de rutina
+    const [showRoutineModal, setShowRoutineModal] = useState(false);
+    const [selectedRoutineDetails, setSelectedRoutineDetails] = useState(null);
+
     useEffect(() => {
         api.get("/routines/nocustom")
             .then((response) => {
-                console.log(response.data);
                 setRoutines(response.data);
             })
             .catch((error) => console.error("Error al cargar los datos:", error));
@@ -31,37 +36,39 @@ const StudentRow = () => {
             routineId: selectedRoutine,
         })
             .then(() => {
-                alert("Rutina asignada correctamente");
-                navigate("/");
+                toast.success("Rutina asignada correctamente", { position: "top-right" });
             })
-            .catch((error) =>{
+            .catch((error) => {
                 if (error.response && error.response.data) {
                     setErrorMessage(error.response.data.message || "Error desconocido");
-                  } else {
+                } else {
                     setErrorMessage("Error al realizar la solicitud");
-                  }
-                  setShowErrorModal(true);  // Mostrar modal con el error
-            })
+                }
+                setShowErrorModal(true);
+            });
+    };
+
+    // Función para abrir el modal y ver los detalles de la rutina
+    const viewRoutine = (routine) => {
+        setSelectedRoutineDetails(routine);
+        setShowRoutineModal(true);
     };
 
     return (
         <div className="d-flex justify-content-center align-items-center min-vh-100 bg-light p-4">
             <div className="bg-white shadow rounded p-4 w-100" style={{ maxWidth: "900px" }}>
                 <h2 className="text-center text-dark mb-4">Seleccionar Rutina</h2>
-    
+
                 <ul className="list-unstyled">
                     {Object.entries(routines).map(([id, routine]) => (
-                        <div 
-                            key={`routine-${id}`} 
-                            className="bg-white shadow-sm rounded p-4 mb-3"
-                        >
+                        <div key={`routine-${id}`} className="bg-white shadow-sm rounded p-4 mb-3">
                             <div className="form-check">
-                                <input 
-                                    type="radio" 
+                                <input
+                                    type="radio"
                                     id={`routine-${id}`}
-                                    name="routine" 
-                                    value={id} 
-                                    onChange={() => setSelectedRoutine(id)} 
+                                    name="routine"
+                                    value={id}
+                                    onChange={() => setSelectedRoutine(id)}
                                     className="form-check-input"
                                 />
                                 <label htmlFor={`routine-${id}`} className="form-check-label h5">
@@ -69,45 +76,18 @@ const StudentRow = () => {
                                 </label>
                             </div>
                             <p className="text-muted">{routine.description}</p>
-    
-                            {Object.entries(routine).map(([day, exercises]) => (
-                                <div key={`routine-${id}-day-${day}`} className="mb-4">
-                                    <h4 className="text-primary">{day}</h4>
-                                    <div className="d-flex flex-column gap-3">
-                                        {exercises.map((ex, index) => (
-                                            <div 
-                                                key={`routine-${id}-day-${day}-exercise-${index}`} 
-                                                className={`p-3 rounded shadow-sm ${ex.exerciseList.length > 1 ? "bg-warning-subtle" : "bg-white"}`}
-                                            >
-                                                {ex.exerciseList.length > 1 && (
-                                                    <h5 className="fw-bold text-dark mb-2">Ejercicios Combinados</h5>
-                                                )}
-                                                <div className="card border-0">
-                                                    <div className="card-body p-2">
-                                                        <ul className="list-group list-group-flush">
-                                                            {ex.exerciseList.map((exercise) => (
-                                                                <li 
-                                                                    key={`routine-${id}-exercise-${exercise.id}`} 
-                                                                    className="list-group-item d-flex justify-content-between align-items-center border-0"
-                                                                >
-                                                                    <span className="fw-semibold">{exercise.name}</span>
-                                                                    <small className="text-muted">
-                                                                        {ex.series} series de {ex.repetitions} repeticiones
-                                                                    </small>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
+
+                            {/* Botón para ver la rutina */}
+                            <button
+                                className="btn btn-info btn-sm mt-2"
+                                onClick={() => viewRoutine(routine)}
+                            >
+                                Ver
+                            </button>
                         </div>
                     ))}
                 </ul>
-    
+
                 {/* Botones de acción */}
                 <div className="mt-4 d-flex justify-content-end">
                     <button
@@ -122,12 +102,23 @@ const StudentRow = () => {
                     </button>
                 </div>
             </div>
-            
+
             {/* Modal emergente de error */}
-            <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
+            <ErrorModal
+                showErrorModal={showErrorModal}
+                setShowErrorModal={setShowErrorModal}
+                errorMessage={errorMessage}
+            />
+
+            {/* Modal para ver la rutina */}
+            {showRoutineModal && (
+                <RoutineModal
+                    routine={selectedRoutineDetails}
+                    onClose={() => setShowRoutineModal(false)}
+                />
+            )}
         </div>
     );
-    
 };
 
 export default StudentRow;

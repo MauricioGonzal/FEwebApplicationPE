@@ -21,7 +21,7 @@ const TrainerNav = () => {
                     <FaUser />
                 </button>
                 <ul className="dropdown-menu dropdown-menu-end">
-                    <li><button className="dropdown-item" onClick={() => navigate("/create-routine/0")}>Crear Nueva Rutina</button></li>
+                    <li><button className="dropdown-item" onClick={() => navigate("/routine-tabs")}>Rutinas</button></li>
                     <li><button className="dropdown-item" onClick={() => navigate("/create-exercise")}>Crear Ejercicio</button></li>
                     <li><button className="dropdown-item" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button></li>
                     <li><button className="dropdown-item text-danger" onClick={() => logout(navigate)}><FaSignOutAlt /> Cerrar Sesión</button></li>

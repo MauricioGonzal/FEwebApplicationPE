@@ -42,6 +42,7 @@ import ProductPage from './pages/ProductsPage';
 import ClassesTabs from './components/ClassesTabs';
 import CashClosureTabs from './components/CashClosureTabs';
 import AssistsClasses from './components/AssistsClasses';
+import RoutineTabs from './components/RoutineTabs';
 
 function App() {
   return (
@@ -90,6 +91,7 @@ function App() {
           <Route path="/classes" element={<PrivateRoute><ClassesTabs /></PrivateRoute>} />
           <Route path="/monthly-cash-closures" element={<PrivateRoute><CashClosureTabs /></PrivateRoute>} />
           <Route path="/assists" element={<PrivateRoute><AssistsClasses /></PrivateRoute>} />
+          <Route path="/routine-tabs" element={<PrivateRoute><RoutineTabs /></PrivateRoute>} />
 
           </Route>
 

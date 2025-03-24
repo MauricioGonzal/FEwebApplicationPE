@@ -182,7 +182,7 @@ const FixedExpensesPage = () => {
                 <td>{expense.name}</td>
                 <td>{expense.monthlyAmount}</td>
                 <td>{expense.startDate}</td>
-                <td>{expense.totalInstallments}</td>
+                <td>{expense.remainingInstallments}</td>
                 <td>{expense.isActive ? 'Sí' : 'No'}</td>
                 <td>
                   <button className="btn btn-warning btn-sm me-2" onClick={() => handleEdit(expense)}>

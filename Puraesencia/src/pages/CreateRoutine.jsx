@@ -7,7 +7,7 @@ import api from '../Api';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';// Para los estilos de las notificaciones
 
-export default function GymRoutineForm() {
+export default function GymRoutineForm({isCustomParam, userIdParam}) {
   const daysOfWeek = [
     { index: 1, name: "Lunes" }, { index: 2, name: "Martes" }, { index: 3, name: "Miércoles" },
     { index: 4, name: "Jueves" }, { index: 5, name: "Viernes" }, { index: 6, name: "Sábado" }, { index: 7, name: "Domingo" }
@@ -97,7 +97,8 @@ export default function GymRoutineForm() {
       return acc;
     }, {});
     routineFormatted.exercises = exercisesFormatted;
-
+    console.log(isCustom);
+    console.log(isCustomParam);
     if (isCustom === "1") {
       customAux = true;
     }

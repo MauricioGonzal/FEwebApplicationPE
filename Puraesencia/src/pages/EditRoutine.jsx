@@ -5,22 +5,25 @@ import { useNavigate, useParams } from "react-router-dom";
 import jwtDecode from 'jwt-decode';
 import api from '../Api';
 import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-export default function EditGymRoutineForm() {
-  const daysOfWeek = [
-    { index: 1, name: "Lunes" }, { index: 2, name: "Martes" }, { index: 3, name: "Miércoles" },
-    { index: 4, name: "Jueves" }, { index: 5, name: "Viernes" }, { index: 6, name: "Sábado" }, { index: 7, name: "Domingo" }
-  ];
+
+const daysOfWeek = [
+  { index: 1, name: "Lunes" }, { index: 2, name: "Martes" }, { index: 3, name: "Miércoles" },
+  { index: 4, name: "Jueves" }, { index: 5, name: "Viernes" }, { index: 6, name: "Sábado" }, { index: 7, name: "Domingo" }
+];
+export default function GymRoutineForm({ isCustomParam, userIdParam }) {
+
 
   const [exercisesList, setExercises] = useState([]);
-  const [routine, setRoutine] = useState({ name: "", description: "", isCustom: false, exercisesByDay: {} });
+  const [routine, setRoutine] = useState({ title: "", description: "", isCustom: false, exercises: [] });
   const [showModal, setShowModal] = useState(false);
   const [selectedDay, setSelectedDay] = useState("");
   const [selectedExercises, setSelectedExercises] = useState([]);
   const [exercise, setExercise] = useState({ name: "", series: "", repetitions: "", rest: "" });
   const [search, setSearch] = useState("");
   const [filteredExercises, setFilteredExercises] = useState(exercisesList);
-  const { routineId, userId } = useParams();
+  const { routineId, isCustom, userId } = useParams();
   const navigate = useNavigate();
 
   const openModal = (day) => {
@@ -32,74 +35,146 @@ export default function EditGymRoutineForm() {
   };
 
   useEffect(() => {
-    // Cargar los ejercicios disponibles
-    api.get("/exercises")
+
+    if (routineId) {
+      api
+        .get(`/routines/id/${routineId}`)
+        .then((response) => {
+          console.log(response.data);
+
+          // Agrupar ejercicios por día (day_number)
+          var formatted = response.data.map((exerciseSet)=>{
+            var exIds = JSON.parse(exerciseSet.exerciseIds).map((exId) => {
+              const exerciseDetails = exercisesList.find(ex => ex.id === exId);
+              return exerciseDetails;
+            })
+            return {...exerciseSet, exerciseIds: exIds};
+
+          })
+          console.log(formatted);
+          const groupedExercises = daysOfWeek.map((day) => {
+            const exercisesForDay = formatted.filter(ex => ex.dayNumber === day.index);
+            return {
+              ...day,
+              exercises: exercisesForDay,
+            };
+          });
+
+          setRoutine({
+            title: formatted[0].routine.title,
+            description:formatted[0].routine.description,
+            isCustom: formatted[0].routine.isCustom,
+            exercises: groupedExercises,
+          });
+        })
+        .catch((error) => {
+          console.error("Error al obtener la rutina", error);
+        });
+    }
+  }, [routineId, exercisesList]);
+
+  useEffect(() => {
+    api
+      .get("/exercises")
       .then((response) => {
         setExercises(response.data);
       })
       .catch((error) => {
         console.error("Error al obtener los ejercicios", error);
       });
-
-    // Cargar la rutina a editar
-    api.get(`/routines/id/${routineId}`)
-      .then((response) => {
-        const { name, description, isCustom, exercisesByDay } = response.data;
-
-        setRoutine({ name, description, isCustom, exercisesByDay });
-      })
-      .catch((error) => {
-        console.error("Error al cargar la rutina", error);
-      });
-  }, [routineId]);
+  }, []);
 
   const handleSaveExercise = () => {
-    let newExercise = {};
-    if (selectedExercises.length === 1) {
-      newExercise = {
-        name: selectedExercises[0].name,
-        exerciseIds: [selectedExercises[0].id],
-        series: exercise.series,
-        repetitions: exercise.repetitions,
-        rest: exercise.rest,
-      };
-    } else {
-      newExercise = {
-        name: selectedExercises.map((exercise) => exercise.name).join(" + "),
-        exerciseIds: selectedExercises.map((exercise) => exercise.id),
-        series: exercise.series,
-        repetitions: exercise.repetitions,
-        rest: exercise.rest,
-      };
-    }
+    let newExercise = {
+      dayNumber: selectedDay.index,
+      exerciseIds: selectedExercises,
+      series: exercise.series,
+      repetitions: exercise.repetitions,
+      rest: exercise.rest,
+    };
 
     setRoutine((prev) => ({
       ...prev,
-      exercisesByDay: {
-        ...prev.exercisesByDay,
-        [selectedDay.index]: [
-          ...(prev.exercisesByDay[selectedDay.index] || []),
-          newExercise,
-        ],
-      },
+      exercises: prev.exercises.map((day) =>
+        day.index === selectedDay.index
+          ? { ...day, exercises: [...day.exercises, newExercise] }
+          : day
+      ),
     }));
+
     setShowModal(false);
     setSelectedExercises([]);
     setExercise({ name: "", series: "", repetitions: "", rest: "" });
     setSearch("");
   };
 
-  const handleRemoveExerciseFromDay = (dayIndex, exerciseToRemove) => {
-    setRoutine((prev) => {
-      const updatedExercises = { ...prev.exercisesByDay };
-      updatedExercises[dayIndex] = updatedExercises[dayIndex].filter(
-        (ex) => ex.name !== exerciseToRemove.name
-      );
-      return { ...prev, exercisesByDay: updatedExercises };
-    });
+  const handleRemoveExerciseFromDay = (exerciseToRemove, dayIndex) => {
+    setRoutine((prev) => ({
+      ...prev,
+      exercises: prev.exercises.map((day) =>
+        day.index === dayIndex
+          ? {
+              ...day,
+              exercises: day.exercises.filter((ex) => ex !== exerciseToRemove),
+            }
+          : day
+      ),
+    }));
   };
 
   const handleSaveRoutine = () => {
+    let customAux = false;
+    if (isCustom === "1") {
+      customAux = true;
+    }
+
+    const aux = routine.exercises.flatMap(day => day.exercises);
+    const aux2 = aux.map((exercise)=>{
+      var ids = exercise.exerciseIds.map(exercise => exercise.id);
+      const exerciseIdsJson = JSON.stringify(ids);
+      return {
+        ...exercise,
+        exerciseIds: exerciseIdsJson
+      }
+    })
+    const routineFormatted = {
+      title: routine.title,
+      description: routine.description,
+      exercises: aux2,
+      isCustom: isCustom
+    };
+
+    console.log(routineFormatted);
+
+    api.put(`/routines/${routineId}`, routineFormatted)
+      .then((response) => {
+        if (userId !== undefined) {
+          const token = localStorage.getItem('token');
+          const decoded = jwtDecode(token);
+          api.put(`/users/assign-routine`, {
+            trainerId: decoded.id,
+            userId: userId,
+            routineId: response.data.id
+          })
+            .then(() => {
+              toast.success("Rutina editada correctamente", {
+                position: "top-right", // Ahora directamente como string
+              });
+              navigate('/');
+            })
+            .catch(error => console.error("Error al asignar rutina:", error));
+        } else {
+          toast.success("Rutina editada correctamente", {
+            position: "top-right", // Ahora directamente como string
+          });
+          navigate('/');
+        }
+      })
+      .catch(error => console.error("Error al editar rutina:", error));
+  };
+
+  
+  const handleSaveRoutineAux = () => {
     let customAux = false;
     let routineFormatted = routine;
     let exercisesFormatted = Object.keys(routine.exercisesByDay).reduce((acc, key) => {
@@ -170,8 +245,8 @@ export default function EditGymRoutineForm() {
           <Form.Control
             type="text"
             placeholder="Nombre de la rutina"
-            value={routine.name}
-            onChange={(e) => setRoutine({ ...routine, name: e.target.value })}
+            value={routine.title}
+            onChange={(e) => setRoutine({ ...routine, title: e.target.value })}
           />
         </Form.Group>
         <Form.Group className="mb-4">
@@ -185,55 +260,47 @@ export default function EditGymRoutineForm() {
       </Form>
 
       <div className="row">
-        {daysOfWeek.map((day) => (
-          <div key={day.index} className="col-md-6 mb-3">
-            <div className="card p-3 shadow-sm">
-              <h5 className="card-title">{day.name}</h5>
-              <div className="card-text">
-              {routine.exercisesByDay[day.index] && routine.exercisesByDay[day.index].length > 0
-  ? routine.exercisesByDay[day.index].map((ex, idx) => {
-      // Buscar los ejercicios correspondientes a cada exerciseId
-      const exercisesDetails = ex.exerciseIds.map((id) => {
-        const exerciseDetail = exercisesList.find((ex) => ex.id === id);
-        return exerciseDetail;
-      });
-
-      // Crear una cadena para mostrar los detalles de los ejercicios
-      const exerciseNames = exercisesDetails
-        .map((exDetail) => exDetail?.name)
-        .join(" + ");
-
-      return (
-        <div
-          key={idx}
-          style={{
-            backgroundColor: ex.exerciseIds ? "#d1f7d1" : "transparent",
-            padding: "5px",
-            marginBottom: "5px",
-            borderRadius: "5px",
-          }}
-        >
-          {exerciseNames} - {ex.series} series de {ex.repetitions} repeticiones, descanso: {ex.rest}s
-          {ex.exerciseIds.length > 1 && " (Combinado)"}
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={() => handleRemoveExerciseFromDay(day.index, ex)}
-            style={{ marginLeft: '10px' }}
+      {routine.exercises.map((day) => (
+  <div key={day.index} className="col-md-6 mb-3">
+    <div className="card p-3 shadow-sm">
+      <h5 className="card-title">{day.name}</h5>
+      <p className="card-text">
+        {day.exercises.map((ex, idx) => (
+          <div
+            key={idx}
+            style={{
+              backgroundColor: "#d1f7d1",
+              padding: "5px",
+              marginBottom: "5px",
+              borderRadius: "5px",
+            }}
           >
-            ×
-          </Button>
-        </div>
-      );
-    })
-  : <p>Sin ejercicios</p>}
-              </div>
-              <Button variant="primary" onClick={() => openModal(day)}>
-                Agregar Ejercicio
-              </Button>
-            </div>
+            {ex.exerciseIds.map((exId) => {
+              return exId ? (
+                <div key={exId.id}>
+                  {exId.name} - {ex.series} series de {ex.repetitions} repeticiones, descanso: {ex.rest}s
+                </div>
+              ) : null;
+            })}
+
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => handleRemoveExerciseFromDay(ex, day.index)}
+              style={{ marginLeft: '10px' }}
+            >
+              ×
+            </Button>
           </div>
         ))}
+      </p>
+      <Button variant="primary" onClick={() => openModal(day)}>
+        Agregar Ejercicio
+      </Button>
+    </div>
+  </div>
+))}
+
       </div>
 
       <div className="mt-4 d-flex justify-content-between">
@@ -275,15 +342,15 @@ export default function EditGymRoutineForm() {
                   <ListGroup.Item key={idx} className="d-flex justify-content-between">
                     {ex.name}
                     <Button variant="danger" size="sm" onClick={() => handleRemoveExercise(ex)}>
-                      Eliminar
+                      ×
                     </Button>
                   </ListGroup.Item>
                 ))}
               </ListGroup>
             </div>
-            <Form.Group className="mt-3">
+            <Form.Group className="mb-2">
               <Form.Control
-                type="number"
+                type="text"
                 placeholder="Series"
                 value={exercise.series}
                 onChange={(e) => setExercise({ ...exercise, series: e.target.value })}
@@ -291,7 +358,7 @@ export default function EditGymRoutineForm() {
             </Form.Group>
             <Form.Group className="mb-2">
               <Form.Control
-                type="number"
+                type="text"
                 placeholder="Repeticiones"
                 value={exercise.repetitions}
                 onChange={(e) => setExercise({ ...exercise, repetitions: e.target.value })}
@@ -299,7 +366,7 @@ export default function EditGymRoutineForm() {
             </Form.Group>
             <Form.Group className="mb-2">
               <Form.Control
-                type="number"
+                type="text"
                 placeholder="Descanso (segundos)"
                 value={exercise.rest}
                 onChange={(e) => setExercise({ ...exercise, rest: e.target.value })}
@@ -309,10 +376,10 @@ export default function EditGymRoutineForm() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Cancelar
+            Cerrar
           </Button>
           <Button variant="primary" onClick={handleSaveExercise}>
-            Guardar
+            Guardar Ejercicio
           </Button>
         </Modal.Footer>
       </Modal>
