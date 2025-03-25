@@ -105,6 +105,13 @@ const ClientGymDashboard = () => {
     };
 
     const toggleExercise = (exerciseId) => {
+        setSessionData(prevState => ({
+            ...prevState,
+            [exerciseId]: {
+                series: 0,
+                details: Array.from({ length: 0 }, () => ({ weight: "", reps: "" }))
+            }
+        }));
         setExpandedExercises(prev => ({ ...prev, [exerciseId]: !prev[exerciseId] }));
     };
 
@@ -233,6 +240,7 @@ const ClientGymDashboard = () => {
                                                                     type="number"
                                                                     className="form-control mb-2"
                                                                     placeholder="Cantidad de series"
+                                                                    onClick={(e) => e.stopPropagation()}
                                                                     onChange={(e) => handleSeriesChange(exerciseId, e.target.value)}
                                                                 />
 
@@ -243,12 +251,14 @@ const ClientGymDashboard = () => {
                                                                             type="number"
                                                                             className="form-control mb-2"
                                                                             placeholder="Peso (kg)"
+                                                                            onClick={(e) => e.stopPropagation()}
                                                                             onChange={(e) => handleSeriesInputChange(exerciseId, index, "weight", e.target.value)}
                                                                         />
                                                                         <input
                                                                             type="number"
                                                                             className="form-control mb-2"
                                                                             placeholder="Repeticiones"
+                                                                            onClick={(e) => e.stopPropagation()}
                                                                             onChange={(e) => handleSeriesInputChange(exerciseId, index, "reps", e.target.value)}
                                                                         />
                                                                     </div>
@@ -258,6 +268,7 @@ const ClientGymDashboard = () => {
                                                                     className="form-control mb-2"
                                                                     placeholder="Comentario"
                                                                     rows="2"
+                                                                    onClick={(e) => e.stopPropagation()}
                                                                     onChange={(e) => handleInputChange(exerciseId, "notes", e.target.value)}
                                                                 />
                                                                 <button className="btn btn-success" onClick={saveWorkoutSession}>Guardar Sesión</button>
