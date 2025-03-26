@@ -95,7 +95,7 @@ const handleCrearCierre = () => {
             </Form.Group>
           </Col>
           <Col md={2} sm={12} className="d-flex align-items-end">
-            <Button className="w-100" onClick={handleCalcular}>
+            <Button className="w-100" onClick={handleCalcular} disabled={selectedMonth === ''}>
               Calcular
             </Button>
           </Col>

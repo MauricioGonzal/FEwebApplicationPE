@@ -237,7 +237,7 @@ const CreateSalary = () => {
           <Button variant="secondary" onClick={() => setShowEditModal(false)}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={handleSaveEdit}>
+          <Button variant="primary" onClick={handleSaveEdit} disabled={newAmount === '' || newAmount < 0}>
             Guardar Cambios
           </Button>
         </Modal.Footer>

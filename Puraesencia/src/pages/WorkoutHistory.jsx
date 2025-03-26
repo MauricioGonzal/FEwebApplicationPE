@@ -3,6 +3,7 @@ import jwtDecode from 'jwt-decode';
 import { Button, ListGroup, Container, Row, Col, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import api from '../Api';
+import '../css/WorkoutHistory.css'; // Asegúrate de que el archivo CSS esté cargado
 
 export default function WorkoutHistory() {
   const [sessions, setSessions] = useState([]);
@@ -35,7 +36,6 @@ export default function WorkoutHistory() {
       });
   }, []);
 
-  // Agrupar sesiones por fecha
   const groupedSessions = sessions.reduce((acc, session) => {
     const date = new Date(session.workoutSession.date).toLocaleDateString();
     if (!acc[date]) {
@@ -47,7 +47,7 @@ export default function WorkoutHistory() {
 
   const loadWorkoutLogs = (sessionIds) => {
     if (selectedSession && selectedSession.length > 0 && selectedSession.every(id => sessionIds.includes(id))) {
-      setSelectedSession(null); // Si ya está seleccionada, la deseleccionamos
+      setSelectedSession(null);
     } else {
       setSelectedSession(sessionIds);
     }
@@ -64,25 +64,24 @@ export default function WorkoutHistory() {
   };
 
   if (loading) {
-    return <div className="text-center mt-5"><h4>Cargando sesiones...</h4></div>;
+    return <div className="text-center mt-5 text-light"><h4>Cargando sesiones...</h4></div>;
   }
 
   return (
-    <Container className="py-4">
+    <Container className="py-4 bg-dark text-white min-vh-100">
       {/* Historial de Sesiones */}
       <Row>
         <Col xs={12}>
-          <h3 className="text-center">📅 Historial de Entrenamientos</h3>
-          <ListGroup>
+          <ListGroup className="bg-dark text-white">
             {Object.keys(groupedSessions).length > 0 ? (
               Object.entries(groupedSessions).map(([date, sessions]) => (
                 <ListGroup.Item
                   key={date}
                   action
                   onClick={() => loadWorkoutLogs(sessions.map(s => s.workoutSession.id))}
-                  className={selectedSession?.some(id => sessions.map(s => s.workoutSession.id).includes(id)) ? "active" : ""}
+                  className={`bg-dark text-white border-0 rounded ${selectedSession?.some(id => sessions.map(s => s.workoutSession.id).includes(id)) ? "active" : ""}`}
                 >
-                  🏋️‍♂️ Sesiones del {date}
+                  🏋️‍♂️ Entrenamiento del {date}
                 </ListGroup.Item>
               ))
             ) : (
@@ -96,16 +95,15 @@ export default function WorkoutHistory() {
       {selectedSession && (
         <Row className="mt-4">
           <Col xs={12}>
-            <h3 className="text-center">💪 Ejercicios de la Sesión</h3>
-            <ListGroup>
+            <ListGroup className="bg-dark text-white">
               {selectedSession.map((sessionId) => {
                 const session = sessions.find(s => s.workoutSession.id === sessionId);
                 if (!session) return null;
 
                 return (
-                  <ListGroup.Item key={session.workoutSession.id} className="d-flex justify-content-between align-items-center">
+                  <ListGroup.Item key={session.workoutSession.id} className="d-flex justify-content-between align-items-center bg-dark text-white">
                     <strong>{session.workoutLog.exercise?.name}</strong>
-                    <Button variant="info" size="sm" onClick={() => handleShowModal(session)}>
+                    <Button variant="outline-info" size="sm" onClick={() => handleShowModal(session)}>
                       Ver Sets
                     </Button>
                   </ListGroup.Item>
@@ -119,24 +117,24 @@ export default function WorkoutHistory() {
       {/* Botón Volver al Inicio */}
       <Row className="mt-4">
         <Col xs={12} className="text-center">
-          <Button variant="primary" onClick={() => navigate('/')} className="w-100">
+          <Button variant="primary" onClick={() => navigate('/')} className="w-100 custom-back-btn">
             Volver al Inicio
           </Button>
         </Col>
       </Row>
 
       {/* Modal para mostrar los sets */}
-      <Modal show={showModal} onHide={handleCloseModal} centered>
-        <Modal.Header closeButton>
+      <Modal show={showModal} onHide={handleCloseModal} centered dialogClassName="modal-dark">
+        <Modal.Header closeButton className="bg-dark text-white">
           <Modal.Title>Detalles del Entrenamiento</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body className="bg-dark text-white">
           {selectedWorkout && (
             <>
               <h5 className="text-center">{selectedWorkout.workoutLog.exercise?.name}</h5>
-              <ListGroup>
+              <ListGroup className="bg-dark text-white">
                 {selectedWorkout.sets.map((set) => (
-                  <ListGroup.Item key={set.id}>
+                  <ListGroup.Item key={set.id} className="bg-dark text-white">
                     <strong>Repeticiones: {set.repetitions}</strong> | Peso: {set.weight} kg
                   </ListGroup.Item>
                 ))}
@@ -145,7 +143,7 @@ export default function WorkoutHistory() {
             </>
           )}
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer className="bg-dark text-white">
           <Button variant="secondary" onClick={handleCloseModal} className="w-100">
             Cerrar
           </Button>

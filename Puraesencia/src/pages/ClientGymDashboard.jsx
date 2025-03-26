@@ -7,6 +7,8 @@ import ErrorModal from "../components/ErrorModal";
 import { Client } from '@stomp/stompjs'; 
 import SockJS from 'sockjs-client';  
 import { toast } from 'react-toastify';
+import '../css/ClientGymDashboard.css'; // Asegúrate de que el archivo CSS esté cargado
+
 
 const ClientGymDashboard = () => {
     const daysOfWeek = [
@@ -27,6 +29,17 @@ const ClientGymDashboard = () => {
     const [errorMessage, setErrorMessage] = useState("");
     
     const [refresh, setRefresh] = useState(false);
+
+    useEffect(() => {
+        document.body.style.backgroundColor = "#121212"; // Fondo negro
+        document.body.style.color = "#fff"; // Texto blanco opcional
+    
+        return () => {
+            document.body.style.backgroundColor = ""; // Restaurar al salir
+            document.body.style.color = "";
+        };
+    }, []);
+
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -197,97 +210,129 @@ const ClientGymDashboard = () => {
     }
 
     return (
-        <div className="container-fluid">
-            {hasPendingPayment && (
-                <div className="alert alert-warning text-center" role="alert">
-                    ⚠️ Tienes una cuota vencida. Por favor, regulariza tu pago.
-                </div>
-            )}
-            {routine.length === 0 &&
-                <div className="container d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
-                    <div className="text-center p-4 border rounded shadow-lg" style={{ backgroundColor: "#f8f9fa" }}>
-                        <h4 className="text-danger fw-bold">🚨 No tienes una rutina asignada</h4>
-                        <p className="text-muted">Por favor, contacta a tu entrenador para obtener una.</p>
+        <div style={{ backgroundColor: '#121212', minHeight: '100vh' }}>
+            <div className="container-fluid" style={{ color: '#fff' }}>
+                {hasPendingPayment && (
+                    <div className="alert alert-warning text-center" role="alert" style={{ backgroundColor: '#ff9800', color: '#fff', fontWeight: 'bold' }}>
+                        ⚠️ Tienes una cuota vencida. Por favor, regulariza tu pago.
+                    </div>
+                )}
+                {routine.length === 0 && (
+                    <div className="container d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+                        <div className="text-center p-5 border rounded shadow-lg" style={{ backgroundColor: "#333" }}>
+                            <h4 className="text-danger fw-bold">🚨 No tienes una rutina asignada</h4>
+                            <p className="text-muted">Por favor, contacta a tu entrenador para obtener una.</p>
+                        </div>
+                    </div>
+                )}
+    
+                <div className="container mt-4" style={{ backgroundColor: "#121212", paddingBottom: "20px", borderRadius: "10px" }}>
+                    <div className="row">
+                        {daysOfWeek.map((day) => {
+                            const dayExercises = routine.filter(r => r.dayNumber === day.index);
+    
+                            return (
+                                <div key={day.index} className="col-md-6 mb-3">
+                                    <div className="card p-3 shadow-lg" style={{ backgroundColor: '#1e1e1e', borderRadius: '12px' }}>
+                                        <h5
+                                            className="card-title p-2 rounded"
+                                            onClick={() => toggleDay(day.index)}
+                                            style={{
+                                                cursor: "pointer",
+                                                fontFamily: 'Roboto',
+                                                backgroundColor: day.index % 2 === 0 ? "#222" : "#333",
+                                                color: "#fff",
+                                                borderRadius: '8px',
+                                                transition: 'background-color 0.3s',
+                                            }}
+                                            onMouseEnter={(e) => e.target.style.backgroundColor = '#444'}
+                                            onMouseLeave={(e) => e.target.style.backgroundColor = day.index % 2 === 0 ? "#222" : "#333"}
+                                        >
+                                            {day.name}
+                                        </h5>
+                                        {expandedDays[day.index] && dayExercises.map((exercise, idx) => (
+                                            <div key={idx} className="mb-3 p-2 border rounded" style={{ backgroundColor: "#333" }}>
+                                                {JSON.parse(exercise.exerciseIds).map((exerciseId) => {
+                                                    const exerciseDetails = exercises.find(ex => ex.id === exerciseId);
+                                                    return (
+                                                        <div
+                                                            key={exerciseId}
+                                                            className="mb-2"
+                                                            onClick={() => {
+                                                                setSelectedExercise(exerciseId);
+                                                                toggleExercise(exerciseId);
+                                                            }}
+                                                            style={{ cursor: "pointer" }}
+                                                        >
+                                                            <span style={{ color: "#f1f1f1" }}>{exerciseDetails?.name} - {exercise.series} series de {exercise.repetitions} repeticiones, descanso: {exercise.rest}s</span> 
+                                                            {expandedExercises[exerciseId] && (
+                                                                <div className="mt-2" style={{ backgroundColor: "#444", padding: '10px', borderRadius: '8px' }}>
+                                                                    <input
+                                                                        type="number"
+                                                                        className="form-control mb-2"
+                                                                        placeholder="Cantidad de series"
+                                                                        onClick={(e) => e.stopPropagation()}
+                                                                        onChange={(e) => handleSeriesChange(exerciseId, e.target.value)}
+                                                                        style={{ backgroundColor: '#555', color: '#fff', border: 'none', borderRadius: '5px' }}
+                                                                    />
+    
+                                                                    {sessionData[exerciseId]?.details?.map((_, index) => (
+                                                                        <div key={index} className="border p-2 mb-2 rounded" style={{ backgroundColor: '#222' }}>
+                                                                            <h6>Serie {index + 1}</h6>
+                                                                            <input
+                                                                                type="number"
+                                                                                className="form-control mb-2"
+                                                                                placeholder="Peso (kg)"
+                                                                                onClick={(e) => e.stopPropagation()}
+                                                                                onChange={(e) => handleSeriesInputChange(exerciseId, index, "weight", e.target.value)}
+                                                                                style={{ backgroundColor: '#555', color: '#fff', border: 'none', borderRadius: '5px' }}
+                                                                            />
+                                                                            <input
+                                                                                type="number"
+                                                                                className="form-control mb-2"
+                                                                                placeholder="Repeticiones"
+                                                                                onClick={(e) => e.stopPropagation()}
+                                                                                onChange={(e) => handleSeriesInputChange(exerciseId, index, "reps", e.target.value)}
+                                                                                style={{ backgroundColor: '#555', color: '#fff', border: 'none', borderRadius: '5px' }}
+                                                                            />
+                                                                        </div>
+                                                                    ))}
+    
+                                                                    <textarea
+                                                                        className="form-control mb-2"
+                                                                        placeholder="Comentario"
+                                                                        rows="2"
+                                                                        onClick={(e) => e.stopPropagation()}
+                                                                        onChange={(e) => handleInputChange(exerciseId, "notes", e.target.value)}
+                                                                        style={{ backgroundColor: '#555', color: '#fff', border: 'none', borderRadius: '5px' }}
+                                                                    />
+                                                                    <button
+                                                                        className="btn btn-success"
+                                                                        onClick={saveWorkoutSession}
+                                                                        style={{ backgroundColor: '#28a745', borderRadius: '5px', width: '100%', color: '#ffffff !important' }}
+                                                                    >
+                                                                        Guardar Sesión
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
-            }
-
-            <div className="container mt-4">
-                <div className="row">
-                    {daysOfWeek.map((day) => {
-                        // Filtrar los ejercicios por día
-                        const dayExercises = routine.filter(r => r.dayNumber === day.index);
-
-                        return (
-                            <div key={day.index} className="col-md-6 mb-3">
-                                <div className="card p-3 shadow-sm">
-                                    <h5 className="card-title p-2 rounded" onClick={() => toggleDay(day.index)} style={{cursor: "pointer", fontFamily: 'Roboto', backgroundColor: day.index % 2 === 0 ? "#0a0a08" : "#626260", color: "#fff" }}>
-                                        {day.name}
-                                    </h5>
-                                    {expandedDays[day.index] && dayExercises.map((exercise, idx) => (
-                                        <div key={idx} className="mb-3 p-2 border rounded">
-                                            {JSON.parse(exercise.exerciseIds).map((exerciseId) => {
-                                                const exerciseDetails = exercises.find(ex => ex.id === exerciseId);
-                                                return (
-                                                    <div key={exerciseId} className="mb-2" onClick={() => {
-                                                        setSelectedExercise(exerciseId);  // Set selected exercise
-                                                        toggleExercise(exerciseId);
-                                                    }} style={{ cursor: "pointer" }}>
-                                                        <span>{exerciseDetails?.name}</span> - {exercise.series} series de {exercise.repetitions} repeticiones, descanso: {exercise.rest}s
-                                                        {expandedExercises[exerciseId] && (
-                                                            <div className="mt-2">
-                                                                <input
-                                                                    type="number"
-                                                                    className="form-control mb-2"
-                                                                    placeholder="Cantidad de series"
-                                                                    onClick={(e) => e.stopPropagation()}
-                                                                    onChange={(e) => handleSeriesChange(exerciseId, e.target.value)}
-                                                                />
-
-                                                                {sessionData[exerciseId]?.details?.map((_, index) => (
-                                                                    <div key={index} className="border p-2 mb-2 rounded">
-                                                                        <h6>Serie {index + 1}</h6>
-                                                                        <input
-                                                                            type="number"
-                                                                            className="form-control mb-2"
-                                                                            placeholder="Peso (kg)"
-                                                                            onClick={(e) => e.stopPropagation()}
-                                                                            onChange={(e) => handleSeriesInputChange(exerciseId, index, "weight", e.target.value)}
-                                                                        />
-                                                                        <input
-                                                                            type="number"
-                                                                            className="form-control mb-2"
-                                                                            placeholder="Repeticiones"
-                                                                            onClick={(e) => e.stopPropagation()}
-                                                                            onChange={(e) => handleSeriesInputChange(exerciseId, index, "reps", e.target.value)}
-                                                                        />
-                                                                    </div>
-                                                                ))}
-
-                                                                <textarea
-                                                                    className="form-control mb-2"
-                                                                    placeholder="Comentario"
-                                                                    rows="2"
-                                                                    onClick={(e) => e.stopPropagation()}
-                                                                    onChange={(e) => handleInputChange(exerciseId, "notes", e.target.value)}
-                                                                />
-                                                                <button className="btn btn-success" onClick={saveWorkoutSession}>Guardar Sesión</button>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
+    
+                <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
             </div>
-            <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
         </div>
     );
+    
+    
 };
 
 export default ClientGymDashboard;

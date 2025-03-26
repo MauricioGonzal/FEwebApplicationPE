@@ -97,7 +97,7 @@ const CreateUserForm = ({setRefresh}) => {
             <Button className="btn btn-secondary mt-3" onClick={handleGoBack}>
               Volver a la pantalla principal
             </Button>
-            <Button type="submit" variant="primary" className="d-flex align-items-center">
+            <Button type="submit" variant="primary" className="d-flex align-items-center" disabled={fullName === '' || email === '' || password === ''}>
               <FaUserPlus className="me-2" /> Crear Usuario
             </Button>
           </div>

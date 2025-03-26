@@ -265,7 +265,7 @@ const paymentTypesOptions = paymentTypes.map(paymentType => ({
           <Button variant="secondary" onClick={() => setShowEditModal(false)}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={handleSaveEdit}>
+          <Button variant="primary" onClick={handleSaveEdit} disabled={newAmount < 0}>
             Guardar Cambios
           </Button>
         </Modal.Footer>
@@ -293,7 +293,7 @@ const paymentTypesOptions = paymentTypes.map(paymentType => ({
           <Button variant="secondary" onClick={() => setShowEditStockModal(false)}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={handleSaveAddStock}>
+          <Button variant="primary" onClick={handleSaveAddStock} disabled={newStock < 0}>
             Guardar Cambios
           </Button>
         </Modal.Footer>

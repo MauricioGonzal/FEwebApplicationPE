@@ -27,6 +27,7 @@ const CierresDiarios = () => {
   }, [refresh]);
 
   const handleBuscar = () => {
+    
     api.get(`/cash-closure/getByDate?date=${fecha}`)
       .then(response => setCierres(response.data))
       .catch(error => console.error("Error al filtrar los cierres", error));
@@ -82,7 +83,7 @@ const CierresDiarios = () => {
             </Form.Group>
           </Col>
           <Col md={4} sm={12} className="d-flex justify-content-start justify-content-md-end">
-            <Button className="w-100 w-md-auto" onClick={handleBuscar}>
+            <Button className="w-100 w-md-auto" onClick={handleBuscar} disabled={fecha === ''}>
               Buscar
             </Button>
           </Col>

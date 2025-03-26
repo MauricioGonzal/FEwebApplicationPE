@@ -151,7 +151,7 @@ const FixedExpensesPage = () => {
               />
             </div>
             <div className="col-md-12 text-center">
-              <button type="submit" className="btn btn-primary btn-lg">
+              <button type="submit" className="btn btn-primary btn-lg" disabled={formData.nombre === '' || formData.monthlyAmount === '' || formData.startDate === ''}>
                 {formData.id ? 'Actualizar Gasto' : 'Crear Gasto'}
               </button>
               {formData.id && (

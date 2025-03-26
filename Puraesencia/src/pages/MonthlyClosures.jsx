@@ -117,7 +117,7 @@ const MonthlyClosures = () => {
           </Col>
 
           <Col md={4} sm={12} className="d-flex justify-content-start justify-content-md-end">
-            <Button className="w-100 w-md-auto" onClick={handleBuscar}>
+            <Button className="w-100 w-md-auto" onClick={handleBuscar} disabled={year === '' || month === ''}>
               Buscar
             </Button>
           </Col>
