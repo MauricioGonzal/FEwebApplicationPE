@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FaSearch, FaExclamationTriangle } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
 import api from "../Api";
 import { useNavigate } from "react-router-dom";
 
@@ -37,7 +37,6 @@ const OverduePayments = () => {
 
     return (
         <div className="container mt-4">
-            <h2 className="mb-4 text-danger"><FaExclamationTriangle /> Cuotas Vencidas</h2>
             <div className="input-group mb-3 w-50">
                 <span className="input-group-text"><FaSearch /></span>
                 <input type="number" className="form-control" placeholder="Buscar por día del mes..." value={searchDay} onChange={handleSearch} />

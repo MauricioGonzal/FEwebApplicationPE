@@ -43,6 +43,7 @@ import CashClosureTabs from './components/CashClosureTabs';
 import AssistsClasses from './components/AssistsClasses';
 import RoutineTabs from './components/RoutineTabs';
 import MembershipsPage from './pages/MembershipsPage';
+import PaymentTabs from './components/PaymentTabs';
 
 function App() {
   return (
@@ -66,7 +67,6 @@ function App() {
           <Route path="/create-user" element={<PrivateRoute><CreateUserForm /></PrivateRoute>} />
           <Route path="/create-health-record/:userId" element={<PrivateRoute><HealthForm /></PrivateRoute>} />
           <Route path="/user-table" element={<PrivateRoute><UserTable /></PrivateRoute>} />
-          <Route path="/overdue-payments" element={<PrivateRoute><OverduePayments /></PrivateRoute>} />
           <Route path="/user-classes-table" element={<PrivateRoute><UserClassAttendance /></PrivateRoute>} />
           <Route path="/user-gym-table" element={<PrivateRoute><UserGymAttendance /></PrivateRoute>} />
           <Route path="/trainer-dashboard" element={<PrivateRoute><TrainerDashboard /></PrivateRoute>} />
@@ -92,6 +92,7 @@ function App() {
           <Route path="/assists" element={<PrivateRoute><AssistsClasses /></PrivateRoute>} />
           <Route path="/routine-tabs" element={<PrivateRoute><RoutineTabs /></PrivateRoute>} />
           <Route path="/memberships" element={<PrivateRoute><MembershipsPage /></PrivateRoute>} />
+          <Route path="/payments" element={<PrivateRoute><PaymentTabs /></PrivateRoute>} />
 
           </Route>
 
