@@ -1,0 +1,23 @@
+/* MembershipsPage.module.css */
+.cardBody {
+    padding: 2rem;
+  }
+  
+  .table {
+    background-color: #f8f9fa;
+  }
+  
+  .table th {
+    text-align: center;
+    background-color: #343a40;
+    color: #fff;
+  }
+  
+  .table td {
+    text-align: center;
+  }
+  
+  button {
+    margin-right: 10px;
+  }
+  

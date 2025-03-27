@@ -34,7 +34,6 @@ import MonthlyCLosures from './pages/MonthlyClosures';
 import RoleBasedLayout from './components/RoleBasedLayout';
 import FixedExpensesPage from './pages/FixedExpensesPage';
 import CreateMonthlyClosure from './pages/CreateMonthlyCashClosure';
-import StockManagement from './pages/StockManagement';
 import ClientClassesDashboard from './pages/ClientClassesDashboard'
 import AdminScheduleGrid from './pages/AdminScheduleGrid'
 import ClientBothDashboard from './pages/ClientBothDashboard';
@@ -43,6 +42,7 @@ import ClassesTabs from './components/ClassesTabs';
 import CashClosureTabs from './components/CashClosureTabs';
 import AssistsClasses from './components/AssistsClasses';
 import RoutineTabs from './components/RoutineTabs';
+import MembershipsPage from './pages/MembershipsPage';
 
 function App() {
   return (
@@ -84,7 +84,6 @@ function App() {
           <Route path="/fixed-expenses" element={<PrivateRoute><FixedExpensesPage /></PrivateRoute>} />
           <Route path="/monthly-closures" element={<PrivateRoute><MonthlyCLosures /></PrivateRoute>} />
           <Route path="/create-monthly-closure" element={<PrivateRoute><CreateMonthlyClosure /></PrivateRoute>} />
-          <Route path="/stock-management" element={<PrivateRoute><StockManagement /></PrivateRoute>} />
           <Route path="/classes-schedule" element={<PrivateRoute><AdminScheduleGrid /></PrivateRoute>} />
           <Route path="/client-both-dashboard" element={<PrivateRoute><ClientBothDashboard /></PrivateRoute>} />
           <Route path="/products" element={<PrivateRoute><ProductPage /></PrivateRoute>} />
@@ -92,6 +91,7 @@ function App() {
           <Route path="/monthly-cash-closures" element={<PrivateRoute><CashClosureTabs /></PrivateRoute>} />
           <Route path="/assists" element={<PrivateRoute><AssistsClasses /></PrivateRoute>} />
           <Route path="/routine-tabs" element={<PrivateRoute><RoutineTabs /></PrivateRoute>} />
+          <Route path="/memberships" element={<PrivateRoute><MembershipsPage /></PrivateRoute>} />
 
           </Route>
 

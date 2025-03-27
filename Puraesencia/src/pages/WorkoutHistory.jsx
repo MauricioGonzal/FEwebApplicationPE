@@ -3,7 +3,6 @@ import jwtDecode from 'jwt-decode';
 import { Button, ListGroup, Container, Row, Col, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import api from '../Api';
-import '../css/WorkoutHistory.css'; // Asegúrate de que el archivo CSS esté cargado
 
 export default function WorkoutHistory() {
   const [sessions, setSessions] = useState([]);

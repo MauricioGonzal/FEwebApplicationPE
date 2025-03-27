@@ -7,7 +7,6 @@ import ErrorModal from "../components/ErrorModal";
 import { Client } from '@stomp/stompjs'; 
 import SockJS from 'sockjs-client';  
 import { toast } from 'react-toastify';
-import '../css/ClientGymDashboard.css'; // Asegúrate de que el archivo CSS esté cargado
 
 
 const ClientGymDashboard = () => {
