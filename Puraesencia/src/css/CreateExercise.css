@@ -1,0 +1,25 @@
+.custom-card {
+    background-color: #f7f9fc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .custom-input, .custom-textarea {
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 10px;
+  }
+  
+  .custom-btn {
+    border-radius: 50%;
+  }
+  
+  .custom-table {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .custom-search-input {
+    border-radius: 8px;
+    padding: 10px;
+  }
+  

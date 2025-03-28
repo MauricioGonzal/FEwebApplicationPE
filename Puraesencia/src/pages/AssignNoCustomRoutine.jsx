@@ -47,7 +47,7 @@ const StudentRow = () => {
         })
             .then(() => {
                 toast.success("Rutina asignada correctamente", { position: "top-right" });
-                
+                navigate('/');
             })
             .catch((error) => {
                 setErrorMessage(error.response?.data?.message || "Error al realizar la solicitud");
@@ -93,6 +93,7 @@ const StudentRow = () => {
                 </ul>
 
                 <div className="mt-4 d-flex justify-content-end">
+                    <button className="btn btn-outline-secondary" onClick={() => navigate("/")}>Cancelar</button>
                     <button
                         onClick={assignRoutine}
                         disabled={!selectedRoutine}
@@ -100,7 +101,6 @@ const StudentRow = () => {
                     >
                         Asignar
                     </button>
-                    <button className="btn btn-outline-secondary" onClick={() => navigate("/")}>Cancelar</button>
                 </div>
             </div>
 

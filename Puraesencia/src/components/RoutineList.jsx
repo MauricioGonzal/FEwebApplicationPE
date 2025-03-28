@@ -76,7 +76,6 @@ export default function RoutineList() {
 
   return (
     <div className="container mt-4">
-      <h2>Listado de Rutinas</h2>
       <table className="table table-striped">
         <thead>
           <tr>
