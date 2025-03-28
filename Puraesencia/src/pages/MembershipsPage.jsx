@@ -4,6 +4,7 @@ import api from "../Api";
 import { toast } from 'react-toastify';
 import ErrorModal from "../components/ErrorModal";
 import { MembershipsTable } from "../components/MembershipsTable";
+import ConfirmationDeleteModal from "../components/ConfirmationDeleteModal";
 
 const MembershipsPage = () => {
   const [memberships, setMemberships] = useState([]);
@@ -16,6 +17,8 @@ const MembershipsPage = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [item, setItem] = useState(null);
 
   useEffect(() => {
     api.get("/transaction-categories/payments")
@@ -64,6 +67,30 @@ const MembershipsPage = () => {
         [paymentMethodId]: parseFloat(value)
       }
     }));
+  };
+
+  const handleDelete = () => {
+    console.log(item);
+    api.post('/membership/delete-with-price', item)
+    .then(() => {
+      setRefresh(prev => !prev); // Refresca el estado después de eliminar
+      toast.success("Membresía eliminada exitosamente");
+      setShowModal(false);
+    })
+    .catch((error) => {
+      if (error.response && error.response.data) {
+        setErrorMessage(error.response.data.message || "Error desconocido");
+      } else {
+        setErrorMessage("Error al realizar la solicitud");
+      }
+      setShowErrorModal(true);
+      setShowModal(false);
+    });
+  };
+
+  const handleShowModal = (item) => {
+    setItem(item);
+    setShowModal(true);
   };
 
   const handleEdit = (membership) => {
@@ -152,7 +179,7 @@ const MembershipsPage = () => {
                   </Form.Select>
                 </Form.Group>
 
-                {selectedCategory?.name === "Musculación" && (
+                {(selectedCategory?.name === "Musculación" || selectedCategory?.name === "Musculacion + Clases") && (
                   <Form.Group className="mb-3">
                     <Form.Label>Cantidad de días</Form.Label>
                     <Form.Control
@@ -165,7 +192,7 @@ const MembershipsPage = () => {
                   </Form.Group>
                 )}
 
-                {selectedCategory?.name === "Clases" && (
+                {(selectedCategory?.name === "Clases" || selectedCategory?.name === "Musculacion + Clases") && (
                   <Form.Group className="mb-3">
                     <Form.Label>Cantidad de clases</Form.Label>
                     <Form.Control
@@ -196,8 +223,8 @@ const MembershipsPage = () => {
           </Card>
         </Col>
       </Row>
-
-      <MembershipsTable memberships={memberships} handleEdit={handleEdit} paymentMethods={paymentMethods}/>
+      <ConfirmationDeleteModal showModal={showModal} setShowModal={setShowModal} message={`Seguro que quieres eliminar la membresía ${item?.membership.name}`} handleDelete={handleDelete} />
+      <MembershipsTable memberships={memberships} handleEdit={handleEdit} paymentMethods={paymentMethods} handleShowModal={handleShowModal}/>
       <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
     </Container>
   );

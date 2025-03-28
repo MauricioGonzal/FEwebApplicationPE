@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Form, Button, Row, Col, Card, Modal, Spinner } from "react-bootstrap";
+import { Container, Form, Button, Row, Col, Card, Spinner } from "react-bootstrap";
 import api from "../Api";
 import { toast } from 'react-toastify';
 import ErrorModal from "../components/ErrorModal";
@@ -7,36 +7,28 @@ import { useNavigate } from "react-router-dom";
 import ConfirmationDeleteModal from "../components/ConfirmationDeleteModal";
 import { ProductsTable } from "../components/ProductsTable";
 import { EditStockModal } from "../components/EditStockModal";
+import { EditAmountModal } from "../components/EditAmountModal";
 
 const ProductPage = () => {
   const [productName, setProductName] = useState("");
   const [stock, setStock] = useState("");
-  const [price, setPrice] = useState("");
   const [prices, setPrices] = useState({});
   const [products, setProducts] = useState([]);
   const [paymentTypes, setPaymentTypes] = useState([]);
-
   const [selectedPrice, setSelectedPrice] = useState(null);
   const [selectedStock, setSelectedStock] = useState(null);
-
   const [showEditModal, setShowEditModal] = useState(false);
   const [showEditStockModal, setShowEditStockModal] = useState(false);
-
   const [newAmount, setNewAmount] = useState("");
   const [newStock, setNewStock] = useState("");
   const [refresh, setRefresh] = useState(false);
-
-  const [paymentValues, setPaymentValues] = useState({}); // Aquí guardamos los valores para cada medio de pago
-
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
-
   const navigate = useNavigate();
-
   useEffect(() => {
     api
       .get("/payment-methods")
@@ -91,7 +83,6 @@ const ProductPage = () => {
         setShowErrorModal(true);  // Mostrar modal con el error
       });
   };
-  
 
   const handleEditPrice = (priceList) => {
     setSelectedPrice(priceList);
@@ -99,11 +90,10 @@ const ProductPage = () => {
     setShowEditModal(true);
   };
 
-  const handleSaveEdit = () => {
-    if (newAmount === "") return;
-
+  const handleSaveEdit = (updatedPriceLists) => {
+    console.log(updatedPriceLists)
     api
-      .put(`/pricelists/${selectedPrice.id}/updateAmount`, newAmount)
+      .put(`/pricelists/updatePriceLists`, updatedPriceLists)
       .then((response) => {
         setShowEditModal(false);
         toast.success("Monto actualizado correctamente", { position: "top-right" });
@@ -135,7 +125,6 @@ const ProductPage = () => {
   };
 
   const handleDeleteProduct = () => {
-    console.log(item);
     api
       .post(`/products/delete-product-stock-price`, item)
       .then(() => {
@@ -168,13 +157,6 @@ const ProductPage = () => {
       product.product.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handlePaymentValueChange = (paymentTypeId, value) => {
-    setPaymentValues((prevValues) => ({
-      ...prevValues,
-      [paymentTypeId]: value,
-    }));
-  };
-
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center">
@@ -190,27 +172,7 @@ const ProductPage = () => {
 
       <Card className="p-4 shadow-sm mb-5">
       <Form>
-  <Row className="mb-3">
-    <Col md={12}>
-      <Form.Label>Medios de Pago y Monto</Form.Label>
-      {paymentTypes.map(paymentType => (
-        <Form.Group key={paymentType.id}>
-          <Form.Label>{paymentType.name}</Form.Label>
-          <Form.Control 
-            type="number" 
-            value={prices[paymentType.id] || ""} 
-            onChange={(e) => {
-              const newPrices = { ...prices, [paymentType.id]: parseFloat(e.target.value) };
-              setPrices(newPrices);
-            }}
-            placeholder={`Monto para ${paymentType.name}`} 
-            min="0"
-          />
-        </Form.Group>
-      ))}
-    </Col>
-  </Row>
-  <Row className="mb-3">
+      <Row className="mb-3">
     <Col md={4}>
       <Form.Group>
         <Form.Label>Nombre del Producto</Form.Label>
@@ -232,6 +194,25 @@ const ProductPage = () => {
       </Form.Group>
     </Col>
   </Row>
+  <Row className="mb-3">
+    <Col md={12}>
+      <Form.Label>Medios de Pago y Monto</Form.Label>
+      {paymentTypes.map(paymentType => (
+        <Form.Group key={paymentType.id}>
+          <Form.Control
+            type="number" 
+            value={prices[paymentType.id] || ""} 
+            onChange={(e) => {
+              const newPrices = { ...prices, [paymentType.id]: parseFloat(e.target.value) };
+              setPrices(newPrices);
+            }}
+            placeholder={`Valor para ${paymentType.name}`} 
+            min="0"
+          />
+        </Form.Group>
+      ))}
+    </Col>
+  </Row>
   <div className="d-flex justify-content-between">
     <Button className="btn btn-secondary mt-3" onClick={handleGoBack}>
       Volver a la pantalla principal
@@ -246,9 +227,7 @@ const ProductPage = () => {
     </Button>
   </div>
 </Form>
-
       </Card>
-
       <div className="input-group mb-3">
         <input
           type="text"
@@ -258,7 +237,6 @@ const ProductPage = () => {
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
-
       <ProductsTable
         filteredProducts={filteredProducts}
         handleAddStock={handleAddStock}
@@ -266,35 +244,13 @@ const ProductPage = () => {
         handleShowModal={handleShowModal}
         paymentMethods={paymentTypes}
       />
-
-      {/* Modal de Edición */}
-      <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Editar Monto</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group controlId="formNewAmount">
-              <Form.Label>Nuevo Monto</Form.Label>
-              <Form.Control
-                type="number"
-                value={newAmount}
-                onChange={(e) => setNewAmount(e.target.value)}
-                min="0"
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowEditModal(false)}>
-            Cancelar
-          </Button>
-          <Button variant="primary" onClick={handleSaveEdit} disabled={newAmount < 0}>
-            Guardar Cambios
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
+      <EditAmountModal 
+      filteredProducts={filteredProducts}
+      handleSaveEdit={handleSaveEdit}
+      paymentTypes={paymentTypes}
+      setShowEditModal={setShowEditModal}
+      showEditModal={showEditModal}
+      />
       <EditStockModal
         handleSaveAddStock={handleSaveAddStock}
         showEditStockModal={showEditStockModal}
