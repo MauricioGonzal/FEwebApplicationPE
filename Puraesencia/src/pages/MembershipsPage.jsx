@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
-import { Table, Button, Form, Container, Row, Col, Card } from "react-bootstrap";
+import { Button, Form, Container, Row, Col, Card, Spinner } from "react-bootstrap";
 import api from "../Api";
 import { toast } from 'react-toastify';
 import ErrorModal from "../components/ErrorModal";
-import styles from '../css/MembershipsPage.module.css';  // Importa el módulo CSS
-import ConfirmationDeleteModal from "../components/ConfirmationDeleteModal";
+import { MembershipsTable } from "../components/MembershipsTable";
 
 const MembershipsPage = () => {
   const [memberships, setMemberships] = useState([]);
@@ -12,13 +11,11 @@ const MembershipsPage = () => {
   const [transactionCategories, setTransactionCategories] = useState([]);
   const [editingMembership, setEditingMembership] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
-  const [formValues, setFormValues] = useState({ name: "", transactionCategory: "", maxDays: "", maxClasses: "", amount: "", paymentMethod:"" });
+  const [formValues, setFormValues] = useState({ name: "", transactionCategory: "", maxDays: "", maxClasses: "", prices: {} });
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [refresh, setRefresh] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [item, setItem] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api.get("/transaction-categories/payments")
@@ -26,110 +23,110 @@ const MembershipsPage = () => {
       .catch((error) => console.error("Error al obtener categorías de transacción", error));
 
     api.get("/payment-methods")
-    .then((response) => setPaymentMethods(response.data))
-    .catch((error) => console.error("Error al obtener métodos de pago", error));
+      .then((response) => setPaymentMethods(response.data))
+      .catch((error) => console.error("Error al obtener métodos de pago", error));
   }, []);
 
   useEffect(() => {
+    setLoading(true);
     api.get("/membership/priceList")
-      .then((response) => {
-        setMemberships(response.data);
-      })
-      .catch((error) => console.error("Error al obtener membresías", error));
+      .then((response) => setMemberships(response.data))
+      .catch((error) => console.error("Error al obtener membresías", error))
+      .finally(() => setLoading(false));
   }, [refresh]);
+
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center">
+        <Spinner animation="border" variant="primary" />
+        <span className="ml-2">Cargando...</span>
+      </div>
+    );
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    console.log(formValues);
-
     if (name === "transactionCategory") {
       const selectedCategoryObj = transactionCategories.find(cat => cat.id.toString() === value);
-      console.log(selectedCategoryObj)
       setSelectedCategory(selectedCategoryObj);
       setFormValues(prev => ({ ...prev, transactionCategory: selectedCategoryObj }));
-    } 
-    else if (name === "paymentMethod") {
-      const selectedPaymentObj = paymentMethods.find(pm => pm.id.toString() === value);
-      console.log(selectedPaymentObj)
-      setSelectedPaymentMethod(selectedPaymentObj);
-      setFormValues(prev => ({ ...prev, paymentMethod: selectedPaymentObj }));
-    } 
-    else {
+    } else {
       setFormValues(prev => ({ ...prev, [name]: value }));
     }
   };
 
-  const handleSave = async (event) => {
-    event.preventDefault();
-    console.log(formValues);
-    if(editingMembership){
-      api.put('/membership/update/' + editingMembership.membership.id, {"data":formValues, "membershipResponse":editingMembership})
-      .then((response) => {
-        toast.success("Membresía editada correctamente", {
-          position: "top-right",
-        });
-        setRefresh(prev => !prev);
-      })
-      .catch((error) => {
-        setErrorMessage(error.response?.data?.message || "Error desconocido");
-        setShowErrorModal(true);
-      });
-    }
-    else{
-      api.post('/membership/create-membership-price', formValues)
-      .then((response) => {
-        toast.success("Membresía creada correctamente", {
-          position: "top-right",
-        });
-        setRefresh(prev => !prev);
-      })
-      .catch((error) => {
-        setErrorMessage(error.response?.data?.message || "Error desconocido");
-        setShowErrorModal(true);
-      });
-    }
-
-    setFormValues({ name: "", transactionCategory: "", maxDays: "", maxClasses: "", amount: "", paymentMethod:"" });
-    setSelectedCategory("");
-    setSelectedPaymentMethod("");
+  const handleAmountChange = (e, paymentMethodId) => {
+    const { value } = e.target;
+    setFormValues(prev => ({
+      ...prev,
+      prices: {
+        ...prev.prices,
+        [paymentMethodId]: parseFloat(value)
+      }
+    }));
   };
 
   const handleEdit = (membership) => {
     setEditingMembership(membership);
-    setFormValues({ 
-      name: membership.membership.name, 
-      transactionCategory: membership.membership.transactionCategory, 
-      maxDays: membership.membership.maxDays, 
-      maxClasses: membership.membership.maxClasses, 
-      amount: membership.priceList.amount, 
-      paymentMethod: membership.priceList.paymentMethod 
+  
+    // Inicializamos los valores con los campos que pueden ser editados
+    const prices = membership.priceLists.reduce((acc, price) => {
+      acc[price.paymentMethod.id] = price.amount;
+      return acc;
+    }, {});
+  
+    setFormValues({
+      name: membership.membership.name,
+      transactionCategory: membership.membership.transactionCategory.id,  // solo necesitamos el ID de la categoría
+      maxDays: membership.membership.maxDays || "",  // Solo se mostrará si es de tipo "Musculación"
+      maxClasses: membership.membership.maxClasses || "",  // Solo se mostrará si es de tipo "Clases"
+      prices: prices, // Cargamos los precios correspondientes
     });
-    setSelectedCategory(membership.membership.transactionCategory);
-    setSelectedPaymentMethod(membership.priceList.paymentMethod);
+  
+    // Inicializa la categoría seleccionada
+    const selectedCategoryObj = transactionCategories.find(
+      (cat) => cat.id === membership.membership.transactionCategory.id
+    );
+    setSelectedCategory(selectedCategoryObj);
   };
+  
 
-  const handleDelete = () => {
-    console.log(item);
-    api.post(`/membership/delete-with-price`, item)
-    .then(() => {
-      setRefresh(prev => !prev); // Refresca el estado después de eliminar
-      toast.success("Membresía eliminada exitosamente");
-      setShowModal(false);
-    })
-    .catch((error) => {
-      if (error.response && error.response.data) {
-        setErrorMessage(error.response.data.message || "Error desconocido");
-      } else {
-        setErrorMessage("Error al realizar la solicitud");
-      }
-      setShowErrorModal(true);
-      setShowModal(false);
-    });
-  };
+  const handleSave = async (event) => {
+    event.preventDefault();
+    const membershipRequest = {
+      name: formValues.name,
+      maxDays: selectedCategory?.name === "Musculación" ? formValues.maxDays : null,
+      maxClasses: selectedCategory?.name === "Clases" ? formValues.maxClasses : null,
+      transactionCategory: selectedCategory,
+      prices: formValues.prices
+    };
 
-  const handleShowModal = (item) => {
-    setItem(item);
-    setShowModal(true);
+    if (editingMembership) {
+      api.put('/membership/update/' + editingMembership.membership.id, membershipRequest)
+        .then(() => {
+          toast.success("Membresía editada correctamente");
+          setRefresh(prev => !prev);
+        })
+        .catch((error) => {
+          setErrorMessage(error.response?.data?.message || "Error desconocido");
+          setShowErrorModal(true);
+        });
+    } else {
+      console.log(membershipRequest);
+      api.post('/membership/create-membership-price', membershipRequest)
+        .then(() => {
+          toast.success("Membresía creada correctamente");
+          setRefresh(prev => !prev);
+        })
+        .catch((error) => {
+          setErrorMessage(error.response?.data?.message || "Error desconocido");
+          setShowErrorModal(true);
+        });
+    }
+
+    // Reset form
+    setFormValues({ name: "", transactionCategory: "", maxDays: "", maxClasses: "", prices: {} });
+    setSelectedCategory("");
   };
 
   return (
@@ -155,72 +152,52 @@ const MembershipsPage = () => {
                   </Form.Select>
                 </Form.Group>
 
-                <Form.Group className="mb-3">
-                  <Form.Label>Forma de pago</Form.Label>
-                  <Form.Select name="paymentMethod" value={selectedPaymentMethod?.id || ""} onChange={handleInputChange} required>
-                    <option value="">Seleccione una forma de pago</option>
-                    {paymentMethods.map((paymentMethod) => (
-                      <option key={paymentMethod.id} value={paymentMethod.id}>{paymentMethod.name}</option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-
-                {(selectedCategory?.name === "Musculacion + Clases" || selectedCategory?.name === "Musculación") && (
+                {selectedCategory?.name === "Musculación" && (
                   <Form.Group className="mb-3">
-                    <Form.Label>Máx. Días</Form.Label>
-                    <Form.Control type="number" name="maxDays" value={formValues.maxDays} onChange={handleInputChange} required />
+                    <Form.Label>Cantidad de días</Form.Label>
+                    <Form.Control
+                      type="number"
+                      name="maxDays"
+                      value={formValues.maxDays}
+                      onChange={handleInputChange}
+                      required
+                    />
                   </Form.Group>
                 )}
 
-                {(selectedCategory?.name === "Musculacion + Clases" || selectedCategory?.name === "Clases") && (
+                {selectedCategory?.name === "Clases" && (
                   <Form.Group className="mb-3">
-                    <Form.Label>Máx. Clases</Form.Label>
-                    <Form.Control type="number" name="maxClasses" value={formValues.maxClasses} onChange={handleInputChange} required />
+                    <Form.Label>Cantidad de clases</Form.Label>
+                    <Form.Control
+                      type="number"
+                      name="maxClasses"
+                      value={formValues.maxClasses}
+                      onChange={handleInputChange}
+                      required
+                    />
                   </Form.Group>
                 )}
 
-                <Form.Group className="mb-3">
-                  <Form.Label>Valor</Form.Label>
-                  <Form.Control type="number" name="amount" value={formValues.amount} onChange={handleInputChange} required />
-                </Form.Group>
+                {paymentMethods.map((paymentMethod) => (
+                  <Form.Group key={paymentMethod.id} className="mb-3">
+                    <Form.Label>Monto ({paymentMethod.name})</Form.Label>
+                    <Form.Control
+                      type="number"
+                      name={`amount-${paymentMethod.id}`}
+                      value={formValues.prices[paymentMethod.id] || ""}
+                      onChange={(e) => handleAmountChange(e, paymentMethod.id)}
+                    />
+                  </Form.Group>
+                ))}
 
-                <Button type="submit" variant="primary" block="true">{editingMembership ? "Actualizar" : "Crear"}</Button>
+                <Button type="submit" variant="primary" block>{editingMembership ? "Actualizar" : "Crear"}</Button>
               </Form>
             </Card.Body>
           </Card>
         </Col>
       </Row>
 
-      <Table striped bordered hover className={`${styles.table} mt-4`} >
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Categoría</th>
-            <th>Máx. Días</th>
-            <th>Máx. Clases</th>
-            <th>Valor</th>
-            <th>Forma de pago</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {memberships.map((record) => (
-            <tr key={record.membership.id}>
-              <td>{record.membership.name}</td>
-              <td>{record.membership.transactionCategory.name}</td>
-              <td>{record.membership.maxDays || "-"}</td>
-              <td>{record.membership.maxClasses || "-"}</td>
-              <td>${record.priceList.amount}</td>
-              <td>{record.priceList.paymentMethod.name}</td>
-              <td>
-                <Button variant="warning" onClick={() => handleEdit(record)}>Editar</Button>
-                <Button variant="danger" onClick={() => handleShowModal(record)}>Eliminar</Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-      <ConfirmationDeleteModal showModal={showModal} setShowModal={setShowModal} message={`Seguro que quieres eliminar la membresía ${item?.membership.name}`} handleDelete= {handleDelete}   /> 
+      <MembershipsTable memberships={memberships} handleEdit={handleEdit} paymentMethods={paymentMethods}/>
       <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
     </Container>
   );

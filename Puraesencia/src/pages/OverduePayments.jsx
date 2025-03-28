@@ -2,10 +2,8 @@ import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FaSearch } from "react-icons/fa";
 import api from "../Api";
-import { useNavigate } from "react-router-dom";
 
 const OverduePayments = () => {
-    const navigate = useNavigate();
     const [payments, setPayments] = useState([]);
     const [filteredPayments, setFilteredPayments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -61,7 +59,6 @@ const OverduePayments = () => {
                     )}
                 </tbody>
             </table>
-            <button className="btn btn-secondary mt-3" onClick={() => navigate("/")}>Volver</button>
         </div>
     );
 };
