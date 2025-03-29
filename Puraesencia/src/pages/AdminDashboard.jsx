@@ -30,7 +30,6 @@ const AdminDashboard = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [selectedTransactionCategory, setSelectedTransactionCategory] = useState(null);
 
-
     useEffect(() => {
         api.get('/users/getAllByRole/clients')
             .then((response) =>{ 
@@ -325,13 +324,7 @@ const AdminDashboard = () => {
                         </div>
                     </div>
                 </div>
-    
-                {/* Modal emergente de error */}
-                <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
-                
-                {/* Tabla de transacciones */}
                 <TransactionsTable transactions={transactions} />
-                
                 {/* Cierre de caja */}
                 <div className="card shadow-sm p-4 mt-4">
                     <p className="fw-bold">Total del día: <span className="text-success">${totalCaja.toFixed(2)}</span></p>
@@ -340,6 +333,7 @@ const AdminDashboard = () => {
                     </button>
                 </div>
             </div>
+            <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
         </div>
     );
 };

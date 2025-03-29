@@ -223,7 +223,7 @@ const CreateExercise = () => {
                 <tr>
                   <th>ID</th>
                   <th>Nombre</th>
-                  <th>Descripción</th> {/* Nueva columna para la descripción */}
+                  <th>Descripción</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -232,7 +232,7 @@ const CreateExercise = () => {
                   <tr key={exercise.id}>
                     <td>{exercise.id}</td>
                     <td>{exercise.name}</td>
-                    <td>{exercise.description}</td> {/* Mostrar la descripción */}
+                    <td>{exercise.description}</td>
                     <td>
                       <Button 
                         variant="warning" 
@@ -258,7 +258,6 @@ const CreateExercise = () => {
           </div>
         </div>
       </div>
-
       {/* Modal para editar ejercicio */}
       <Modal show={showEditModal} onHide={() => setShowEditModal(false)} centered>
         <Modal.Header closeButton>

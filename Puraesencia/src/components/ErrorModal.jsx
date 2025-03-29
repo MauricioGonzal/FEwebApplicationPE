@@ -1,4 +1,5 @@
 import { Modal, Button } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const ErrorModal = ({ showErrorModal, setShowErrorModal, errorMessage }) => {
   return (

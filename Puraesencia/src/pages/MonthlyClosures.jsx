@@ -28,7 +28,8 @@ const MonthlyClosures = () => {
 
   const handleBuscar = () => {
     if (!month || !year) {
-      alert("Por favor, selecciona un mes y un año.");
+      setErrorMessage("Por favor, selecciona un mes y un año.");
+      setShowErrorModal(true);
       return;
     }
 

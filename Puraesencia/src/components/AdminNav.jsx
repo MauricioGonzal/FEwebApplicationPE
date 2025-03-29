@@ -10,7 +10,6 @@ const AdminNav = () => {
             <div className="container d-flex justify-content-between">
                 <a className="navbar-brand fw-bold" style={{ fontFamily: 'Roboto' }} href="/">
                     <img src="./puraesencia.png" alt="Logo" width="40" height="40" className="me-2" />
-                    Admin Panel
                 </a>                    
                 <div className="dropdown">
                     <button className="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">

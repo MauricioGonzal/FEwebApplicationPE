@@ -7,7 +7,7 @@ import { Modal, Button, Form } from "react-bootstrap";
 import Select from "react-select";
 import ConfirmationDeleteModal from "../components/ConfirmationDeleteModal";
 import ErrorModal from "../components/ErrorModal";
-
+import jwtDecode from "jwt-decode";
 
 const daysOfWeek = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"];
 
@@ -28,43 +28,63 @@ const AdminClassesDashboard = () => {
   const [selectedSession, setSelectedSession] = useState(null);
   const [newStartTime, setNewStartTime] = useState("");
   const [newEndTime, setNewEndTime] = useState("");
+  const [classScheduleItem, setClassScheduleItem] = useState(null);
 
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
-  const fetchSchedule = () => {
-    api.get('/schedules/1/sessions')
-    .then((response) =>{ 
-        const formattedSchedule = daysOfWeek.reduce((acc, day) => {
-            acc[day] = response.data.filter(session => session.dayOfWeek === day);
-            return acc;
-            }, {});
-            setSchedule(formattedSchedule);
-    })
-    .catch((error) => console.error("Error fetching schedule:", error));
-  };
-
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const decoded = jwtDecode(token);
+    api.get(`/schedules/getByAdmin/${decoded.id}`)
+      .then((response) => {
+        console.log(response.data);
+        setClassScheduleItem(response.data);
+      })
+      .catch((error) => console.error("Error al cargar Grilla:", error));
+  }, []); // Este useEffect solo se ejecuta una vez, cuando el componente se monta
+  
   useEffect(() => {
     api.get('/users/getAllByRole/teacher')
-        .then((response) =>{ 
-            setInstructors(response.data)}
-        )
-        .catch((error) => console.error("Error al obtener profesores", error));
-  }, []);
-
+      .then((response) => {
+        setInstructors(response.data);
+      })
+      .catch((error) => console.error("Error al obtener profesores", error));
+  }, []); // Este useEffect solo se ejecuta una vez, cuando el componente se monta
+  
   useEffect(() => {
     api.get('/classTypes')
-    .then((response) =>{ 
+      .then((response) => {
         setClassTypes(response.data);
-    })
-    .catch((error) => console.error("Error al obtener clases", error));
-  }, []);
-
+      })
+      .catch((error) => console.error("Error al obtener clases", error));
+  }, []); // Este useEffect solo se ejecuta una vez, cuando el componente se monta
+  
+  // Este useEffect ahora solo se ejecutará cuando classScheduleItem cambie y no cuando refresh cambie
   useEffect(() => {
-    fetchSchedule();
-  }, [refresh]);
+    if (!classScheduleItem || classScheduleItem.length === 0) {
+      setSchedule([]); // Si no hay datos en classScheduleItem, no hacemos la llamada.
+      return;
+    }
+  
+    console.log(classScheduleItem);
+  
+    api.get('/schedules/' + classScheduleItem?.id + '/sessions')
+      .then((response) => {
+        const formattedSchedule = daysOfWeek.reduce((acc, day) => {
+          acc[day] = response.data.filter(session => session.dayOfWeek === day);
+          return acc;
+        }, {});
+        setSchedule(formattedSchedule);
+      })
+      .catch((error) => console.error("Error fetching schedule:", error));
+  }, [classScheduleItem]); // Este useEffect solo se ejecuta cuando classScheduleItem cambie
+  
 
   const addClassSession = () => {
-    console.log(selectedInstructor);
+    if(classScheduleItem === undefined){
+      setSchedule([]);
+      return;
+    }
     const session = { 
         classType: selectedClassType.value,
         startTime,
@@ -73,15 +93,15 @@ const AdminClassesDashboard = () => {
         teacher: selectedInstructor.value
     };
 
-    api.post('/schedules/1/sessions', session)
+    api.post('/schedules/' + classScheduleItem?.id +'/sessions', session)
         .then((response) => {
-            fetchSchedule();
             toast.success("Sesión creada correctamente", {
                 position: "top-right", // Ahora directamente como string
               });
             setModalVisible(false);
             setSelectedClassType(null);
             setSelectedClassType(null);
+            setRefresh(prev => !prev); // Cambia refresh para disparar el useEffect
         })
         .catch((error) => {
           if (error.response && error.response.data) {
@@ -93,9 +113,25 @@ const AdminClassesDashboard = () => {
     });
   };
 
-  const handleShowEditModal = (day) => {
-    setEditModalVisible(true);
-    setSelectedDay(day);
+  const createClassSchedule = () => {
+    const token = localStorage.getItem("token");
+    const decoded = jwtDecode(token);
+    api.post('/schedules/createByUser/' + decoded.id)
+        .then((response) => {
+            toast.success("Grilla creada correctamente", {
+                position: "top-right", // Ahora directamente como string
+              });
+              setClassScheduleItem(response.data);
+            setRefresh(prev => !prev); // Cambia refresh para disparar el useEffect
+        })
+        .catch((error) => {
+          if (error.response && error.response.data) {
+            setErrorMessage(error.response.data.error || "Error desconocido");
+          } else {
+            setErrorMessage("Error al realizar la solicitud");
+          }
+          setShowErrorModal(true);  // Mostrar modal con el error
+    });
   };
 
   const handleEditClass = (session) => {
@@ -176,6 +212,14 @@ const AdminClassesDashboard = () => {
     value: instructor, 
     label: instructor.fullName
   }));
+
+  if (classScheduleItem?.length === 0) {
+    return <button 
+      className="btn btn-primary"
+      onClick={() => createClassSchedule()}>
+        Crear Grilla
+    </button>;
+  }
 
   return (
     <div className="container mt-4">

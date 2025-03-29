@@ -8,7 +8,6 @@ import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';  
 import { toast } from 'react-toastify';
 
-
 const ClientGymDashboard = () => {
     const daysOfWeek = [
         { index: 1, name: "Lunes" }, { index: 2, name: "Martes" }, { index: 3, name: "Miércoles" },
@@ -28,16 +27,6 @@ const ClientGymDashboard = () => {
     const [errorMessage, setErrorMessage] = useState("");
     
     const [refresh, setRefresh] = useState(false);
-
-    useEffect(() => {
-        document.body.style.backgroundColor = "#121212"; // Fondo negro
-        document.body.style.color = "#fff"; // Texto blanco opcional
-    
-        return () => {
-            document.body.style.backgroundColor = ""; // Restaurar al salir
-            document.body.style.color = "";
-        };
-    }, []);
 
 
     useEffect(() => {
@@ -175,7 +164,8 @@ const ClientGymDashboard = () => {
             .filter(log => log.repetitions && log.weight);
 
         if (sets.length === 0) {
-            alert("Debes ingresar al menos un ejercicio con peso y repeticiones.");
+            setErrorMessage("Debes ingresar al menos un ejercicio con peso y repeticiones.");
+            setShowErrorModal(true);
             return;
         }
     
@@ -207,8 +197,10 @@ const ClientGymDashboard = () => {
     if (loading) {
         return <div className="text-center mt-5"><h4>Cargando rutina...</h4></div>;
     }
+    
 
     return (
+        
         <div style={{ backgroundColor: '#121212', minHeight: '100vh' }}>
             <div className="container-fluid" style={{ color: '#fff' }}>
                 {hasPendingPayment && (
