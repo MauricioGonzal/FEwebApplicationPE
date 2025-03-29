@@ -35,7 +35,7 @@ const AdminClassesDashboard = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const decoded = jwtDecode(token);
-    api.get(`/schedules/getByAdmin/${decoded.id}`)
+    api.get(`/schedule/getByUser/${decoded.id}`)
       .then((response) => {
         console.log(response.data);
         setClassScheduleItem(response.data);
@@ -68,7 +68,7 @@ const AdminClassesDashboard = () => {
   
     console.log(classScheduleItem);
   
-    api.get('/schedules/' + classScheduleItem?.id + '/sessions')
+    api.get('/schedule/' + classScheduleItem?.id + '/sessions')
       .then((response) => {
         const formattedSchedule = daysOfWeek.reduce((acc, day) => {
           acc[day] = response.data.filter(session => session.dayOfWeek === day);
@@ -93,7 +93,7 @@ const AdminClassesDashboard = () => {
         teacher: selectedInstructor.value
     };
 
-    api.post('/schedules/' + classScheduleItem?.id +'/sessions', session)
+    api.post('/schedule/' + classScheduleItem?.id +'/sessions', session)
         .then((response) => {
             toast.success("Sesión creada correctamente", {
                 position: "top-right", // Ahora directamente como string
@@ -116,7 +116,7 @@ const AdminClassesDashboard = () => {
   const createClassSchedule = () => {
     const token = localStorage.getItem("token");
     const decoded = jwtDecode(token);
-    api.post('/schedules/createByUser/' + decoded.id)
+    api.post('/schedule/createByUser/' + decoded.id)
         .then((response) => {
             toast.success("Grilla creada correctamente", {
                 position: "top-right", // Ahora directamente como string

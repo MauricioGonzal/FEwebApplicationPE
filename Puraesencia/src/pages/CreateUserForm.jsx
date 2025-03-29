@@ -5,6 +5,8 @@ import { FaUserPlus} from "react-icons/fa";
 import { toast } from 'react-toastify';
 import ErrorModal from "../components/ErrorModal";
 import { useNavigate } from 'react-router-dom';
+import jwtDecode from 'jwt-decode';
+
 
 const CreateUserForm = ({setRefresh}) => {
   const [fullName, setFullName] = useState('');
@@ -20,7 +22,10 @@ const CreateUserForm = ({setRefresh}) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    api.post('/users', { fullName, email, password, role: role.toUpperCase()})
+    const token = localStorage.getItem("token");
+    const decoded = jwtDecode(token);
+
+    api.post('/users/byAdmin', { fullName, email, password, role: role.toUpperCase(), adminId: decoded.id})
       .then(() => {
         toast.success("Usuario creado correctamente", {
           position: "top-right", // Ahora directamente como string

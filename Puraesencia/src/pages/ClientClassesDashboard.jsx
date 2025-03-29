@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import jwtDecode from 'jwt-decode';
 import api from '../Api';
-import { Client } from '@stomp/stompjs';  // Importar Client de STOMP
-import SockJS from 'sockjs-client';  // Importar SockJS para manejar la conexión WebSocket
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 const daysOfWeek = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"];
@@ -12,10 +12,9 @@ const ClientClassesDashboard = () => {
   const [schedule, setSchedule] = useState([]);
   const [leftAttendances, setLeftAttendances] = useState("");
   const [refresh, setRefresh] = useState(false);
-
+  const [classScheduleItem, setClassScheduleItem] = useState(null);
 
   useEffect(() => {
-    // Conectar al WebSocket y suscribirse al topic para las actualizaciones
     const token = localStorage.getItem('token');
     if (!token) return;
 
@@ -23,60 +22,68 @@ const ClientClassesDashboard = () => {
     const userId = decoded.id;
 
     const client = new Client({
-      brokerURL: 'ws://localhost:8080/ws', // Dirección de WebSocket
+      brokerURL: 'ws://localhost:8080/ws',
       connectHeaders: {},
       debug: function (str) {
         console.log(str);
       },
       onConnect: () => {
-        // Suscribirse al topic para este usuario
         client.subscribe(`/topic/attendance/${userId}`, (message) => {
-          setRefresh(prev => !prev); // Cambia refresh para disparar el useEffect
+          setRefresh(prev => !prev);
         });
       },
       onStompError: (frame) => {
         console.error(frame);
       },
-      webSocketFactory: () => new SockJS('http://localhost:8080/ws'), // Conexión WebSocket con SockJS
+      webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
     });
 
-    client.activate(); // Activar la conexión
+    client.activate();
 
     return () => {
-      client.deactivate(); // Limpiar la conexión cuando el componente se desmonte
+      client.deactivate();
     };
   }, []);
 
   useEffect(() => {
-    // Fetch de la grilla de clases
-    const fetchSchedule = () => {
-      api.get('/schedules/1/sessions')
-        .then((response) => {
-          console.log(response.data);
-          const formattedSchedule = daysOfWeek.reduce((acc, day) => {
-            console.log(response.data[0])
-            acc[day] = response.data.filter(session => session.dayOfWeek === day);
-            
-            return acc;
-          }, {});
-          setSchedule(formattedSchedule);
-console.log(formattedSchedule)
-        })
-        .catch((error) => console.error("Error fetching schedule:", error));
-    };
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
-    fetchSchedule();
+    const decoded = jwtDecode(token);
+    api.get(`/schedule/getByUser/${decoded.id}`)
+      .then((response) => {
+        console.log(response.data);
+        setClassScheduleItem(response.data);
+      })
+      .catch((error) => console.error("Error al cargar Grilla:", error));
   }, []);
+
+  const fetchSchedule = useCallback(() => {
+    if (!classScheduleItem) return;
+    
+    api.get(`/schedule/${classScheduleItem.id}/sessions`)
+      .then((response) => {
+        console.log(response.data);
+        const formattedSchedule = daysOfWeek.reduce((acc, day) => {
+          acc[day] = response.data.filter(session => session.dayOfWeek === day);
+          return acc;
+        }, {});
+        setSchedule(formattedSchedule);
+      })
+      .catch((error) => console.error("Error fetching schedule:", error));
+  }, [classScheduleItem]);
+
+  useEffect(() => {
+    fetchSchedule();
+  }, [fetchSchedule]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
     const decoded = jwtDecode(token);
-
-    // Hacer el fetch inicial de las clases restantes
     api.get(`/attendance/${decoded.id}/leftattendances`)
-      .then((response) => { 
+      .then((response) => {
         setLeftAttendances(response.data);
       })
       .catch((error) => console.error("Error fetching left attendances:", error));
