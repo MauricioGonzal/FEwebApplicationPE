@@ -73,6 +73,9 @@ const ProductPage = () => {
           position: "top-right", // Ahora directamente como string
         });
         setRefresh(prev => !prev); // Cambia refresh para disparar el useEffect
+        setProductName("");
+        setStock("");
+        setPrices({});
       })
       .catch((error) => {
         if (error.response && error.response.data) {
@@ -85,6 +88,7 @@ const ProductPage = () => {
   };
 
   const handleEditPrice = (priceList) => {
+    console.log(priceList);
     setSelectedPrice(priceList);
     setNewAmount(priceList.amount);
     setShowEditModal(true);
@@ -200,6 +204,7 @@ const ProductPage = () => {
       {paymentTypes.map(paymentType => (
         <Form.Group key={paymentType.id}>
           <Form.Control
+          className="mt-3"
             type="number" 
             value={prices[paymentType.id] || ""} 
             onChange={(e) => {
@@ -245,11 +250,11 @@ const ProductPage = () => {
         paymentMethods={paymentTypes}
       />
       <EditAmountModal 
-      filteredProducts={filteredProducts}
       handleSaveEdit={handleSaveEdit}
       paymentTypes={paymentTypes}
       setShowEditModal={setShowEditModal}
       showEditModal={showEditModal}
+      selectedPrice = {selectedPrice}
       />
       <EditStockModal
         handleSaveAddStock={handleSaveAddStock}

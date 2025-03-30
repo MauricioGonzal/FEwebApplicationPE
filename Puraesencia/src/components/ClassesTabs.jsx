@@ -1,8 +1,11 @@
 import { Tab, Nav, Container } from "react-bootstrap";
 import AdminScheduleGrid from "../pages/AdminScheduleGrid";
 import ClassesPage from "../pages/ClassesPage";
+import { useState } from "react";
 
 function ClassesTabs() {
+  const [refreshClassSchedule, setRefreshClassSchedule] = useState(false);
+
   return (
     <Container className="mt-4">
       <Tab.Container defaultActiveKey="musculacion">
@@ -17,10 +20,10 @@ function ClassesTabs() {
 
         <Tab.Content className="mt-3">
           <Tab.Pane eventKey="musculacion">
-            <ClassesPage/>
+            <ClassesPage setRefreshClassSchedule={setRefreshClassSchedule}/>
           </Tab.Pane>
           <Tab.Pane eventKey="clases">
-            <AdminScheduleGrid/>
+            <AdminScheduleGrid refreshClassSchedule={refreshClassSchedule}/>
           </Tab.Pane>
         </Tab.Content>
       </Tab.Container>

@@ -96,7 +96,7 @@ const UserTable = () => {
                 <td>{user.fullName}</td>
                 <td>{user.email}</td>
                 <td>
-                {user.healthRecord === null && (user.role === "CLIENT_GYM" || user.role === "CLIENT_CLASSES" || user.role === "CLIENT_BOTH") && (
+                {user.healthRecord === null && (user.role === "CLIENT_GYM" || user.role === "CLIENT_CLASSES" || user.role === "CLIENT_BOTH" || user.role === null) && (
                           <button
                             className="btn btn-success btn-sm me-2"
                             onClick={() =>
@@ -137,9 +137,7 @@ const UserTable = () => {
             <Form.Group className="mb-3">
               <Form.Label>Rol</Form.Label>
               <Form.Select value={editUserData.role} onChange={(e) => setEditUserData({ ...editUserData, role: e.target.value })} required>
-                <option value="client_gym">Miembro Gimnasio</option>
-                <option value="client_classes">Miembro Clases</option>
-                <option value="client_both">Miembro Ambas</option>
+                <option value="client">Cliente</option>
                 <option value="trainer">Entrenador</option>
                 <option value="receptionist">Asistente Administrativo</option>
                 <option value="admin">Administrador</option>

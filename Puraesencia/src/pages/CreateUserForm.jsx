@@ -12,7 +12,7 @@ const CreateUserForm = ({setRefresh}) => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('client_gym');
+  const [role, setRole] = useState('client');
 
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -24,6 +24,7 @@ const CreateUserForm = ({setRefresh}) => {
 
     const token = localStorage.getItem("token");
     const decoded = jwtDecode(token);
+    console.log(role);
 
     api.post('/users/byAdmin', { fullName, email, password, role: role.toUpperCase(), adminId: decoded.id})
       .then(() => {
@@ -33,7 +34,7 @@ const CreateUserForm = ({setRefresh}) => {
         setFullName('');
         setEmail('');
         setPassword('');
-        setRole('client_gym');
+        setRole('client');
         setRefresh((prev) => !prev);
       })
       .catch((error) => {
@@ -46,7 +47,7 @@ const CreateUserForm = ({setRefresh}) => {
         setFullName('');
         setEmail('');
         setPassword('');
-        setRole('client_gym');
+        setRole('client');
       });
   };
 
@@ -86,12 +87,10 @@ const CreateUserForm = ({setRefresh}) => {
               <Form.Group className="mb-3">
                 <Form.Label>Rol</Form.Label>
                 <Form.Select value={role} onChange={(e) => setRole(e.target.value)} required>
-                  <option value="client_gym">Miembro Gimnasio</option>
-                  <option value="client_classes">Miembro Clases</option>
-                  <option value="client_both">Miembro Ambas</option>
+                  <option value="client">Cliente</option>
                   <option value="trainer">Entrenador</option>
                   <option value="teacher">Profesor</option>
-                  <option value="receptionist">Asistente Administrativo</option>
+                  <option value="receptionist">Empleado</option>
                   <option value="admin">Administrador</option>
                 </Form.Select>
               </Form.Group>

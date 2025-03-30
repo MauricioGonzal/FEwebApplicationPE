@@ -11,7 +11,7 @@ import jwtDecode from "jwt-decode";
 
 const daysOfWeek = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO", "DOMINGO"];
 
-const AdminClassesDashboard = () => {
+const AdminClassesDashboard = (refreshClassSchedule) => {
   const [schedule, setSchedule] = useState({});
   const [modalVisible, setModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -57,7 +57,7 @@ const AdminClassesDashboard = () => {
         setClassTypes(response.data);
       })
       .catch((error) => console.error("Error al obtener clases", error));
-  }, []); // Este useEffect solo se ejecuta una vez, cuando el componente se monta
+  }, [refreshClassSchedule]); // Este useEffect solo se ejecuta una vez, cuando el componente se monta
   
   // Este useEffect ahora solo se ejecutará cuando classScheduleItem cambie y no cuando refresh cambie
   useEffect(() => {
@@ -307,7 +307,7 @@ const AdminClassesDashboard = () => {
                 </div>
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-primary" onClick={addClassSession}>Agregar Clase</button>
+                <button type="button" className="btn btn-primary" onClick={addClassSession} disabled={startTime === "" || endTime === "" || selectedClassType === null}>Agregar Clase</button>
               </div>
             </div>
           </div>

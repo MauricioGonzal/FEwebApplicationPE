@@ -1,7 +1,7 @@
 import { Form, Button, Modal } from "react-bootstrap";
 import React, { useState, useEffect } from "react";
 
-export function EditAmountModal({ showEditModal, setShowEditModal, paymentTypes, filteredProducts, handleSaveEdit }) {
+export function EditAmountModal({ showEditModal, setShowEditModal, paymentTypes, handleSaveEdit, selectedPrice }) {
   // Estado para almacenar los montos editados
   const [editedAmounts, setEditedAmounts] = useState({});
 
@@ -9,8 +9,7 @@ export function EditAmountModal({ showEditModal, setShowEditModal, paymentTypes,
   useEffect(() => {
     if (showEditModal) {
       const initialAmounts = paymentTypes.reduce((acc, paymentMethod) => {
-        const priceList = filteredProducts
-          .flatMap(product => product.priceList)
+        const priceList = selectedPrice
           .find(pl => pl.paymentMethod.id === paymentMethod.id);
 
         acc[paymentMethod.id] = priceList ? priceList.amount : 0;
@@ -19,7 +18,7 @@ export function EditAmountModal({ showEditModal, setShowEditModal, paymentTypes,
 
       setEditedAmounts(initialAmounts);
     }
-  }, [showEditModal, paymentTypes, filteredProducts]);
+  }, [showEditModal, paymentTypes,selectedPrice]);
 
   // Manejar cambios en los inputs
   const handleAmountChange = (paymentMethodId, newValue) => {
@@ -31,8 +30,7 @@ export function EditAmountModal({ showEditModal, setShowEditModal, paymentTypes,
 
   // Guardar cambios
   const handleSave = () => {
-    const updatedPriceLists = filteredProducts
-    .flatMap(product => product.priceList)
+    const updatedPriceLists = selectedPrice
     .reduce((acc, priceList) => {
       acc[priceList.id] = Number(editedAmounts[priceList.paymentMethod.id]) || 0;
       return acc;

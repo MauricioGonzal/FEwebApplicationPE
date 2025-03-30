@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import ConfirmationDeleteModal from "../components/ConfirmationDeleteModal";
 
 
-const ClassesPage = () => {
+const ClassesPage = ({setRefreshClassSchedule}) => {
 
   const [classes, setClasses] = useState([]);
   const [name, setName] = useState("");
@@ -38,6 +38,7 @@ useEffect(() => {
             position: "top-right", // Ahora directamente como string
           });
         setRefresh(prev => !prev);
+        setRefreshClassSchedule(prev => !prev)
         setName("");
     })
     .catch((error) =>{
@@ -57,6 +58,7 @@ useEffect(() => {
         setRefresh(prev => !prev); // Refresca el estado después de eliminar
         toast.success("Clase eliminada exitosamente");
         setShowModal(false);
+        setRefreshClassSchedule(prev => !prev);
       })
       .catch((error) => {
         if (error.response && error.response.data) {

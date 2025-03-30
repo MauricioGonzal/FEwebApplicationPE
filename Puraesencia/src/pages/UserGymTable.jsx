@@ -22,7 +22,7 @@ const UserGymAttendance = () => {
     const [attendancesToday, setAttendancesToday] = useState([]);
 
     useEffect(() => {
-        api.get("/users/getAllByRole/clients")
+        api.get("/users/getAllForAssistance")
             .then((response) => setUsers(response.data))
             .catch((error) => console.error("Error al obtener usuarios", error));
     }, []);
@@ -50,7 +50,7 @@ const UserGymAttendance = () => {
                 setDueDate(localDate);
                 setShowModalDueDate(true); // Mostrar el modal
             }
-        api.post("/attendance", { userId, attendanceTypeId: 1 })
+        api.post("/attendance", { userId, role: "CLIENT_GYM" })
             .then(() => {
                 toast.success("Asistencia registrada con éxito", {
                     position: "top-right",
@@ -70,7 +70,7 @@ const UserGymAttendance = () => {
         api.get(`/attendance/${user.id}/details`)
             .then((response) => {
                 const attendanceCount = response.data.reduce((acc, attendance) => {
-                    const date = new Date(attendance.date).toLocaleDateString();
+                    const date = new Date(attendance.date + "T00:00:00").toLocaleDateString();
                     acc[date] = (acc[date] || 0) + 1;
                     return acc;
                 }, {});

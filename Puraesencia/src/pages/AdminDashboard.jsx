@@ -146,12 +146,12 @@ const AdminDashboard = () => {
         });
     };
 
-    const userClassesOptions = users.filter(user => user.role === "CLIENT_CLASSES" || user.role === "CLIENT_BOTH").map(user => ({
+    const userClassesOptions = users.filter(user => user.role === "CLIENT_CLASSES" || user.role === "CLIENT_BOTH" || user.role === null).map(user => ({
         value: user, // Guarda el objeto entero en `value`
         label: `${user.fullName} (${user.email})`
     }));
 
-    const userGymOptions = users.filter(user => user.role === "CLIENT_GYM" || user.role === "CLIENT_BOTH").map(user => ({
+    const userGymOptions = users.filter(user => user.role === "CLIENT_GYM" || user.role === "CLIENT_BOTH" || user.role === null).map(user => ({
         value: user, // Guarda el objeto entero en `value`
         label: `${user.fullName} (${user.email})`
     }));
