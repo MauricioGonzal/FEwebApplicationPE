@@ -129,10 +129,12 @@ const MembershipsPage = () => {
     };
 
     if (editingMembership) {
+      console.log(editingMembership)
       api.put('/membership/update/' + editingMembership.membership.id, membershipRequest)
         .then(() => {
           toast.success("Membresía editada correctamente");
           setRefresh(prev => !prev);
+          setEditingMembership(null);
         })
         .catch((error) => {
           setErrorMessage(error.response?.data?.message || "Error desconocido");

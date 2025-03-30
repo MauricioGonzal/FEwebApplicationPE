@@ -16,6 +16,7 @@ export function EditAmountModal({ showEditModal, setShowEditModal, paymentTypes,
         return acc;
       }, {});
 
+      console.log(initialAmounts)
       setEditedAmounts(initialAmounts);
     }
   }, [showEditModal, paymentTypes,selectedPrice]);
@@ -28,17 +29,24 @@ export function EditAmountModal({ showEditModal, setShowEditModal, paymentTypes,
     }));
   };
 
-  // Guardar cambios
   const handleSave = () => {
-    const updatedPriceLists = selectedPrice
-    .reduce((acc, priceList) => {
-      acc[priceList.id] = Number(editedAmounts[priceList.paymentMethod.id]) || 0;
-      return acc;
-    }, {});
-
+    // Convertir el estado en una lista de precios actualizada
+    const updatedPriceLists = paymentTypes.map(paymentMethod => {
+      // Buscar si ya existía un precio para este método de pago
+      const existingPrice = selectedPrice.find(pl => pl.paymentMethod.id === paymentMethod.id);
+  
+      return {
+        id: existingPrice ? existingPrice.id : null, // Si existe, mantener su ID; si no, será un nuevo registro
+        paymentMethod: paymentMethod, // Asociar el método de pago
+        amount: Number(editedAmounts[paymentMethod.id]) || 0 // Tomar el monto ingresado
+      };
+    });
+  
+    console.log(updatedPriceLists);
     handleSaveEdit(updatedPriceLists);
     setShowEditModal(false);
   };
+  
 
   return (
     <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
