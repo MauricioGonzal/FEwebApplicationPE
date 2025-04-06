@@ -8,6 +8,8 @@ import ConfirmationDeleteModal from "../components/ConfirmationDeleteModal";
 
 const MembershipsPage = () => {
   const [memberships, setMemberships] = useState([]);
+  const [simpleMemberships, setSimpleMemberships] = useState([]);
+
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [editingMembership, setEditingMembership] = useState(null);
   const [formValues, setFormValues] = useState({ name: "", area: "", maxDays: "", maxClasses: "", prices: {} });
@@ -24,9 +26,6 @@ const MembershipsPage = () => {
   const [selectedMembershipsToCombine, setSelectedMembershipsToCombine] = useState([]);
   const [selectedArea, setSelectedArea] = useState("");
 
-
-
-  
   useEffect(() => {
     api.get("/membership-type")
     .then((response) => setMembershipTypes(response.data))
@@ -47,6 +46,11 @@ const MembershipsPage = () => {
       .then((response) => {setMemberships(response.data); console.log(response.data)})
       .catch((error) => console.error("Error al obtener membresías", error))
       .finally(() => setLoading(false));
+
+      api.get("/membership/priceList/simples")
+      .then((response) => {setSimpleMemberships(response.data);})
+      .catch((error) => console.error("Error al obtener membresías", error))
+      
   }, [refresh]);
 
   if (loading) {
@@ -114,7 +118,6 @@ const MembershipsPage = () => {
   const handleEdit = (membership) => {
     setEditingMembership(membership);
   
-    // Inicializamos los valores con los campos que pueden ser editados
     const prices = membership.priceLists.reduce((acc, price) => {
       acc[price.paymentMethod.id] = price.amount;
       return acc;
@@ -122,23 +125,26 @@ const MembershipsPage = () => {
   
     setFormValues({
       name: membership.membership.name,
-      transactionCategory: membership.membership.transactionCategory.id,  // solo necesitamos el ID de la categoría
-      maxDays: membership.membership.maxDays || "",  // Solo se mostrará si es de tipo "Musculación"
-      maxClasses: membership.membership.maxClasses || "",  // Solo se mostrará si es de tipo "Clases"
-      prices: prices, // Cargamos los precios correspondientes
+      area: membership.membership.area,
+      maxDays: membership.membership.maxDays || "",
+      maxClasses: membership.membership.maxClasses || "",
+      prices: prices,
     });
   
-    // Inicializa la categoría seleccionada
-    /*const selectedCategoryObj = transactionCategories.find(
-      (cat) => cat.id === membership.membership.transactionCategory.id
-    );
-    setSelectedCategory(selectedCategoryObj);*/
+    setSelectedMembershipType(membership.membership.membershipType);
+  
+    if (membership.membership.membershipType.name === "Combinada") {
+      const combinedIds = membership.membershipsAssociated.map((m) => m.id.toString());
+      setSelectedMembershipsToCombine(combinedIds);
+    } else {
+      setSelectedArea(membership.membership.area);
+      setSelectedMembershipsToCombine([]);
+    }
   };
   
 
   const handleSave = async (event) => {
     event.preventDefault();
-    console.log(selectedArea);
     const membershipRequest = {
       name: formValues.name,
       maxDays: selectedArea?.name === "Musculacion" ? formValues.maxDays : null,
@@ -203,16 +209,20 @@ const MembershipsPage = () => {
               {selectedMembershipType.name === "Combinada" && (
                 <Form.Group className="mb-3">
                   <Form.Label>Seleccionar membresías simples a combinar</Form.Label>
-                  <Form.Select multiple value={selectedMembershipsToCombine} onChange={(e) => {
-                    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
-                    setSelectedMembershipsToCombine(selectedOptions);
-                  }}>
-                    {memberships.map((m) => (
-                      <option key={m.membership.id} value={m.membership.id}>
-                        {m.membership.name}
-                      </option>
-                    ))}
-                  </Form.Select>
+                  <Form.Select
+  multiple
+  value={selectedMembershipsToCombine}
+  onChange={(e) => {
+    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+    setSelectedMembershipsToCombine(selectedOptions);
+  }}
+>
+  {simpleMemberships.map((m) => (
+    <option key={m.membership.id} value={m.membership.id}>
+      {m.membership.name}
+    </option>
+  ))}
+</Form.Select>
                 </Form.Group>
               )}
 
