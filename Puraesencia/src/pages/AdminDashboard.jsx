@@ -31,7 +31,7 @@ const AdminDashboard = () => {
     const [selectedTransactionCategory, setSelectedTransactionCategory] = useState(null);
 
     useEffect(() => {
-        api.get('/users/getAllByRole/clients')
+        api.get('/users/getAllByRole/client')
             .then((response) =>{ 
                 setUsers(response.data)}
             )
@@ -151,6 +151,11 @@ const AdminDashboard = () => {
         label: `${user.fullName} (${user.email})`
     }));
 
+    const userOptions = users.map(user => ({
+        value: user, // Guarda el objeto entero en `value`
+        label: `${user.fullName} (${user.email})`
+    }));
+
     const userGymOptions = users.filter(user => user.role === "CLIENT_GYM" || user.role === "CLIENT_BOTH" || user.role === null).map(user => ({
         value: user, // Guarda el objeto entero en `value`
         label: `${user.fullName} (${user.email})`
@@ -172,6 +177,11 @@ const AdminDashboard = () => {
     }));
 
     const membershipGimOptions = memberships.filter(membership => membership.maxDays !== null).map(membership => ({
+        value: membership,
+        label: membership.name
+    }));
+
+    const membershipOptions = memberships.map(membership => ({
         value: membership,
         label: membership.name
     }));
@@ -261,21 +271,21 @@ const AdminDashboard = () => {
                         </div>
                     )}
     
-                    {selectedTransactionCategory?.value?.name === "Musculación" && (
+                    {selectedTransactionCategory?.value?.name === "Cuota" && (
                         <div className="row mt-4">
                             <div className="col-md-6">
                                 <Select
-                                    options={membershipGimOptions}
+                                    options={membershipOptions}
                                     value={selectedMembership}
                                     onChange={setSelectedMembership}
-                                    placeholder="Seleccionar días..."
+                                    placeholder="Seleccionar membresía..."
                                     isSearchable
                                     className="mb-3"
                                 />
                             </div>
                             <div className="col-md-6">
                                 <Select
-                                    options={userGymOptions}
+                                    options={userOptions}
                                     value={selectedUser}
                                     onChange={setSelectedUser}
                                     placeholder="Seleccionar usuario..."

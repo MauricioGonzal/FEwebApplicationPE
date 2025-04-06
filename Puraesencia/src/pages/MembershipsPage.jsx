@@ -9,10 +9,8 @@ import ConfirmationDeleteModal from "../components/ConfirmationDeleteModal";
 const MembershipsPage = () => {
   const [memberships, setMemberships] = useState([]);
   const [paymentMethods, setPaymentMethods] = useState([]);
-  const [transactionCategories, setTransactionCategories] = useState([]);
   const [editingMembership, setEditingMembership] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [formValues, setFormValues] = useState({ name: "", transactionCategory: "", maxDays: "", maxClasses: "", prices: {} });
+  const [formValues, setFormValues] = useState({ name: "", area: "", maxDays: "", maxClasses: "", prices: {} });
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [refresh, setRefresh] = useState(false);
@@ -20,10 +18,23 @@ const MembershipsPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [item, setItem] = useState(null);
 
+  const [areas, setAreas] = useState([]);
+  const [membershipTypes, setMembershipTypes] = useState([]); // "simple" o "combinada"
+  const [selectedMembershipType, setSelectedMembershipType] = useState("");
+  const [selectedMembershipsToCombine, setSelectedMembershipsToCombine] = useState([]);
+  const [selectedArea, setSelectedArea] = useState("");
+
+
+
+  
   useEffect(() => {
-    api.get("/transaction-categories/payments")
-      .then((response) => setTransactionCategories(response.data))
-      .catch((error) => console.error("Error al obtener categorías de transacción", error));
+    api.get("/membership-type")
+    .then((response) => setMembershipTypes(response.data))
+    .catch((error) => console.error("Error al obtener tipo de membresias", error));
+
+    api.get("/area")
+      .then((response) => setAreas(response.data))
+      .catch((error) => console.error("Error al obtener áreas", error));
 
     api.get("/payment-methods")
       .then((response) => setPaymentMethods(response.data))
@@ -33,7 +44,7 @@ const MembershipsPage = () => {
   useEffect(() => {
     setLoading(true);
     api.get("/membership/priceList")
-      .then((response) => setMemberships(response.data))
+      .then((response) => {setMemberships(response.data); console.log(response.data)})
       .catch((error) => console.error("Error al obtener membresías", error))
       .finally(() => setLoading(false));
   }, [refresh]);
@@ -49,11 +60,18 @@ const MembershipsPage = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === "transactionCategory") {
-      const selectedCategoryObj = transactionCategories.find(cat => cat.id.toString() === value);
-      setSelectedCategory(selectedCategoryObj);
-      setFormValues(prev => ({ ...prev, transactionCategory: selectedCategoryObj }));
-    } else {
+    console.log(name)
+    if (name === "area") {
+      const selectedAreaObj = areas.find(area => area.id.toString() === value);
+      setSelectedArea(selectedAreaObj);
+      setFormValues(prev => ({ ...prev, area: selectedAreaObj }));
+    }
+    else if(name === "membershipType"){
+      const selectedMembershipTypeObj = membershipTypes.find(type => type.id.toString() === value);
+      setSelectedMembershipType(selectedMembershipTypeObj);
+      setFormValues(prev => ({ ...prev, membershipType: selectedMembershipTypeObj }));
+    }
+    else {
       setFormValues(prev => ({ ...prev, [name]: value }));
     }
   };
@@ -111,22 +129,27 @@ const MembershipsPage = () => {
     });
   
     // Inicializa la categoría seleccionada
-    const selectedCategoryObj = transactionCategories.find(
+    /*const selectedCategoryObj = transactionCategories.find(
       (cat) => cat.id === membership.membership.transactionCategory.id
     );
-    setSelectedCategory(selectedCategoryObj);
+    setSelectedCategory(selectedCategoryObj);*/
   };
   
 
   const handleSave = async (event) => {
     event.preventDefault();
+    console.log(selectedArea);
     const membershipRequest = {
       name: formValues.name,
-      maxDays: selectedCategory?.name === "Musculación" ? formValues.maxDays : null,
-      maxClasses: selectedCategory?.name === "Clases" ? formValues.maxClasses : null,
-      transactionCategory: selectedCategory,
-      prices: formValues.prices
+      maxDays: selectedArea?.name === "Musculacion" ? formValues.maxDays : null,
+      maxClasses: selectedArea?.name === "Clases" ? formValues.maxClasses : null,
+      prices: formValues.prices,
+      area: selectedArea === "" ? null : selectedArea ,
+      membershipType: selectedMembershipType,
+      combinedMembershipIds: selectedMembershipType.name === "Combinada" ? selectedMembershipsToCombine : []
     };
+
+    console.log(membershipRequest);
 
     if (editingMembership) {
       console.log(editingMembership)
@@ -154,8 +177,8 @@ const MembershipsPage = () => {
     }
 
     // Reset form
-    setFormValues({ name: "", transactionCategory: "", maxDays: "", maxClasses: "", prices: {} });
-    setSelectedCategory("");
+    /*setFormValues({ name: "", transactionCategory: "", maxDays: "", maxClasses: "", prices: {} });
+    setSelectedCategory("");*/
   };
 
   return (
@@ -166,22 +189,52 @@ const MembershipsPage = () => {
             <Card.Body>
               <h3 className="text-center mb-4">{editingMembership ? "Editar Membresía" : "Crear Membresía"}</h3>
               <Form onSubmit={handleSave}>
+              <Form.Group className="mb-3">
+                <Form.Label>Tipo de Membresía</Form.Label>
+                <Form.Select name="membershipType" value={selectedMembershipType === undefined ? "" : selectedMembershipType.id} onChange={handleInputChange} required>
+                    <option value="">Seleccione tipo de membresia</option>
+                    {membershipTypes.map((type) => (
+                      <option key={type.id} value={type.id}>{type.name}</option>
+                    ))}
+                  </Form.Select>
+              </Form.Group>
+
+
+              {selectedMembershipType.name === "Combinada" && (
+                <Form.Group className="mb-3">
+                  <Form.Label>Seleccionar membresías simples a combinar</Form.Label>
+                  <Form.Select multiple value={selectedMembershipsToCombine} onChange={(e) => {
+                    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+                    setSelectedMembershipsToCombine(selectedOptions);
+                  }}>
+                    {memberships.map((m) => (
+                      <option key={m.membership.id} value={m.membership.id}>
+                        {m.membership.name}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              )}
+
+              {selectedMembershipType.name === "Simple" && (
+                  <Form.Group className="mb-3">
+                  <Form.Label>Área</Form.Label>
+                  <Form.Select name="area" value={selectedArea === undefined ? "" : selectedArea.id} onChange={handleInputChange} required>
+                    <option value="">Seleccione un área</option>
+                    {areas.map((area) => (
+                      <option key={area.id} value={area.id}>{area.name}</option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              )}
+
+
                 <Form.Group className="mb-3">
                   <Form.Label>Nombre</Form.Label>
                   <Form.Control name="name" value={formValues.name} onChange={handleInputChange} required />
                 </Form.Group>
 
-                <Form.Group className="mb-3">
-                  <Form.Label>Categoría</Form.Label>
-                  <Form.Select name="transactionCategory" value={selectedCategory?.id || ""} onChange={handleInputChange} required>
-                    <option value="">Seleccione una categoría</option>
-                    {transactionCategories.map((category) => (
-                      <option key={category.id} value={category.id}>{category.name}</option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-
-                {(selectedCategory?.name === "Musculación" || selectedCategory?.name === "Musculacion + Clases") && (
+                {selectedArea?.name === "Musculacion" && (
                   <Form.Group className="mb-3">
                     <Form.Label>Cantidad de días</Form.Label>
                     <Form.Control
@@ -194,7 +247,7 @@ const MembershipsPage = () => {
                   </Form.Group>
                 )}
 
-                {(selectedCategory?.name === "Clases" || selectedCategory?.name === "Musculacion + Clases") && (
+                {selectedArea?.name === "Clases" && (
                   <Form.Group className="mb-3">
                     <Form.Label>Cantidad de clases</Form.Label>
                     <Form.Control

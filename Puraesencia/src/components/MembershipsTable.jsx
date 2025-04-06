@@ -8,7 +8,7 @@ export function MembershipsTable ({ memberships, handleEdit, handleShowModal, pa
             <thead>
                 <tr>
                     <th>Nombre</th>
-                    <th>Categoría</th>
+                    <th>Area</th>
                     <th>Máx. Días</th>
                     <th>Máx. Clases</th>
                     {/* Generar headers para cada PaymentMethod */}
@@ -22,9 +22,31 @@ export function MembershipsTable ({ memberships, handleEdit, handleShowModal, pa
                 {memberships.map((record) => (
                     <tr key={record.membership.id}>
                         <td>{record.membership.name}</td>
-                        <td>{record.membership.transactionCategory.name}</td>
-                        <td>{record.membership.maxDays || "-"}</td>
-                        <td>{record.membership.maxClasses || "-"}</td>
+                        <td>
+                        {record.membership.area === null && record.membershipsAssociated.length > 0
+                            ? record.membershipsAssociated
+                                .map((assoc) => assoc.area?.name)
+                                .filter(Boolean)
+                                .join(" + ")
+                            : record.membership.area?.name}
+                        </td>
+                        <td>
+                            {record.membership.area === null && record.membershipsAssociated.length > 0
+                                ? record.membershipsAssociated.reduce(
+                                    (acc, curr) => acc + (curr.maxDays || 0),
+                                    0
+                                )
+                                : record.membership.maxDays || "-"}
+                            </td>
+
+                            <td>
+                            {record.membership.area === null && record.membershipsAssociated.length > 0
+                                ? record.membershipsAssociated.reduce(
+                                    (acc, curr) => acc + (curr.maxClasses || 0),
+                                    0
+                                )
+                                : record.membership.maxClasses || "-"}
+                        </td>
                         {/* Buscar el valor correspondiente para cada PaymentMethod */}
                         {paymentMethods.map((paymentMethod) => {
                             // Buscar el priceList correspondiente al PaymentMethod actual

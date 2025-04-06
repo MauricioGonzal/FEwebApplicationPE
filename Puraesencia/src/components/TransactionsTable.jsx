@@ -2,7 +2,7 @@ import { FaDollarSign, FaRegCalendarAlt, FaUser, FaClipboard, FaShoppingCart } f
 
 const TransactionsTable = ({ transactions }) => {
     // Filtrar transacciones por categoría
-    const cuotas = transactions.filter(t => ["Musculación", "Clases"].includes(t.transactionCategory.name));
+    const cuotas = transactions.filter(t => ["Cuota"].includes(t.transactionCategory.name));
     const bebidas = transactions.filter(t => t.transactionCategory.name === "Producto");
     const egresos = transactions.filter(t => t.transactionCategory.name === "Egreso");
 
