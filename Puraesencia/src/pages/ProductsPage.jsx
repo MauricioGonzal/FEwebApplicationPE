@@ -46,7 +46,6 @@ const ProductPage = () => {
     api
       .get("/products/price-and-stock")
       .then((response) => {
-        console.log(response.data);
         setProducts(response.data);
       })
       .catch((error) => {
@@ -88,14 +87,12 @@ const ProductPage = () => {
   };
 
   const handleEditPrice = (priceList) => {
-    console.log(priceList);
     setSelectedPrice(priceList);
     setNewAmount(priceList.amount);
     setShowEditModal(true);
   };
 
   const handleSaveEdit = (updatedPriceLists) => {
-    console.log(updatedPriceLists)
     api
       .put(`/pricelists/updatePriceLists`, updatedPriceLists)
       .then((response) => {
@@ -109,7 +106,6 @@ const ProductPage = () => {
   };
 
   const handleAddStock = (productStock) => {
-    console.log(productStock);
     setSelectedStock(productStock);
     setNewStock(productStock.stock);
     setShowEditStockModal(true);
@@ -117,7 +113,6 @@ const ProductPage = () => {
 
   const handleSaveAddStock = () => {
     if (newStock === "") return;
-    console.log(newStock);
     api
       .put(`/products-stock/update/${selectedStock.id}`, newStock)
       .then(() => {

@@ -31,7 +31,6 @@ const StudentRow = () => {
                     return acc;
                 }, {});
                 setGroupedRoutines(grouped);
-                console.log(grouped);
             })
             .catch((error) => console.error("Error al cargar los datos:", error));
     }, []);

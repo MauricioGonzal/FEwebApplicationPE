@@ -16,7 +16,6 @@ export function EditAmountModal({ showEditModal, setShowEditModal, paymentTypes,
         return acc;
       }, {});
 
-      console.log(initialAmounts)
       setEditedAmounts(initialAmounts);
     }
   }, [showEditModal, paymentTypes,selectedPrice]);
@@ -42,7 +41,6 @@ export function EditAmountModal({ showEditModal, setShowEditModal, paymentTypes,
       };
     });
   
-    console.log(updatedPriceLists);
     handleSaveEdit(updatedPriceLists);
     setShowEditModal(false);
   };

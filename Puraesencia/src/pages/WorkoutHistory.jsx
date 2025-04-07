@@ -25,6 +25,7 @@ export default function WorkoutHistory() {
     api.get(`/workout-sessions/${userId}`)
       .then((response) => {
         if (response.data.length > 0) {
+          console.log(response.data);
           setSessions(response.data);
         }
         setLoading(false);
@@ -45,6 +46,7 @@ export default function WorkoutHistory() {
   }, {});
 
   const loadWorkoutLogs = (sessionIds) => {
+    console.log(sessionIds);
     if (selectedSession && selectedSession.length > 0 && selectedSession.every(id => sessionIds.includes(id))) {
       setSelectedSession(null);
     } else {
@@ -92,26 +94,31 @@ export default function WorkoutHistory() {
 
       {/* Ejercicios de la sesión */}
       {selectedSession && (
-        <Row className="mt-4">
-          <Col xs={12}>
-            <ListGroup className="bg-dark text-white">
-              {selectedSession.map((sessionId) => {
-                const session = sessions.find(s => s.workoutSession.id === sessionId);
-                if (!session) return null;
+  <Row className="mt-4">
+    <Col xs={12}>
+      <ListGroup className="bg-dark text-white">
+        {selectedSession.map((sessionId) => {
+          const session = sessions.find(s => s.workoutSession.id === sessionId);
+          if (!session) return null;
+          console.log(session);
+          return (
+            <ListGroup.Item key={session.workoutSession.id} className="d-flex justify-content-between align-items-center bg-dark text-white">
+              <strong>
+                {session.workoutLogResponse.exercisesRoutineSet
+                  ?.map(ex => ex.name)
+                  .join(' + ')}
+              </strong>
+              <Button variant="outline-info" size="sm" onClick={() => handleShowModal(session)}>
+                Ver Sets
+              </Button>
+            </ListGroup.Item>
+          );
+        })}
+      </ListGroup>
+    </Col>
+  </Row>
+)}
 
-                return (
-                  <ListGroup.Item key={session.workoutSession.id} className="d-flex justify-content-between align-items-center bg-dark text-white">
-                    <strong>{session.workoutLog.exercise?.name}</strong>
-                    <Button variant="outline-info" size="sm" onClick={() => handleShowModal(session)}>
-                      Ver Sets
-                    </Button>
-                  </ListGroup.Item>
-                );
-              })}
-            </ListGroup>
-          </Col>
-        </Row>
-      )}
 
       {/* Botón Volver al Inicio */}
       <Row className="mt-4">
@@ -130,7 +137,8 @@ export default function WorkoutHistory() {
         <Modal.Body className="bg-dark text-white">
           {selectedWorkout && (
             <>
-              <h5 className="text-center">{selectedWorkout.workoutLog.exercise?.name}</h5>
+              <h5 className="text-center">{selectedWorkout.workoutLogResponse.exercisesRoutineSet?.map(ex => ex.name)
+                  .join(' + ')}</h5>
               <ListGroup className="bg-dark text-white">
                 {selectedWorkout.sets.map((set) => (
                   <ListGroup.Item key={set.id} className="bg-dark text-white">
@@ -138,7 +146,7 @@ export default function WorkoutHistory() {
                   </ListGroup.Item>
                 ))}
               </ListGroup>
-              <p className="text-muted text-center mt-2">{selectedWorkout.workoutLog.notes}</p>
+              <p className="text-muted text-center mt-2">{selectedWorkout.workoutLogResponse.notes}</p>
             </>
           )}
         </Modal.Body>

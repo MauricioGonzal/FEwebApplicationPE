@@ -243,72 +243,77 @@ const ClientGymDashboard = () => {
                                         </h5>
                                         {expandedDays[day.index] && dayExercises.map((exercise, idx) => (
                                             <div key={idx} className="mb-3 p-2 border rounded" style={{ backgroundColor: "#333" }}>
-                                                {JSON.parse(exercise.exerciseIds).map((exerciseId) => {
-                                                    const exerciseDetails = exercises.find(ex => ex.id === exerciseId);
-                                                    return (
-                                                        <div
-                                                            key={exerciseId}
-                                                            className="mb-2"
-                                                            onClick={() => {
-                                                                setSelectedExercise(exerciseId);
-                                                                toggleExercise(exerciseId);
-                                                            }}
-                                                            style={{ cursor: "pointer" }}
-                                                        >
-                                                            <span style={{ color: "#f1f1f1" }}>{exerciseDetails?.name} - {exercise.series} series de {exercise.repetitions} repeticiones, descanso: {exercise.rest}s</span> 
-                                                            {expandedExercises[exerciseId] && (
-                                                                <div className="mt-2" style={{ backgroundColor: "#444", padding: '10px', borderRadius: '8px' }}>
-                                                                    <input
-                                                                        type="number"
-                                                                        className="form-control mb-2"
-                                                                        placeholder="Cantidad de series"
-                                                                        onClick={(e) => e.stopPropagation()}
-                                                                        onChange={(e) => handleSeriesChange(exerciseId, e.target.value)}
-                                                                        style={{ backgroundColor: '#555', color: '#fff', border: 'none', borderRadius: '5px' }}
-                                                                    />
-    
-                                                                    {sessionData[exerciseId]?.details?.map((_, index) => (
-                                                                        <div key={index} className="border p-2 mb-2 rounded" style={{ backgroundColor: '#222' }}>
-                                                                            <h6>Serie {index + 1}</h6>
-                                                                            <input
-                                                                                type="number"
-                                                                                className="form-control mb-2"
-                                                                                placeholder="Peso (kg)"
-                                                                                onClick={(e) => e.stopPropagation()}
-                                                                                onChange={(e) => handleSeriesInputChange(exerciseId, index, "weight", e.target.value)}
-                                                                                style={{ backgroundColor: '#555', color: '#fff', border: 'none', borderRadius: '5px' }}
-                                                                            />
-                                                                            <input
-                                                                                type="number"
-                                                                                className="form-control mb-2"
-                                                                                placeholder="Repeticiones"
-                                                                                onClick={(e) => e.stopPropagation()}
-                                                                                onChange={(e) => handleSeriesInputChange(exerciseId, index, "reps", e.target.value)}
-                                                                                style={{ backgroundColor: '#555', color: '#fff', border: 'none', borderRadius: '5px' }}
-                                                                            />
-                                                                        </div>
-                                                                    ))}
-    
-                                                                    <textarea
-                                                                        className="form-control mb-2"
-                                                                        placeholder="Comentario"
-                                                                        rows="2"
-                                                                        onClick={(e) => e.stopPropagation()}
-                                                                        onChange={(e) => handleInputChange(exerciseId, "notes", e.target.value)}
-                                                                        style={{ backgroundColor: '#555', color: '#fff', border: 'none', borderRadius: '5px' }}
-                                                                    />
-                                                                    <button
-                                                                        className="btn btn-success"
-                                                                        onClick={saveWorkoutSession}
-                                                                        style={{ backgroundColor: '#28a745', borderRadius: '5px', width: '100%', color: '#ffffff !important' }}
-                                                                    >
-                                                                        Guardar Sesión
-                                                                    </button>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    );
-                                                })}
+<div
+  className="mb-2"
+  onClick={() => {
+    setSelectedExercise(exercise.id); // usar el ID del "exercise" original
+    toggleExercise(exercise.id);
+  }}
+  style={{ cursor: "pointer" }}
+>
+  <span style={{ color: "#f1f1f1" }}>
+    {JSON.parse(exercise.exerciseIds)
+      .map((exerciseId) => {
+        const details = exercises.find((ex) => ex.id === exerciseId);
+        return details?.name;
+      })
+      .filter(Boolean)
+      .join(" + ")}{" "}
+    - {exercise.series} series de {exercise.repetitions} repeticiones, descanso: {exercise.rest}s
+  </span>
+
+  {expandedExercises[exercise.id] && (
+    <div className="mt-2" style={{ backgroundColor: "#444", padding: "10px", borderRadius: "8px" }}>
+      <input
+        type="number"
+        className="form-control mb-2"
+        placeholder="Cantidad de series"
+        onClick={(e) => e.stopPropagation()}
+        onChange={(e) => handleSeriesChange(exercise.id, e.target.value)}
+        style={{ backgroundColor: "#555", color: "#fff", border: "none", borderRadius: "5px" }}
+      />
+
+      {sessionData[exercise.id]?.details?.map((_, index) => (
+        <div key={index} className="border p-2 mb-2 rounded" style={{ backgroundColor: "#222" }}>
+          <h6>Serie {index + 1}</h6>
+          <input
+            type="number"
+            className="form-control mb-2"
+            placeholder="Peso (kg)"
+            onClick={(e) => e.stopPropagation()}
+            onChange={(e) => handleSeriesInputChange(exercise.id, index, "weight", e.target.value)}
+            style={{ backgroundColor: "#555", color: "#fff", border: "none", borderRadius: "5px" }}
+          />
+          <input
+            type="number"
+            className="form-control mb-2"
+            placeholder="Repeticiones"
+            onClick={(e) => e.stopPropagation()}
+            onChange={(e) => handleSeriesInputChange(exercise.id, index, "reps", e.target.value)}
+            style={{ backgroundColor: "#555", color: "#fff", border: "none", borderRadius: "5px" }}
+          />
+        </div>
+      ))}
+
+      <textarea
+        className="form-control mb-2"
+        placeholder="Comentario"
+        rows="2"
+        onClick={(e) => e.stopPropagation()}
+        onChange={(e) => handleInputChange(exercise.id, "notes", e.target.value)}
+        style={{ backgroundColor: "#555", color: "#fff", border: "none", borderRadius: "5px" }}
+      />
+      <button
+        className="btn btn-success"
+        onClick={saveWorkoutSession}
+        style={{ backgroundColor: "#28a745", borderRadius: "5px", width: "100%" }}
+      >
+        Guardar Sesión
+      </button>
+    </div>
+  )}
+</div>
+
                                             </div>
                                         ))}
                                     </div>

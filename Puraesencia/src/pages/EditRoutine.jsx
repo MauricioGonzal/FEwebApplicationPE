@@ -40,8 +40,6 @@ export default function GymRoutineForm({ isCustomParam, userIdParam }) {
       api
         .get(`/routines/id/${routineId}`)
         .then((response) => {
-          console.log(response.data);
-
           // Agrupar ejercicios por día (day_number)
           var formatted = response.data.map((exerciseSet)=>{
             var exIds = JSON.parse(exerciseSet.exerciseIds).map((exId) => {
@@ -51,7 +49,6 @@ export default function GymRoutineForm({ isCustomParam, userIdParam }) {
             return {...exerciseSet, exerciseIds: exIds};
 
           })
-          console.log(formatted);
           const groupedExercises = daysOfWeek.map((day) => {
             const exercisesForDay = formatted.filter(ex => ex.dayNumber === day.index);
             return {
@@ -143,8 +140,6 @@ export default function GymRoutineForm({ isCustomParam, userIdParam }) {
       exercises: aux2,
       isCustom: isCustom
     };
-
-    console.log(routineFormatted);
 
     api.put(`/routines/${routineId}`, routineFormatted)
       .then((response) => {

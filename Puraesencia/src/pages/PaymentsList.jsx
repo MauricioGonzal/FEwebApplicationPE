@@ -12,7 +12,6 @@ const PaymentsList = () => {
     api
       .get("/payments/getbystatus/transaction/pagado")
       .then((response) => {
-        console.log(response.data)
         setInstallments(response.data);
         setLoading(false);
       })

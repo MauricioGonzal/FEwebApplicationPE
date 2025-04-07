@@ -53,7 +53,6 @@ const CreateExercise = () => {
       toast.success("Ejercicio creado correctamente", {
         position: "top-right",
       });
-      navigate('/');
       setExercise({
         name: '',
         description: '',

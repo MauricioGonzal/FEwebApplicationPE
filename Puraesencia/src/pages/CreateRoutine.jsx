@@ -97,8 +97,6 @@ export default function GymRoutineForm({isCustomParam, userIdParam}) {
       return acc;
     }, {});
     routineFormatted.exercises = exercisesFormatted;
-    console.log(isCustom);
-    console.log(isCustomParam);
     if (isCustom === "1") {
       customAux = true;
     }

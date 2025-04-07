@@ -8,7 +8,7 @@ const useAuth = () => {
     useEffect(() => {
         const checkToken = () => {
             const token = localStorage.getItem("token");
-
+            console.log(token);
             if (!token) {
                 navigate("/login"); // Si no hay token, redirigir al login
                 return;

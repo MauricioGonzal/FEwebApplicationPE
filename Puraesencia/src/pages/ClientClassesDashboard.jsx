@@ -52,7 +52,6 @@ const ClientClassesDashboard = () => {
     const decoded = jwtDecode(token);
     api.get(`/schedule/getByUser/${decoded.id}`)
       .then((response) => {
-        console.log(response.data);
         setClassScheduleItem(response.data);
       })
       .catch((error) => console.error("Error al cargar Grilla:", error));
@@ -63,7 +62,6 @@ const ClientClassesDashboard = () => {
     
     api.get(`/schedule/${classScheduleItem.id}/sessions`)
       .then((response) => {
-        console.log(response.data);
         const formattedSchedule = daysOfWeek.reduce((acc, day) => {
           acc[day] = response.data.filter(session => session.dayOfWeek === day);
           return acc;

@@ -24,7 +24,6 @@ const CreateUserForm = ({setRefresh}) => {
 
     const token = localStorage.getItem("token");
     const decoded = jwtDecode(token);
-    console.log(role);
 
     api.post('/users/byAdmin', { fullName, email, password, role: role.toUpperCase(), adminId: decoded.id})
       .then(() => {

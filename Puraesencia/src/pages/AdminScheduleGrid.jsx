@@ -37,7 +37,6 @@ const AdminClassesDashboard = (refreshClassSchedule) => {
     const decoded = jwtDecode(token);
     api.get(`/schedule/getByUser/${decoded.id}`)
       .then((response) => {
-        console.log(response.data);
         setClassScheduleItem(response.data);
       })
       .catch((error) => console.error("Error al cargar Grilla:", error));

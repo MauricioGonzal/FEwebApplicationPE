@@ -43,7 +43,7 @@ const MembershipsPage = () => {
   useEffect(() => {
     setLoading(true);
     api.get("/membership/priceList")
-      .then((response) => {setMemberships(response.data); console.log(response.data)})
+      .then((response) => {setMemberships(response.data);})
       .catch((error) => console.error("Error al obtener membresías", error))
       .finally(() => setLoading(false));
 
@@ -64,7 +64,6 @@ const MembershipsPage = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    console.log(name)
     if (name === "area") {
       const selectedAreaObj = areas.find(area => area.id.toString() === value);
       setSelectedArea(selectedAreaObj);
@@ -92,7 +91,6 @@ const MembershipsPage = () => {
   };
 
   const handleDelete = () => {
-    console.log(item);
     api.post('/membership/delete-with-price', item)
     .then(() => {
       setRefresh(prev => !prev); // Refresca el estado después de eliminar
@@ -155,10 +153,7 @@ const MembershipsPage = () => {
       combinedMembershipIds: selectedMembershipType.name === "Combinada" ? selectedMembershipsToCombine : []
     };
 
-    console.log(membershipRequest);
-
     if (editingMembership) {
-      console.log(editingMembership)
       api.put('/membership/update/' + editingMembership.membership.id, membershipRequest)
         .then(() => {
           toast.success("Membresía editada correctamente");
@@ -170,7 +165,6 @@ const MembershipsPage = () => {
           setShowErrorModal(true);
         });
     } else {
-      console.log(membershipRequest);
       api.post('/membership/create-membership-price', membershipRequest)
         .then(() => {
           toast.success("Membresía creada correctamente");
@@ -183,8 +177,10 @@ const MembershipsPage = () => {
     }
 
     // Reset form
-    /*setFormValues({ name: "", transactionCategory: "", maxDays: "", maxClasses: "", prices: {} });
-    setSelectedCategory("");*/
+    setFormValues({ name: "", area: "", maxDays: "", maxClasses: "", prices: {} });
+    setSelectedMembershipType("");
+    setSelectedMembershipsToCombine([]);
+    setSelectedArea("");
   };
 
   return (

@@ -50,7 +50,6 @@ const MonthlyClosures = () => {
   };
 
   const handleVerDetalles = (cierre) => {
-    console.log(cierre);
     setDetalle(cierre);
     setShowModal(true);
   };

@@ -1,7 +1,6 @@
 import { Table, Button } from "react-bootstrap";
 
 export function ProductsTable ({ handleAddStock, handleEditPrice, handleShowModal, filteredProducts, paymentMethods }) {
-    console.log(filteredProducts)
     return (
         <Table striped bordered hover>
         <thead>

@@ -27,8 +27,6 @@ const RoutineModal = ({ routine, onClose }) => {
         routinesByDay[index + 1] = routine.filter(r => r.dayNumber === index + 1);
     });
 
-console.log(routinesByDay)
-
     return (
         <div className="modal fade show d-block" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
             <div className="modal-dialog modal-xl">

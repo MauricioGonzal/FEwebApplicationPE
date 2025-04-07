@@ -108,7 +108,6 @@ const TrainerDashboard = () => {
         .then(response => {
             setSelectedRoutineDetails(response.data);
             setShowRoutineModal(true);
-            console.log(response.data);
         })
         .catch(error => console.error("Error al cargar la rutina:", error));
       };

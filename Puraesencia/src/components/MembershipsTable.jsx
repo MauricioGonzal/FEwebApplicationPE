@@ -2,7 +2,6 @@ import { Table, Button } from "react-bootstrap";
 import styles from '../css/MembershipsPage.module.css';
 
 export function MembershipsTable ({ memberships, handleEdit, handleShowModal, paymentMethods }) {
-    console.log(memberships);
     return (
         <Table striped bordered hover className={`${styles.table} mt-4`}>
             <thead>
