@@ -22,7 +22,7 @@ const UserGymAttendance = () => {
     const [attendancesToday, setAttendancesToday] = useState([]);
 
     useEffect(() => {
-        api.get("/users/getAllForAssistance")
+        api.get("/users/getAllGymUsers")
             .then((response) => setUsers(response.data))
             .catch((error) => console.error("Error al obtener usuarios", error));
     }, []);
@@ -83,7 +83,6 @@ const UserGymAttendance = () => {
 
     const filteredUsers = users.filter(
         (user) =>
-            (user.role === "CLIENT_GYM" || user.role === "CLIENT_BOTH") &&
             (user.fullName.toLowerCase().includes(search.toLowerCase()) ||
                 user.email.toLowerCase().includes(search.toLowerCase()))
     );

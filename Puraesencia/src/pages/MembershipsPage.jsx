@@ -143,6 +143,13 @@ const MembershipsPage = () => {
 
   const handleSave = async (event) => {
     event.preventDefault();
+
+    if(selectedMembershipType.name === "Combinada" && selectedMembershipsToCombine.length < 2){
+      setErrorMessage("Debe seleccionar dos o mas membresías");
+      setShowErrorModal(true);
+      return;
+    }
+
     const membershipRequest = {
       name: formValues.name,
       maxDays: selectedArea?.name === "Musculacion" ? formValues.maxDays : null,

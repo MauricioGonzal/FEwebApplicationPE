@@ -23,7 +23,7 @@ const UserClassAttendance = () => {
     const [refresh, setRefresh] = useState(false);
 
     useEffect(() => {
-        api.get("/users/getAllByRole/clients")
+        api.get("/users/getAllClassesUsers")
             .then((response) => {setUsers(response.data)})
             .catch((error) => console.error("Error al obtener usuarios", error));
     }, []);
@@ -60,7 +60,7 @@ const UserClassAttendance = () => {
     };
 
     useEffect(() => {
-        api.get("/classTypes")
+        api.get("/classTypes/onSchedule")
             .then((response) => setClasses(response.data))
             .catch((error) => console.error("Error al obtener clases", error));
     }, []);
@@ -87,7 +87,6 @@ const UserClassAttendance = () => {
 
     const filteredUsers = users.filter(
         (user) =>
-            (user.role === "CLIENT_CLASSES" || user.role === "CLIENT_BOTH") &&
             (user.fullName.toLowerCase().includes(search.toLowerCase()) ||
                 user.email.toLowerCase().includes(search.toLowerCase()))
     );
@@ -118,9 +117,11 @@ const UserClassAttendance = () => {
                                 var reachedLimit = false;
                                 if(attendances[user.id] !== undefined){
                                     const totalAttendance = Object.values(attendances[user.id].attendance).reduce((sum, val) => sum + val, 0);
+                                    console.log(attendances);
                                     const maxAttendance = attendances[user.id].max_classes;
                                     reachedLimit = totalAttendance >= maxAttendance;
                                 }
+                                console.log(reachedLimit)
 
                                 return (
                                     <tr key={user.id}>

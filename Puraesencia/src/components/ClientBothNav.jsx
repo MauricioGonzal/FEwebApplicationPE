@@ -20,6 +20,9 @@ const ClientBothNav = () => {
                             <button className="dropdown-item w-100" onClick={() => navigate("/workout-sessions")}>Mi progreso</button>
                         </li>
                         <li>
+                            <button className="dropdown-item w-100" onClick={() => navigate("/assists")}>Asistencias Clases</button>
+                        </li>
+                        <li>
                             <button className="dropdown-item w-100" onClick={() => navigate("/changepass")}>Cambiar Contraseña</button>
                         </li>
                         <li>

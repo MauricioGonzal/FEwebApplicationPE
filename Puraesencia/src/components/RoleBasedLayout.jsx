@@ -41,10 +41,11 @@ const RoleBasedLayout = () => {
     const fetchClientArea = async () => {
       if (role === "CLIENT" && userId) {
         try {
+          
           const response = await api.get("/area/" + userId);
           const areas = response.data || [];
           const areaNames = areas.map(area => area.name);
-
+          console.log(areas)
           if (areaNames.includes("Musculacion") && areaNames.includes("Clases")) {
             setClientArea("CLIENT_BOTH");
           } else if (areaNames.includes("Musculacion")) {
