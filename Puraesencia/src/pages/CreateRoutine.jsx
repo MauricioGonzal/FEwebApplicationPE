@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Modal, Button, Form, ListGroup } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import jwtDecode from 'jwt-decode';
 import api from '../Api';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';// Para los estilos de las notificaciones
+import AddExerciseToRoutine from "../components/AddExerciseToRoutine";
 
 export default function GymRoutineForm({isCustomParam, userIdParam}) {
   const daysOfWeek = [
@@ -14,11 +15,11 @@ export default function GymRoutineForm({isCustomParam, userIdParam}) {
   ];
 
   const [exercisesList, setExercises] = useState([]);
-  const [routine, setRoutine] = useState({ name: "", description: "", isCustom: false, exercises: {} });
+  const [routine, setRoutine] = useState({ title: "", description: "", isCustom: false, exercises: {} });
   const [showModal, setShowModal] = useState(false);
   const [selectedDay, setSelectedDay] = useState("");
   const [selectedExercises, setSelectedExercises] = useState([]);
-  const [exercise, setExercise] = useState({ name: "", series: "", repetitions: "", rest: "" });
+  const [exercise, setExercise] = useState({ name: "", series: "", repetitionsPerSeries: "", rest: "" });
   const [search, setSearch] = useState("");
   const [filteredExercises, setFilteredExercises] = useState(exercisesList);
   const { isCustom, userId } = useParams();
@@ -28,7 +29,7 @@ export default function GymRoutineForm({isCustomParam, userIdParam}) {
     setSelectedDay(day);
     setShowModal(true);
     setSelectedExercises([]);
-    setExercise({ name: "", series: "", repetitions: "", rest: "" });
+    setExercise({ name: "", series: "", repetitionsPerSeries: "", rest: "" });
     setSearch("");
   };
 
@@ -50,7 +51,7 @@ export default function GymRoutineForm({isCustomParam, userIdParam}) {
         name: selectedExercises[0].name,
         exerciseIds: [selectedExercises[0].id],
         series: exercise.series,
-        repetitions: exercise.repetitions,
+        repetitionsPerSeries: exercise.repetitionsPerSeries,
         rest: exercise.rest,
       };
     } else {
@@ -58,7 +59,7 @@ export default function GymRoutineForm({isCustomParam, userIdParam}) {
         name: selectedExercises.map((exercise) => exercise.name).join(" + "),
         exerciseIds: selectedExercises.map((exercise) => exercise.id),
         series: exercise.series,
-        repetitions: exercise.repetitions,
+        repetitionsPerSeries: exercise.repetitionsPerSeries,
         rest: exercise.rest,
       };
     }
@@ -75,7 +76,7 @@ export default function GymRoutineForm({isCustomParam, userIdParam}) {
     }));
     setShowModal(false);
     setSelectedExercises([]);
-    setExercise({ name: "", series: "", repetitions: "", rest: "" });
+    setExercise({ name: "", series: "", repetitionsPerSeries: "", rest: "" });
     setSearch("");
   };
 
@@ -159,8 +160,8 @@ export default function GymRoutineForm({isCustomParam, userIdParam}) {
           <Form.Control
             type="text"
             placeholder="Nombre de la rutina"
-            value={routine.name}
-            onChange={(e) => setRoutine({ ...routine, name: e.target.value })}
+            value={routine.title}
+            onChange={(e) => setRoutine({ ...routine, title: e.target.value })}
           />
         </Form.Group>
         <Form.Group className="mb-4">
@@ -191,8 +192,9 @@ export default function GymRoutineForm({isCustomParam, userIdParam}) {
                         }}
                       >
                         {ex.exerciseIds.length > 1
-                          ? `${ex.name} - ${ex.series} series de ${ex.repetitions} repeticiones, descanso: ${ex.rest}s (Combinado)`
-                          : `${ex.name} - ${ex.series} series de ${ex.repetitions} repeticiones, descanso: ${ex.rest}s`}
+                          ? `${ex.name} - ${ex.series} series de ${ex.repetitionsPerSeries.join(',')} repeticiones, descanso: ${ex.rest}s (Combinado)`
+                          : `${ex.name} - ${ex.series} series de ${ex.repetitionsPerSeries.join(',')} repeticiones, descanso: ${ex.rest}s`}
+
                         <Button
                           variant="danger"
                           size="sm"
@@ -222,77 +224,7 @@ export default function GymRoutineForm({isCustomParam, userIdParam}) {
         </Button>
       </div>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Agregar Ejercicio para {selectedDay.name}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={(e) => e.preventDefault()}>
-            <Form.Group className="mb-2">
-              <Form.Control
-                type="text"
-                placeholder="Buscar ejercicio"
-                value={search}
-                onChange={handleSearch}
-              />
-            </Form.Group>
-            {search && (
-              <ListGroup>
-                {filteredExercises.map((ex, index) => (
-                  <ListGroup.Item key={index} action onClick={() => handleSelectExercise(ex)}>
-                    {ex.name}
-                  </ListGroup.Item>
-                ))}
-              </ListGroup>
-            )}
-            <div className="mt-3">
-              <h6>Ejercicios Seleccionados:</h6>
-              <ListGroup>
-                {selectedExercises.map((ex, idx) => (
-                  <ListGroup.Item key={idx} className="d-flex justify-content-between">
-                    {ex.name}
-                    <Button variant="danger" size="sm" onClick={() => handleRemoveExercise(ex)}>
-                      Eliminar
-                    </Button>
-                  </ListGroup.Item>
-                ))}
-              </ListGroup>
-            </div>
-            <Form.Group className="mt-3">
-              <Form.Control
-                type="number"
-                placeholder="Series"
-                value={exercise.series}
-                onChange={(e) => setExercise({ ...exercise, series: e.target.value })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Control
-                type="number"
-                placeholder="Repeticiones"
-                value={exercise.repetitions}
-                onChange={(e) => setExercise({ ...exercise, repetitions: e.target.value })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <Form.Control
-                type="number"
-                placeholder="Descanso (segundos)"
-                value={exercise.rest}
-                onChange={(e) => setExercise({ ...exercise, rest: e.target.value })}
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Cancelar
-          </Button>
-          <Button variant="primary" onClick={handleSaveExercise}>
-            Guardar
-          </Button>
-        </Modal.Footer>
-      </Modal>
+<AddExerciseToRoutine exercise={exercise} filteredExercises={filteredExercises} handleRemoveExercise={handleRemoveExercise} handleSaveExercise={handleSaveExercise} handleSearch={handleSearch} handleSelectExercise={handleSelectExercise} search={search} selectedDay={selectedDay} selectedExercises={selectedExercises} setExercise={setExercise} setShowModal={setShowModal} showModal={showModal}/>
     </div>
   );
 }

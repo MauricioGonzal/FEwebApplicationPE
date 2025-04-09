@@ -208,14 +208,14 @@ const ClientGymDashboard = () => {
                         ⚠️ Tienes una cuota vencida. Por favor, regulariza tu pago.
                     </div>
                 )}
-                {routine.length === 0 && (
+                {routine.length === 0 ? (
                     <div className="container d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
                         <div className="text-center p-5 border rounded shadow-lg" style={{ backgroundColor: "#333" }}>
                             <h4 className="text-danger fw-bold">🚨 No tienes una rutina asignada</h4>
                             <p className="text-muted">Por favor, contacta a tu entrenador para obtener una.</p>
                         </div>
                     </div>
-                )}
+                ):
     
                 <div className="container mt-4" style={{ backgroundColor: "#121212", paddingBottom: "20px", borderRadius: "10px" }}>
                     <div className="row">
@@ -322,7 +322,7 @@ const ClientGymDashboard = () => {
                         })}
                     </div>
                 </div>
-    
+    }
                 <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
             </div>
         </div>
