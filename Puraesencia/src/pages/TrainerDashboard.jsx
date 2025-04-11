@@ -30,7 +30,7 @@ const TrainerDashboard = () => {
     useEffect(() => {
         const token = localStorage.getItem("token");
         const decoded = jwtDecode(token);
-        api.get(`/users/${decoded.id}/clients`)
+        api.get(`/user/${decoded.id}/clients`)
             .then((response) => {
                 setStudents(response.data);
                 setFilteredStudents(response.data);
@@ -40,7 +40,7 @@ const TrainerDashboard = () => {
     }, [refresh]);
 
     useEffect(() => {
-        api.get("/users/getAllGymUsers")
+        api.get("/user/getAllGymUsers")
             .then((response) => {
                 setAllStudents(response.data);
                 setFilteredAllStudents(response.data);
@@ -56,7 +56,7 @@ const TrainerDashboard = () => {
 
     const handleDelete = () => {
         if(selectedRoutine.isCustom){
-            api.delete(`/routines/${selectedRoutine.id}`)
+            api.delete(`/routine/${selectedRoutine.id}`)
             .then(() => {
               toast.success("Rutina eliminada correctamente", {
                 position: "top-right", // Ahora directamente como string
@@ -75,7 +75,7 @@ const TrainerDashboard = () => {
             });
         }
         else{
-            api.put(`/routines/unassign/${selectedRoutine.id}`)
+            api.put(`/routine/unassign/${selectedRoutine.id}`)
             .then(() => {
               toast.success("Rutina desasignada correctamente", {
                 position: "top-right", // Ahora directamente como string
@@ -104,7 +104,7 @@ const TrainerDashboard = () => {
 
     const handleView = (routine) => {
         // Cargar rutina
-        api.get('/routines/routine-set/' + routine.id)
+        api.get('/routine/routine-set/' + routine.id)
         .then(response => {
             setSelectedRoutineDetails(response.data);
             setShowRoutineModal(true);

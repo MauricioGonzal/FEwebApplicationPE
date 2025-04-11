@@ -35,7 +35,7 @@ const AdminClassesDashboard = (refreshClassSchedule) => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const decoded = jwtDecode(token);
-    api.get(`/schedule/getByUser/${decoded.id}`)
+    api.get(`/class-schedule/getByUser/${decoded.id}`)
       .then((response) => {
         setClassScheduleItem(response.data);
       })
@@ -43,7 +43,7 @@ const AdminClassesDashboard = (refreshClassSchedule) => {
   }, []); // Este useEffect solo se ejecuta una vez, cuando el componente se monta
   
   useEffect(() => {
-    api.get('/users/getAllByRole/teacher')
+    api.get('/user/getAllByRole/teacher')
       .then((response) => {
         setInstructors(response.data);
       })
@@ -51,7 +51,7 @@ const AdminClassesDashboard = (refreshClassSchedule) => {
   }, []); // Este useEffect solo se ejecuta una vez, cuando el componente se monta
   
   useEffect(() => {
-    api.get('/classTypes')
+    api.get('/class-type')
       .then((response) => {
         setClassTypes(response.data);
       })
@@ -67,7 +67,7 @@ const AdminClassesDashboard = (refreshClassSchedule) => {
   
     console.log(classScheduleItem);
   
-    api.get('/schedule/' + classScheduleItem?.id + '/sessions')
+    api.get('/class-schedule/' + classScheduleItem?.id + '/sessions')
       .then((response) => {
         const formattedSchedule = daysOfWeek.reduce((acc, day) => {
           acc[day] = response.data.filter(session => session.dayOfWeek === day);
@@ -92,7 +92,7 @@ const AdminClassesDashboard = (refreshClassSchedule) => {
         teacher: selectedInstructor.value
     };
 
-    api.post('/schedule/' + classScheduleItem?.id +'/sessions', session)
+    api.post('/class-schedule/' + classScheduleItem?.id +'/sessions', session)
         .then((response) => {
             toast.success("Sesión creada correctamente", {
                 position: "top-right", // Ahora directamente como string
@@ -115,7 +115,7 @@ const AdminClassesDashboard = (refreshClassSchedule) => {
   const createClassSchedule = () => {
     const token = localStorage.getItem("token");
     const decoded = jwtDecode(token);
-    api.post('/schedule/createByUser/' + decoded.id)
+    api.post('/class-schedule/createByUser/' + decoded.id)
         .then((response) => {
             toast.success("Grilla creada correctamente", {
                 position: "top-right", // Ahora directamente como string

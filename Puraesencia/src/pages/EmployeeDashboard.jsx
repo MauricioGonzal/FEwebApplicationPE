@@ -31,25 +31,25 @@ const EmployeeDashboard = () => {
 
 
     useEffect(() => {
-        api.get('/users/getAllByRole/clients')
+        api.get('/user/getAllByRole/clients')
             .then((response) =>{ 
                 setUsers(response.data)}
             )
             .catch((error) => console.error("Error al obtener usuarios", error));
 
-        api.get('/payment-methods')
+        api.get('/payment-method')
             .then((response) =>{ 
                 setPaymentTypes(response.data);
             })
             .catch((error) => console.error("Error al obtener medios de pago", error));
 
-        api.get('/products')
+        api.get('/product')
             .then((response) =>{ 
                 setProducts(response.data);
             })
             .catch((error) => console.error("Error al obtener medios de pago", error));
 
-        api.get('/transaction-categories')
+        api.get('/transaction-category')
             .then((response) =>{ 
                 setTransactionCategories(response.data);
             })
@@ -64,7 +64,7 @@ const EmployeeDashboard = () => {
     }, []);
 
     useEffect(() => {
-        api.get('/transactions/today')
+        api.get('/transaction/today')
             .then((response) => {
                 setTransactions(response.data);
             })
@@ -84,7 +84,7 @@ const EmployeeDashboard = () => {
             quantity: quantity
         };
 
-        api.post('/transactions', newTransaction)
+        api.post('/transaction', newTransaction)
             .then((response) => {
                 setShowErrorModal(false);  // Cerrar modal en caso de éxito            
                 setComment("");

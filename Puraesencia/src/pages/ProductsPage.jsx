@@ -31,7 +31,7 @@ const ProductPage = () => {
   const navigate = useNavigate();
   useEffect(() => {
     api
-      .get("/payment-methods")
+      .get("/payment-method")
       .then((response) => {
         setPaymentTypes(response.data);
       })
@@ -44,7 +44,7 @@ const ProductPage = () => {
     setLoading(true);
 
     api
-      .get("/products/price-and-stock")
+      .get("/product/price-and-stock")
       .then((response) => {
         setProducts(response.data);
       })
@@ -66,7 +66,7 @@ const ProductPage = () => {
       stock: stock,
       prices: prices,  // El objeto con los precios por medio de pago
     };
-    api.post('/products/create-product-stock-price', newProductRequest)
+    api.post('/product/create-product-stock-price', newProductRequest)
       .then((response) => {
         toast.success("Producto creado correctamente", {
           position: "top-right", // Ahora directamente como string
@@ -94,7 +94,7 @@ const ProductPage = () => {
 
   const handleSaveEdit = (updatedPriceLists) => {
     api
-      .put(`/pricelists/updatePriceLists`, updatedPriceLists)
+      .put(`/price-list/updatePriceLists`, updatedPriceLists)
       .then((response) => {
         setShowEditModal(false);
         toast.success("Monto actualizado correctamente", { position: "top-right" });
@@ -125,7 +125,7 @@ const ProductPage = () => {
 
   const handleDeleteProduct = () => {
     api
-      .post(`/products/delete-product-stock-price`, item)
+      .post(`/product/delete-product-stock-price`, item)
       .then(() => {
         setRefresh(prev => !prev);
         toast.success("Producto eliminado exitosamente");

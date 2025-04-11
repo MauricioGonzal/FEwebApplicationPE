@@ -17,7 +17,7 @@ const StudentRow = () => {
     const [selectedRoutineDetails, setSelectedRoutineDetails] = useState(null);
 
     useEffect(() => {
-        api.get("/routines/nocustom")
+        api.get("/routine/nocustom")
             .then((response) => {
                 const grouped = response.data.reduce((acc, routineSet) => {
                     const { routine } = routineSet;
@@ -39,7 +39,7 @@ const StudentRow = () => {
         if (!selectedRoutine) return;
         const token = localStorage.getItem("token");
         const decoded = jwtDecode(token);
-        api.put("/users/assign-routine", {
+        api.put("/user/assign-routine", {
             trainerId: decoded.id,
             userId: id,
             routineId: selectedRoutine,

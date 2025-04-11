@@ -18,7 +18,7 @@ const FixedExpensesPage = () => {
 
   const fetchExpenses = () => {
     api
-      .get("/fixed-expenses")
+      .get("/fixed-expense")
       .then((response) => {
         setExpenses(response.data);
       })
@@ -39,7 +39,7 @@ const FixedExpensesPage = () => {
     e.preventDefault();
     if (formData.id) {
       api
-        .put(`/fixed-expenses/${formData.id}`, formData)
+        .put(`/fixed-expense/${formData.id}`, formData)
         .then(() => {
           fetchExpenses();
           resetForm();
@@ -48,7 +48,7 @@ const FixedExpensesPage = () => {
         .catch((error) => console.error('Error actualizando gasto', error));
     } else {
       api
-        .post("/fixed-expenses", formData)
+        .post("/fixed-expense", formData)
         .then(() => {
           fetchExpenses();
           resetForm();
@@ -72,7 +72,7 @@ const FixedExpensesPage = () => {
   const handleDelete = (id) => {
     if (window.confirm("¿Seguro que deseas eliminar este gasto?")) {
       api
-        .delete(`/fixed-expenses/${id}`)
+        .delete(`/fixed-expense/${id}`)
         .then(() => {
           fetchExpenses();
           toast.success("Gasto eliminado correctamente", { position: "top-right" });

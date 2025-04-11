@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Modal, Button, Form, ListGroup } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import jwtDecode from 'jwt-decode';
 import api from '../Api';
@@ -37,7 +37,7 @@ export default function GymRoutineForm({ isCustomParam, userIdParam }) {
 
     if (routineId) {
       api
-        .get(`/routines/id/${routineId}`)
+        .get(`/routine/id/${routineId}`)
         .then((response) => {
           // Agrupar ejercicios por día (day_number)
           var formatted = response.data.map((exerciseSet)=>{
@@ -71,7 +71,7 @@ export default function GymRoutineForm({ isCustomParam, userIdParam }) {
 
   useEffect(() => {
     api
-      .get("/exercises")
+      .get("/exercise")
       .then((response) => {
         setExercises(response.data);
       })
@@ -143,12 +143,12 @@ export default function GymRoutineForm({ isCustomParam, userIdParam }) {
 
     console.log(routineFormatted);
 
-    api.put(`/routines/${routineId}`, routineFormatted)
+    api.put(`/routine/${routineId}`, routineFormatted)
       .then((response) => {
         if (userId !== undefined && parseInt(userId) !== 0) {
           const token = localStorage.getItem('token');
           const decoded = jwtDecode(token);
-          api.put(`/users/assign-routine`, {
+          api.put(`/user/assign-routine`, {
             trainerId: decoded.id,
             userId: userId,
             routineId: response.data.id

@@ -16,7 +16,7 @@ const PriceList = () => {
   // Cargar precios desde el backend
   useEffect(() => {
     api
-      .get("/pricelists/payments")
+      .get("/price-list/payments")
       .then((response) => {
         setPrices(response.data);
       })
@@ -27,7 +27,7 @@ const PriceList = () => {
 
   const handleAddPrice = (newPrice) => {
     api
-      .post("/pricelists", newPrice)
+      .post("/price-list", newPrice)
       .then((response) => {
         setShowErrorModal(false);
         setPrices([...prices, response.data]);
@@ -53,7 +53,7 @@ const PriceList = () => {
     if (!selectedPrice || newAmount === "") return;
 
     api
-      .put(`/pricelists/${selectedPrice.id}/updateAmount`, newAmount)
+      .put(`/price-list/${selectedPrice.id}/updateAmount`, newAmount)
       .then((response) => {
         setShowEditModal(false);
         setPrices(prices.map((p) => (p.id === selectedPrice.id ? response.data : p)));

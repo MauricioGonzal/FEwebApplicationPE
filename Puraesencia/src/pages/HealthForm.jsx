@@ -22,7 +22,7 @@ const HealthForm = () => {
   useEffect(() => {
     if (!userId) return;
 
-    api.get(`/users/getById/${userId}`)
+    api.get(`/user/getById/${userId}`)
       .then(response => {
         setUser(response.data);
       })
@@ -38,7 +38,7 @@ const HealthForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
   
-    api.post(`/health-records/create/${userId}`, formData)
+    api.post(`/health-record/create/${userId}`, formData)
       .then(response => {
         toast.success("Ficha de salud creada con éxito!", {
           position: "top-right", // Ahora directamente como string

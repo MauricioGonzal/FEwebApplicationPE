@@ -20,7 +20,7 @@ const ClassesPage = ({setRefreshClassSchedule}) => {
   const [showModal, setShowModal] = useState(false);
 
 useEffect(() => {
-    api.get('/classTypes')
+    api.get('/class-type')
         .then((response) =>{ 
             setClasses(response.data);
         })
@@ -30,7 +30,7 @@ useEffect(() => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    api.post('/classTypes', {
+    api.post('/class-type', {
         name: name,
     })
     .then((response) =>{ 
@@ -53,7 +53,7 @@ useEffect(() => {
 
   const handleDeleteClass = () => {
 
-    api.delete(`/classTypes/${selectedClass.id}`)
+    api.delete(`/class-type/${selectedClass.id}`)
       .then(() => {
         setRefresh(prev => !prev); // Refresca el estado después de eliminar
         toast.success("Clase eliminada exitosamente");

@@ -31,25 +31,25 @@ const AdminDashboard = () => {
     const [selectedTransactionCategory, setSelectedTransactionCategory] = useState(null);
 
     useEffect(() => {
-        api.get('/users/getAllByRole/client')
+        api.get('/user/getAllByRole/client')
             .then((response) =>{ 
                 setUsers(response.data)}
             )
             .catch((error) => console.error("Error al obtener usuarios", error));
 
-        api.get('/payment-methods')
+        api.get('/payment-method')
             .then((response) =>{ 
                 setPaymentTypes(response.data);
             })
             .catch((error) => console.error("Error al obtener medios de pago", error));
 
-        api.get('/products')
+        api.get('/product')
             .then((response) =>{ 
                 setProducts(response.data);
             })
             .catch((error) => console.error("Error al obtener medios de pago", error));
 
-        api.get('/transaction-categories')
+        api.get('/transaction-category')
             .then((response) =>{ 
                 setTransactionCategories(response.data);
             })
@@ -64,7 +64,7 @@ const AdminDashboard = () => {
     }, []);
 
     useEffect(() => {
-        api.get('/transactions/today')
+        api.get('/transaction/today')
             .then((response) => {
                 setTransactions(response.data);
                 calcularTotalCaja(response.data);
@@ -85,7 +85,7 @@ const AdminDashboard = () => {
             quantity: quantity
         };
 
-        api.post('/transactions', newTransaction)
+        api.post('/transaction', newTransaction)
             .then((response) => {
                 setShowErrorModal(false);  // Cerrar modal en caso de éxito            
                 setComment("");

@@ -17,7 +17,7 @@ const PriceForm = ({ onAddPrice }) => {
 
   useEffect(() => {
     api
-      .get("/transaction-categories/payments")
+      .get("/transaction-category/payments")
       .then((response) => {
         setCategories(response.data);
       })
@@ -26,7 +26,7 @@ const PriceForm = ({ onAddPrice }) => {
       });
 
     api
-      .get("/payment-methods")
+      .get("/payment-method")
       .then((response) => {
         setPaymentTypes(response.data);
       })

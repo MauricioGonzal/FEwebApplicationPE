@@ -44,7 +44,7 @@ const CreateExercise = () => {
   // Manejo del envío del formulario de creación
   const handleSubmit = (e) => {
     e.preventDefault();
-    api.post('/exercises/create', {
+    api.post('/exercise/create', {
       name: exercise.name,
       description: exercise.description,
       url: exercise.url 
@@ -65,7 +65,7 @@ const CreateExercise = () => {
 
   // Cargar los ejercicios desde el endpoint
   const loadExercises = () => {
-    api.get('/exercises')
+    api.get('/exercise')
       .then((response) => {
         setExercises(response.data);
       })
@@ -76,7 +76,7 @@ const CreateExercise = () => {
 
   // Eliminar un ejercicio
   const handleDelete = () => {
-    api.delete(`/exercises/${item.id}`)
+    api.delete(`/exercise/${item.id}`)
       .then(() => {
         toast.success("Ejercicio eliminado correctamente", {
           position: "top-right",
@@ -122,7 +122,7 @@ const CreateExercise = () => {
   const handleEditSubmit = (e) => {
     e.preventDefault();
     if (selectedExercise) {
-      api.put(`/exercises/${selectedExercise.id}`, {
+      api.put(`/exercise/${selectedExercise.id}`, {
         name: selectedExercise.name,
         url: selectedExercise.url,
         description: selectedExercise.description  // Agregado campo description

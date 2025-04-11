@@ -19,7 +19,7 @@ export default function RoutineList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get("/routines/nocustom")
+    api.get("/routine/nocustom")
       .then((response) => {
         const grouped = response.data.reduce((acc, routineSet) => {
           const { routine } = routineSet;
@@ -50,7 +50,7 @@ export default function RoutineList() {
   };
 
   const handleDelete = () => {
-    api.delete(`/routines/${selectedRoutine.id}`)
+    api.delete(`/routine/${selectedRoutine.id}`)
       .then(() => {
         toast.success("Rutina eliminada correctamente", {
           position: "top-right", // Ahora directamente como string

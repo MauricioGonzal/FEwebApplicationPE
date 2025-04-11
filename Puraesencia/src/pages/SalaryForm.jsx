@@ -29,7 +29,7 @@ const CreateSalary = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get('/users/getForSalary')
+    api.get('/user/getForSalary')
       .then((response) => {
         setUsers(response.data);
       })
@@ -37,7 +37,7 @@ const CreateSalary = () => {
   }, []);
 
   useEffect(() => {
-    api.get('/salaries')
+    api.get('/salary')
       .then((response) => {
         setSalaries(response.data);
       })
@@ -60,7 +60,7 @@ const CreateSalary = () => {
     e.preventDefault();
     setMessage(null);
     setError(null);
-    api.post(`/salaries?userId=100&amount=${amount}`)
+    api.post(`/salary?userId=100&amount=${amount}`)
       .then(() => {
         toast.success("Salario creado correctamente", { position: "top-right" });
         setUser("");
@@ -85,7 +85,7 @@ const CreateSalary = () => {
   };
 
   const handleDeleteSalary = () => {
-    api.delete(`/salaries/${selectedSalary.id}`)
+    api.delete(`/salary/${selectedSalary.id}`)
       .then(() => {
         setRefresh(prev => !prev); // Refresca el estado después de eliminar
         toast.success("Salario eliminado exitosamente");
@@ -117,7 +117,7 @@ const CreateSalary = () => {
     if (!selectedSalary || newAmount === "") return;
 
     api
-      .put(`/salaries/${selectedSalary.id}/updateAmount`, newAmount)
+      .put(`/salary/${selectedSalary.id}/updateAmount`, newAmount)
       .then((response) => {
         setShowEditModal(false);
         setRefresh(prev => !prev); // Cambia refresh para disparar el useEffect

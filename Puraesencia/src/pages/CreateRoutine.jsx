@@ -35,7 +35,7 @@ export default function GymRoutineForm({isCustomParam, userIdParam}) {
 
   useEffect(() => {
     api
-      .get("/exercises")
+      .get("/exercise")
       .then((response) => {
         setExercises(response.data);
       })
@@ -103,12 +103,12 @@ export default function GymRoutineForm({isCustomParam, userIdParam}) {
     }
     routineFormatted.isCustom = customAux;
 
-    api.post('/routines', routineFormatted)
+    api.post('/routine', routineFormatted)
       .then((response) => {
         if (userId !== undefined) {
           const token = localStorage.getItem('token');
           const decoded = jwtDecode(token);
-          api.put(`/users/assign-routine`, {
+          api.put(`/user/assign-routine`, {
             trainerId: decoded.id,
             userId: userId,
             routineId: response.data.id

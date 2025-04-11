@@ -8,7 +8,7 @@ const Routines = () => {
     // Obtener rutinas desde el backend
     const fetchRoutines = async () => {
       try {
-        const response = await api.get('/routines');
+        const response = await api.get('/routine');
         setRoutines(response.data);
       } catch (error) {
         console.error('Error fetching routines:', error);

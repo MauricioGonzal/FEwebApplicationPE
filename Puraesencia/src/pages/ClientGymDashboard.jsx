@@ -67,7 +67,7 @@ const ClientGymDashboard = () => {
         const decoded = jwtDecode(token);
         
         // Verificar estado de pago
-        api.get(`/payments/overduePayments/${decoded.id}`)
+        api.get(`/payment/overduePayments/${decoded.id}`)
             .then(response => {
                 if (response.data.length > 0) {
                     setHasPendingPayment(true);
@@ -83,7 +83,7 @@ const ClientGymDashboard = () => {
         const decoded = jwtDecode(token);
 
         // Cargar rutina
-        api.get(`/users/${decoded.id}/routine`)
+        api.get(`/user/${decoded.id}/routine`)
             .then(response => {
                 setRoutine(response.data);
                 setLoading(false);
@@ -92,7 +92,7 @@ const ClientGymDashboard = () => {
     }, [refresh]);
 
     useEffect(() => {
-        api.get("/exercises")
+        api.get("/exercise")
             .then(response => {
                 setExercises(response.data);
             })
@@ -178,7 +178,7 @@ const ClientGymDashboard = () => {
             note: sessionData[selectedExercise]?.notes
         };
     
-        api.post("/workout-sessions", workoutSession)
+        api.post("/workout-session", workoutSession)
             .then(() => {
                 toast.success("Sesión creada correctamente");
                 setSessionData({});
@@ -221,7 +221,7 @@ const ClientGymDashboard = () => {
                     <div className="row">
                         {daysOfWeek.map((day) => {
                             const dayExercises = routine.filter(r => r.dayNumber === day.index);
-    
+                            console.log(dayExercises);
                             return (
                                 <div key={day.index} className="col-md-6 mb-3">
                                     <div className="card p-3 shadow-lg" style={{ backgroundColor: '#1e1e1e', borderRadius: '12px' }}>
@@ -259,7 +259,10 @@ const ClientGymDashboard = () => {
       })
       .filter(Boolean)
       .join(" + ")}{" "}
-    - {exercise.series} series de {exercise.repetitions} repeticiones, descanso: {exercise.rest}s
+      
+    -       {exercise.series} series de {
+          exercise.repetitionsPerSeries.join(', ')
+      } repeticiones, descanso: {exercise.rest}s
   </span>
 
   {expandedExercises[exercise.id] && (

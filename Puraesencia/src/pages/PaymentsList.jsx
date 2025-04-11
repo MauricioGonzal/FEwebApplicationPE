@@ -10,7 +10,7 @@ const PaymentsList = () => {
 
   useEffect(() => {
     api
-      .get("/payments/getbystatus/transaction/pagado")
+      .get("/payment/getbystatus/transaction/pagado")
       .then((response) => {
         setInstallments(response.data);
         setLoading(false);

@@ -22,7 +22,7 @@ export default function WorkoutHistory() {
     const decoded = jwtDecode(token);
     const userId = decoded.id;
 
-    api.get(`/workout-sessions/${userId}`)
+    api.get(`/workout-session/${userId}`)
       .then((response) => {
         if (response.data.length > 0) {
           console.log(response.data);

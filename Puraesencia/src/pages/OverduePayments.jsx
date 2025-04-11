@@ -10,7 +10,7 @@ const OverduePayments = () => {
     const [searchDay, setSearchDay] = useState("");
     
     useEffect(() => {
-        api.get("/payments/getbystatus/pendiente")
+        api.get("/payment/getbystatus/pendiente")
             .then(response => {
                 setPayments(response.data.sort((a, b) => new Date(a.dueDate).getDate() - new Date(b.dueDate).getDate()));
                 setFilteredPayments(response.data);

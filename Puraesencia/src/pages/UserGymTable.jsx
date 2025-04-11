@@ -22,7 +22,7 @@ const UserGymAttendance = () => {
     const [attendancesToday, setAttendancesToday] = useState([]);
 
     useEffect(() => {
-        api.get("/users/getAllGymUsers")
+        api.get("/user/getAllGymUsers")
             .then((response) => setUsers(response.data))
             .catch((error) => console.error("Error al obtener usuarios", error));
     }, []);
@@ -38,7 +38,7 @@ const UserGymAttendance = () => {
 
 
     const handleMarkAttendance = (userId) => {
-        api.get("/payments/isOutDueDate/" + userId)
+        api.get("/payment/isOutDueDate/" + userId)
         .then((response) => {
             if (response.data) { // Asegura que funcione con true, "true" o cualquier truthy
                 setSelectedUserForDueDate(userId); // Guardar el usuario para actualizar la cuota
@@ -89,7 +89,7 @@ const UserGymAttendance = () => {
 
     const handleUpdateDueDate = () => {
         if (selectedUserForDueDate) {
-            api.put(`/payments/updateDueDate/${selectedUserForDueDate}`, { dueDate })
+            api.put(`/payment/updateDueDate/${selectedUserForDueDate}`, { dueDate })
                 .then(() => {
                     toast.success("Fecha de vencimiento actualizada con éxito", {
                         position: "top-right", // Ahora directamente como string

@@ -33,7 +33,7 @@ export default function ChangePasswordForm() {
     const token = localStorage.getItem("token");
     const decoded = jwtDecode(token);
 
-    api.post('/users/change-password', {
+    api.post('/user/change-password', {
       userId: decoded.id,
       currentPassword: form.currentPassword,
       newPassword: form.newPassword

@@ -20,7 +20,7 @@ const UserTable = () => {
   const [editUserData, setEditUserData] = useState({ fullName: "", email: "", role: "" });
 
   useEffect(() => {
-    api.get("/users")
+    api.get("/user")
       .then((response) => setUsers(response.data))
       .catch((error) => console.error("Error al obtener usuarios", error));
   }, [refresh]);
@@ -38,7 +38,7 @@ const UserTable = () => {
 
   const handleDeleteUser = () => {
     if (selectedUser) {
-      api.delete(`/users/${selectedUser.id}`)
+      api.delete(`/user/${selectedUser.id}`)
         .then(() => {
           toast.success("Usuario eliminado correctamente", { position: "top-right" });
           setRefresh((prev) => !prev);
@@ -59,7 +59,7 @@ const UserTable = () => {
   };
 
   const handleSaveEdit = () => {
-    api.put(`/users/${selectedUser.id}`, editUserData)
+    api.put(`/user/${selectedUser.id}`, editUserData)
       .then(() => {
         toast.success("Usuario actualizado correctamente", { position: "top-right" });
         setRefresh((prev) => !prev);

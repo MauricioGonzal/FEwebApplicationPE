@@ -35,7 +35,7 @@ const MembershipsPage = () => {
       .then((response) => setAreas(response.data))
       .catch((error) => console.error("Error al obtener áreas", error));
 
-    api.get("/payment-methods")
+    api.get("/payment-method")
       .then((response) => setPaymentMethods(response.data))
       .catch((error) => console.error("Error al obtener métodos de pago", error));
   }, []);

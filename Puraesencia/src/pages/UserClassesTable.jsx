@@ -23,7 +23,7 @@ const UserClassAttendance = () => {
     const [refresh, setRefresh] = useState(false);
 
     useEffect(() => {
-        api.get("/users/getAllClassesUsers")
+        api.get("/user/getAllClassesUsers")
             .then((response) => {setUsers(response.data)})
             .catch((error) => console.error("Error al obtener usuarios", error));
     }, []);
@@ -60,7 +60,7 @@ const UserClassAttendance = () => {
     };
 
     useEffect(() => {
-        api.get("/classTypes/onSchedule")
+        api.get("/class-type/onSchedule")
             .then((response) => setClasses(response.data))
             .catch((error) => console.error("Error al obtener clases", error));
     }, []);

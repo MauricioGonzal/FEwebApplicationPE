@@ -50,7 +50,7 @@ const ClientClassesDashboard = () => {
     if (!token) return;
 
     const decoded = jwtDecode(token);
-    api.get(`/schedule/getByUser/${decoded.id}`)
+    api.get(`/class-schedule/getByUser/${decoded.id}`)
       .then((response) => {
         setClassScheduleItem(response.data);
       })
@@ -60,7 +60,7 @@ const ClientClassesDashboard = () => {
   const fetchSchedule = useCallback(() => {
     if (!classScheduleItem) return;
     
-    api.get(`/schedule/${classScheduleItem.id}/sessions`)
+    api.get(`/class-schedule/${classScheduleItem.id}/sessions`)
       .then((response) => {
         const formattedSchedule = daysOfWeek.reduce((acc, day) => {
           acc[day] = response.data.filter(session => session.dayOfWeek === day);

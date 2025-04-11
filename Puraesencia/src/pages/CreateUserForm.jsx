@@ -25,7 +25,7 @@ const CreateUserForm = ({setRefresh}) => {
     const token = localStorage.getItem("token");
     const decoded = jwtDecode(token);
 
-    api.post('/users/byAdmin', { fullName, email, password, role: role.toUpperCase(), adminId: decoded.id})
+    api.post('/user/byAdmin', { fullName, email, password, role: role.toUpperCase(), adminId: decoded.id})
       .then(() => {
         toast.success("Usuario creado correctamente", {
           position: "top-right", // Ahora directamente como string

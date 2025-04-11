@@ -15,7 +15,7 @@ export default function WatchRoutine() {
 
   useEffect(() => {
     // Cargar los ejercicios disponibles
-    api.get("/exercises")
+    api.get("/exercise")
       .then((response) => {
         setExercises(response.data);
       })
@@ -24,7 +24,7 @@ export default function WatchRoutine() {
       });
 
     // Cargar la rutina a editar
-    api.get(`/routines/id/${routineId}`)
+    api.get(`/routine/id/${routineId}`)
       .then((response) => {
         const { name, description, isCustom, exercisesByDay } = response.data;
 

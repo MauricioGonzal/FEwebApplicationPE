@@ -6,7 +6,7 @@ const RoutineModal = ({ routine, onClose }) => {
     const [exercises, setExercises] = useState([]);
     useEffect(() => {
         api
-          .get("/exercises")
+          .get("/exercise")
           .then((response) => {
             setExercises(response.data);
           })
