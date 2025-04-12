@@ -44,6 +44,7 @@ import AssistsClasses from './components/AssistsClasses';
 import RoutineTabs from './components/RoutineTabs';
 import MembershipsPage from './pages/MembershipsPage';
 import PaymentTabs from './components/PaymentTabs';
+import Transactions from './pages/Transactions';
 
 function App() {
   return (
@@ -55,7 +56,6 @@ function App() {
         <Route element={<RoleBasedLayout />}>
           <Route path="/admin-dashboard" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
           <Route path="/create-user" element={<PrivateRoute><CreateUserForm /></PrivateRoute>} />
-          <Route path="/create-health-record/:userId" element={<PrivateRoute><HealthForm /></PrivateRoute>} />
           <Route path="/salary" element={<PrivateRoute><CreateSalary /></PrivateRoute>} />
           <Route path="/daily-closures" element={<PrivateRoute><DailyClosures /></PrivateRoute>} />
           <Route path="/user-table" element={<PrivateRoute><UserTable /></PrivateRoute>} />
@@ -93,6 +93,7 @@ function App() {
           <Route path="/routine-tabs" element={<PrivateRoute><RoutineTabs /></PrivateRoute>} />
           <Route path="/memberships" element={<PrivateRoute><MembershipsPage /></PrivateRoute>} />
           <Route path="/payments" element={<PrivateRoute><PaymentTabs /></PrivateRoute>} />
+          <Route path="/transactions" element={<PrivateRoute><Transactions /></PrivateRoute>} />
 
           </Route>
 

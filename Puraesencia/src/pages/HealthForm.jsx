@@ -43,7 +43,7 @@ const HealthForm = () => {
         toast.success("Ficha de salud creada con éxito!", {
           position: "top-right", // Ahora directamente como string
         });
-        navigate('/');
+        navigate("/user-table");
       })
       .catch(error => {
         console.error("Error al guardar ficha de salud", error);

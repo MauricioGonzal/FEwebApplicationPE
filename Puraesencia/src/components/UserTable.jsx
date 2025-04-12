@@ -11,6 +11,8 @@ const UserTable = () => {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
+  const [roles, setRoles] = useState([]);
+
   const [refresh, setRefresh] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -22,6 +24,12 @@ const UserTable = () => {
   useEffect(() => {
     api.get("/user")
       .then((response) => setUsers(response.data))
+      .catch((error) => console.error("Error al obtener usuarios", error));
+  }, [refresh]);
+
+  useEffect(() => {
+    api.get("/user/getRoles")
+      .then((response) => {setRoles(response.data); console.log(response.data)})
       .catch((error) => console.error("Error al obtener usuarios", error));
   }, [refresh]);
 
@@ -137,10 +145,7 @@ const UserTable = () => {
             <Form.Group className="mb-3">
               <Form.Label>Rol</Form.Label>
               <Form.Select value={editUserData.role} onChange={(e) => setEditUserData({ ...editUserData, role: e.target.value })} required>
-                <option value="client">Cliente</option>
-                <option value="trainer">Entrenador</option>
-                <option value="receptionist">Asistente Administrativo</option>
-                <option value="admin">Administrador</option>
+                {roles.map(role => ( <option value= {role} >{role}</option> ))}
               </Form.Select>
             </Form.Group>
           </Form>

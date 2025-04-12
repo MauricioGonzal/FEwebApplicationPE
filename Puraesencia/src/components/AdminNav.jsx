@@ -21,6 +21,7 @@ const AdminNav = () => {
                         <li><button className="dropdown-item" onClick={() => navigate("/memberships")}>Membresías</button></li>
                         <li><button className="dropdown-item" onClick={() => navigate("/classes")}>Clases</button></li>
                         <li><button className="dropdown-item" onClick={() => navigate('/payments')}>Cuotas</button></li>
+                        <li><button className="dropdown-item" onClick={() => navigate('/transactions')}>Transacciones</button></li>
                         <li><button className="dropdown-item" onClick={() => navigate("/daily-closures")}>Cierres Diarios</button></li>
                         <li><button className="dropdown-item" onClick={() => navigate("/monthly-cash-closures")}>Cierres Mensuales</button></li>
                         <li><button className="dropdown-item" onClick={() => navigate("/salary")}>Sueldos</button></li>
