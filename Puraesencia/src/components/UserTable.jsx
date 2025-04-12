@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { Modal, Button, Form} from "react-bootstrap";
 import ErrorModal from "../components/ErrorModal";
 import CreateUserForm from "../pages/CreateUserForm";
+import ConfirmationDeleteModal from "./ConfirmationDeleteModal";
 
 const UserTable = () => {
   const [search, setSearch] = useState("");
@@ -104,18 +105,26 @@ const UserTable = () => {
                 <td>{user.fullName}</td>
                 <td>{user.email}</td>
                 <td>
-                {user.healthRecord === null && (user.role === "CLIENT" || user.role === null) && (
-                          <button
-                            className="btn btn-success btn-sm me-2"
-                            onClick={() =>
-                              navigate("/create-health-record/" + user.id)
-                            }
-                          >
-                            Cargar Ficha de salud
-                          </button>
-                        )}
+                {user.role === "CLIENT" && (
+                  user.healthRecord === null ? (
+                    <button
+                      className="btn btn-success btn-sm me-2"
+                      onClick={() => navigate("/create-health-record/" + user.id)}
+                    >
+                      Cargar Ficha de salud
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-warning btn-sm me-2"
+                      onClick={() => navigate("/edit-health-record/" + user.healthRecord.id)}
+                    >
+                      <FaEdit className="me-1" /> Editar Ficha de salud
+                    </button>
+                  )
+                )}
+
                   <button className="btn btn-warning btn-sm me-2" onClick={() => handleEditUser(user)}>
-                    <FaEdit className="me-1" /> Editar
+                    <FaEdit className="me-1" /> Editar Usuario
                   </button>
                   <button className="btn btn-danger btn-sm" onClick={() => handleShowModal(user)}>
                     <FaTimes className="me-1" /> Eliminar
@@ -144,8 +153,14 @@ const UserTable = () => {
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Rol</Form.Label>
-              <Form.Select value={editUserData.role} onChange={(e) => setEditUserData({ ...editUserData, role: e.target.value })} required>
-                {roles.map(role => ( <option value= {role} >{role}</option> ))}
+              <Form.Select
+                value={editUserData.role}
+                onChange={(e) => setEditUserData({ ...editUserData, role: e.target.value })}
+                required
+              >
+                {roles.map((role, index) => (
+                  <option key={index} value={role}>{role}</option>
+                ))}
               </Form.Select>
             </Form.Group>
           </Form>
@@ -156,24 +171,8 @@ const UserTable = () => {
         </Modal.Footer>
       </Modal>
 
-        {/* MODAL DE CONFIRMACIÓN */}
-        <Modal show={showModal} onHide={() => setShowModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirmar Eliminación</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          ¿Estás seguro de que deseas eliminar al usuario{" "}
-          <strong>{selectedUser?.fullName}</strong>?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Cancelar
-          </Button>
-          <Button variant="danger" onClick={handleDeleteUser}>
-            <FaTimes className="me-1" /> Eliminar
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ConfirmationDeleteModal handleDelete={handleDeleteUser} message={"¿Estás seguro de que deseas eliminar al usuario " + 
+          selectedUser?.fullName + "?"} setShowModal={setShowModal} showModal={showModal}/>
 
       <ErrorModal showErrorModal={showErrorModal} setShowErrorModal={setShowErrorModal} errorMessage={errorMessage} />
     </div>

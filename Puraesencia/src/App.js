@@ -66,6 +66,8 @@ function App() {
           <Route path="/employee-dashboard" element={<PrivateRoute><EmployeeDashboard /></PrivateRoute>} />
           <Route path="/create-user" element={<PrivateRoute><CreateUserForm /></PrivateRoute>} />
           <Route path="/create-health-record/:userId" element={<PrivateRoute><HealthForm /></PrivateRoute>} />
+          <Route path="/edit-health-record/:healthRecordId" element={<PrivateRoute><HealthForm /></PrivateRoute>} />
+
           <Route path="/user-table" element={<PrivateRoute><UserTable /></PrivateRoute>} />
           <Route path="/user-classes-table" element={<PrivateRoute><UserClassAttendance /></PrivateRoute>} />
           <Route path="/user-gym-table" element={<PrivateRoute><UserGymAttendance /></PrivateRoute>} />
