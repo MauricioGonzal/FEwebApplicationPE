@@ -82,6 +82,7 @@ const ClientClassesDashboard = () => {
     const decoded = jwtDecode(token);
     api.get(`/attendance/${decoded.id}/leftattendances`)
       .then((response) => {
+        console.log(response.data)
         setLeftAttendances(response.data);
       })
       .catch((error) => console.error("Error fetching left attendances:", error));

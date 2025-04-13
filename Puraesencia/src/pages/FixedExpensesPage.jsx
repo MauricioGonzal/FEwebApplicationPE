@@ -180,7 +180,7 @@ const FixedExpensesPage = () => {
               <tr key={expense.id}>
                 <td>{expense.name}</td>
                 <td>{expense.monthlyAmount}</td>
-                <td>{expense.startDate}</td>
+                <td>{new Date(expense.startDate + "T00:00:00").toLocaleDateString("es-ES")}</td>
                 <td>{expense.remainingInstallments}</td>
                 <td>{expense.isActive ? 'Sí' : 'No'}</td>
                 <td>

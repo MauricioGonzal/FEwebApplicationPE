@@ -36,24 +36,6 @@ const UserClassAttendance = () => {
             .catch((error) => console.error("Error al obtener asistencias", error));
     }, [refresh]);
 
-    /*const handleMarkAttendance = (userId) => {
-        api.post("/attendance", { userId, attendanceTypeId: 2 })
-            .then((response) => {
-                toast.success("Asistencia registrada con éxito", {
-                    position: "top-right",
-                });
-                setRefresh(prev => !prev);
-            })
-            .catch((error) =>{
-                if (error.response && error.response.data) {
-                    setErrorMessage(error.response.data.message || "Error desconocido");
-                  } else {
-                    setErrorMessage("Error al realizar la solicitud");
-                  }
-                  setShowErrorModal(true);
-            });
-    };*/
-
     const handleOpenClassModal = (user) => {
         setSelectedUser(user);
         setShowClassModal(true);

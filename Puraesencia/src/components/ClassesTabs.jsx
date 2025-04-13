@@ -19,10 +19,10 @@ function ClassesTabs() {
         </Nav>
 
         <Tab.Content className="mt-3">
-          <Tab.Pane eventKey="musculacion">
+          <Tab.Pane eventKey="classes">
             <ClassesPage setRefreshClassSchedule={setRefreshClassSchedule}/>
           </Tab.Pane>
-          <Tab.Pane eventKey="clases">
+          <Tab.Pane eventKey="schedule">
             <AdminScheduleGrid refreshClassSchedule={refreshClassSchedule}/>
           </Tab.Pane>
         </Tab.Content>

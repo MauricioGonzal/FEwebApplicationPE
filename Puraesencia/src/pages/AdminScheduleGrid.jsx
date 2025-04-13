@@ -65,8 +65,6 @@ const AdminClassesDashboard = (refreshClassSchedule) => {
       return;
     }
   
-    console.log(classScheduleItem);
-  
     api.get('/class-schedule/' + classScheduleItem?.id + '/sessions')
       .then((response) => {
         const formattedSchedule = daysOfWeek.reduce((acc, day) => {
@@ -76,7 +74,7 @@ const AdminClassesDashboard = (refreshClassSchedule) => {
         setSchedule(formattedSchedule);
       })
       .catch((error) => console.error("Error fetching schedule:", error));
-  }, [classScheduleItem]); // Este useEffect solo se ejecuta cuando classScheduleItem cambie
+  }, [classScheduleItem, refresh]); // Este useEffect solo se ejecuta cuando classScheduleItem cambie
   
 
   const addClassSession = () => {

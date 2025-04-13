@@ -42,8 +42,8 @@ const PaymentsList = () => {
             {installments.map((installment, index) => (
               <tr key={index}>
                 <td>{installment.payment.user.fullName}</td>
-                <td>{installment.payment.paymentDate}</td>
-                <td>{installment.payment.dueDate}</td>
+                <td>{new Date(installment.payment.paymentDate + "T00:00:00").toLocaleDateString("es-ES")}</td>
+                <td>{new Date(installment.payment.dueDate + "T00:00:00").toLocaleDateString("es-ES")}</td>
                 <td>{installment.payment.membership.name}</td>
                 <td>{installment.transaction.paymentMethod.name}</td>
                 <td>{installment.transaction.amount}</td>
