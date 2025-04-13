@@ -11,10 +11,10 @@ function ClassesTabs() {
       <Tab.Container defaultActiveKey="musculacion">
         <Nav variant="tabs">
           <Nav.Item>
-            <Nav.Link eventKey="musculacion">Clases</Nav.Link>
+            <Nav.Link eventKey="classes">Clases</Nav.Link>
           </Nav.Item>
           <Nav.Item>
-            <Nav.Link eventKey="clases">Grilla</Nav.Link>
+            <Nav.Link eventKey="schedule">Grilla</Nav.Link>
           </Nav.Item>
         </Nav>
 
